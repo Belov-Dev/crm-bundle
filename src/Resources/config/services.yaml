@@ -1,0 +1,5 @@
+services:
+    my.super.service:
+        class: A2Global\CRMBundle\MySuperService
+
+    A2Global\CRMBundle\MySuperService: '@my.super.service'
