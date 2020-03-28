@@ -20,6 +20,7 @@ class FunctionalTest extends TestCase
         $this->assertInstanceOf(MySuperService::class, $mySuperService);
         $this->assertIsScalar($mySuperService->getDate());
     }
+
 }
 
 class A2CRMTestingKernel extends Kernel
