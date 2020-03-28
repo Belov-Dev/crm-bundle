@@ -1,6 +1,6 @@
 <?php
 
-namespace A2Global\CRMBundle\Test;
+namespace A2Global\CRMBundle\Tests\Unit;
 
 use A2Global\CRMBundle\MySuperService;
 use PHPUnit\Framework\TestCase;

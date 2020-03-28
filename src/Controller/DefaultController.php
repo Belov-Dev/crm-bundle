@@ -3,7 +3,9 @@
 namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\MySuperService;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
@@ -22,5 +24,13 @@ class DefaultController extends AbstractController
     {
         return $this->render('@A2CRM/homepage.html.twig', [
         ]);
+    }
+
+    /**
+     * @Route("/manage/heartbeat", name="a2crm_hearbeat")
+     */
+    public function heartbeat()
+    {
+        return new Response(sprintf('Heartbeat: OK [%s]', (new DateTime())->format(DATE_RFC7231)));
     }
 }

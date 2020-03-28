@@ -1,6 +1,6 @@
 <?php
 
-namespace A2Global\CRMBundle\Test;
+namespace A2Global\CRMBundle\Tests\Unit;
 
 use A2Global\CRMBundle\A2CRMBundle;
 use A2Global\CRMBundle\MySuperService;
@@ -20,7 +20,6 @@ class FunctionalTest extends TestCase
         $this->assertInstanceOf(MySuperService::class, $mySuperService);
         $this->assertIsScalar($mySuperService->getDate());
     }
-
 }
 
 class A2CRMTestingKernel extends Kernel
