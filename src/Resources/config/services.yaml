@@ -1,5 +1,6 @@
 services:
-    my.super.service:
+    a2crm.my.super.service:
         class: A2Global\CRMBundle\MySuperService
+        public: true
 
-    A2Global\CRMBundle\MySuperService: '@my.super.service'
+    A2Global\CRMBundle\MySuperService: '@a2crm.my.super.service'

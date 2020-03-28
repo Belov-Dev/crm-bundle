@@ -2,12 +2,17 @@
 
 namespace A2Global\CRMBundle\Test;
 
+use A2Global\CRMBundle\MySuperService;
+use PHPUnit\Framework\TestCase;
+
 class MySuperServiceTest extends TestCase
 {
     public function testGetDate()
     {
-        $myService = new MySuperService();
-        $date = $myService->getDate();
-        $this->assertString($date);
+        $mySuperService = new MySuperService();
+        $date = $mySuperService->getDate();
+        $this->assertNotEmpty($date);
+        $this->assertIsScalar($date);
+        $this->assertStringContainsString('GMT', $date);
     }
 }
