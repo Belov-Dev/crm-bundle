@@ -5,12 +5,16 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-    a2crm.my.super.service:
-        class: A2Global\CRMBundle\MySuperService
-        public: true
+    A2Global\CRMBundle\:
+        resource: '../../*'
+        exclude: '../../{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
     A2Global\CRMBundle\Controller\:
         resource: '../../../src/Controller'
         tags: ['controller.service_arguments']
 
-    A2Global\CRMBundle\MySuperService: '@a2crm.my.super.service'
+    a2crm.modifier.database_schema:
+        class: A2Global\CRMBundle\Modifier\SchemaModifier
+        public: true
+
+    A2Global\CRMBundle\Modifier\SchemaModifier: '@a2crm.modifier.database_schema'

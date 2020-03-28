@@ -3,7 +3,6 @@
 namespace A2Global\CRMBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * @ORM\Entity(repositoryClass="A2Global\CRMBundle\Repository\EntityRepository")
@@ -11,8 +10,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class Entity
 {
-    use TimestampableEntity;
-
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
