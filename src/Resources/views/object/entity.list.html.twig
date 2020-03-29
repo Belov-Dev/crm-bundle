@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-2">
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
@@ -11,9 +11,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for field in fields %}
+                    {% for entity in entities %}
                         <tr>
-                            <td>{{ field.name }}</td>
+                            <td><a href="{{ path('a2crm_object_list', {'objectName': entity.name}) }}">{{ entity.name }}</a></td>
                         </tr>
                     {% endfor %}
                     </tbody>

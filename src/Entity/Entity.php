@@ -5,7 +5,7 @@ namespace A2Global\CRMBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="A2Global\CRMBundle\Repository\EntityRepository")
+ * @ORM\Entity()
  * @ORM\Table(name="a2crm_entities")
  */
 class Entity
@@ -20,7 +20,17 @@ class Entity
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private $nameOriginal;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameReadable;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameReadablePlural;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -30,21 +40,55 @@ class Entity
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $nameUnderScore;
+    private $nameSnakeCase;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameSnakeCasePlural;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $namePascalCase;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getNameOriginal(): ?string
     {
-        return $this->name;
+        return $this->nameOriginal;
     }
 
-    public function setName(string $name): self
+    public function setNameOriginal(string $nameOriginal): self
     {
-        $this->name = $name;
+        $this->nameOriginal = $nameOriginal;
+
+        return $this;
+    }
+
+    public function getNameReadable(): ?string
+    {
+        return $this->nameReadable;
+    }
+
+    public function setNameReadable(string $nameReadable): self
+    {
+        $this->nameReadable = $nameReadable;
+
+        return $this;
+    }
+
+    public function getNameReadablePlural(): ?string
+    {
+        return $this->nameReadablePlural;
+    }
+
+    public function setNameReadablePlural(string $nameReadablePlural): self
+    {
+        $this->nameReadablePlural = $nameReadablePlural;
 
         return $this;
     }
@@ -61,14 +105,38 @@ class Entity
         return $this;
     }
 
-    public function getNameUnderScore(): ?string
+    public function getNameSnakeCase(): ?string
     {
-        return $this->nameUnderScore;
+        return $this->nameSnakeCase;
     }
 
-    public function setNameUnderScore(string $nameUnderScore): self
+    public function setNameSnakeCase(string $nameSnakeCase): self
     {
-        $this->nameUnderScore = $nameUnderScore;
+        $this->nameSnakeCase = $nameSnakeCase;
+
+        return $this;
+    }
+
+    public function getNameSnakeCasePlural(): ?string
+    {
+        return $this->nameSnakeCasePlural;
+    }
+
+    public function setNameSnakeCasePlural(string $nameSnakeCasePlural): self
+    {
+        $this->nameSnakeCasePlural = $nameSnakeCasePlural;
+
+        return $this;
+    }
+
+    public function getNamePascalCase(): ?string
+    {
+        return $this->namePascalCase;
+    }
+
+    public function setNamePascalCase(string $namePascalCase): self
+    {
+        $this->namePascalCase = $namePascalCase;
 
         return $this;
     }

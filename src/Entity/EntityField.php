@@ -5,7 +5,7 @@ namespace A2Global\CRMBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="A2Global\CRMBundle\Repository\EntityFieldRepository")
+ * @ORM\Entity()
  * @ORM\Table(name="a2crm_entity_fields")
  */
 class EntityField
@@ -18,14 +18,50 @@ class EntityField
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\ManyToOne(
+     *     targetEntity="A2Global\CRMBundle\Entity\Entity"
+     * )
+     * @ORM\JoinColumn(
+     *     name="entity_id",
+     *     referencedColumnName="id"
+     * )
      */
-    private $entityId;
+    private $entity;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private $nameOriginal;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameReadable;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameReadablePlural;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameCamelCase;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameSnakeCase;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nameSnakeCasePlural;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $namePascalCase;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -37,31 +73,91 @@ class EntityField
         return $this->id;
     }
 
-    public function getEntityId(): int
+    public function getNameOriginal(): ?string
     {
-        return $this->entityId;
+        return $this->nameOriginal;
     }
 
-    public function setEntityId(int $entityId): self
+    public function setNameOriginal(string $nameOriginal): self
     {
-        $this->entityId = $entityId;
+        $this->nameOriginal = $nameOriginal;
 
         return $this;
     }
 
-    public function getName(): ?string
+    public function getNameReadable(): ?string
     {
-        return $this->name;
+        return $this->nameReadable;
     }
 
-    public function setName(string $name): self
+    public function setNameReadable(string $nameReadable): self
     {
-        $this->name = $name;
+        $this->nameReadable = $nameReadable;
 
         return $this;
     }
 
-    public function getType(): string
+    public function getNameReadablePlural(): ?string
+    {
+        return $this->nameReadablePlural;
+    }
+
+    public function setNameReadablePlural(string $nameReadablePlural): self
+    {
+        $this->nameReadablePlural = $nameReadablePlural;
+
+        return $this;
+    }
+
+    public function getNameCamelCase(): ?string
+    {
+        return $this->nameCamelCase;
+    }
+
+    public function setNameCamelCase(string $nameCamelCase): self
+    {
+        $this->nameCamelCase = $nameCamelCase;
+
+        return $this;
+    }
+
+    public function getNameSnakeCase(): ?string
+    {
+        return $this->nameSnakeCase;
+    }
+
+    public function setNameSnakeCase(string $nameSnakeCase): self
+    {
+        $this->nameSnakeCase = $nameSnakeCase;
+
+        return $this;
+    }
+
+    public function getNameSnakeCasePlural(): ?string
+    {
+        return $this->nameSnakeCasePlural;
+    }
+
+    public function setNameSnakeCasePlural(string $nameSnakeCasePlural): self
+    {
+        $this->nameSnakeCasePlural = $nameSnakeCasePlural;
+
+        return $this;
+    }
+
+    public function getNamePascalCase(): ?string
+    {
+        return $this->namePascalCase;
+    }
+
+    public function setNamePascalCase(string $namePascalCase): self
+    {
+        $this->namePascalCase = $namePascalCase;
+
+        return $this;
+    }
+
+    public function getType(): ?string
     {
         return $this->type;
     }
