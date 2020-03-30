@@ -81,21 +81,27 @@ class EntityCRUDController extends AbstractController
         $entity->setName(StringUtility::normalize($entity->getName()));
 
         if ($isCreating) {
-            $this->entityManager->persist($entity);
             $this->schemaModifier->createTable($entity->getName());
-            $this->entityManager->flush();
+            $this->entityManager->persist($entity);
         } else {
-            $this->entityManager->flush();
             $this->schemaModifier->renameTable($entityNameBefore, $entity->getName());
         }
+        $this->entityManager->flush();
+
+        // Should goes after flush, to generate proxy class with actual data
+        $this->proxyEntityModifier->update($entity);
         $request->getSession()->getFlashBag()->add('success', 'Entity created');
 
         return $this->redirectToRoute('a2crm_entity_list');
     }
 
     /** @Route("/{entity}/field/edit/{entityField}", name="field_edit") */
-    public function entityFieldEdit(Request $request, Entity $entity, EntityField $entityField = null)
+    public function entityFieldEdit(Request $request, Entity $entity, $entityField = null)
     {
+        // todo why entityField is fillled when /edit/ without entity field id?
+        if ($entityField) {
+            $entityField = $this->entityManager->getRepository('A2CRMBundle:EntityField')->find($entityField);
+        }
         $isCreating = is_null($entityField);
         $url = $this->generateUrl('a2crm_entity_field_edit', [
             'entity' => $entity->getId(),

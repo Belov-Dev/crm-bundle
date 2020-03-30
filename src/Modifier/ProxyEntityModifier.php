@@ -4,6 +4,7 @@ namespace A2Global\CRMBundle\Modifier;
 
 use A2Global\CRMBundle\Builder\ProxyEntityBuilder;
 use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Utility\StringUtility;
 
 class ProxyEntityModifier
 {
@@ -32,7 +33,7 @@ class ProxyEntityModifier
         if (!is_writable($directory)) {
             throw new \Exception('Cache subdirectory is not writeable: ' . $directory);
         }
-        $filepath = $directory.'/'.ucfirst($entity->getName()).'.php';
+        $filepath = $directory.'/'.StringUtility::toPascalCase($entity->getName()).'.php';
         file_put_contents($filepath, $this->proxyEntityBuilder->buildForEntity($entity));
         @chmod($filepath, 0664);
     }

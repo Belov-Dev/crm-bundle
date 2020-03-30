@@ -63,12 +63,12 @@ class SchemaModifier
         ));
     }
 
-    static protected function toTableName($string): string
+    static public function toTableName($string): string
     {
         return StringUtility::pluralize(StringUtility::toSnakeCase($string));
     }
 
-    static protected function toFieldName($string): string
+    static public function toFieldName($string): string
     {
         return StringUtility::toSnakeCase($string);
     }

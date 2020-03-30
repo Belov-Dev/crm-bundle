@@ -4,10 +4,18 @@ namespace A2Global\CRMBundle\Builder;
 
 use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
 
+/**
+ * Class ProxyEntityBuilder
+ *
+ * todo: isser
+ *
+ * @package A2Global\CRMBundle\Builder
+ */
 class ProxyEntityBuilder
 {
     const IDENT = "\t";
@@ -52,9 +60,9 @@ class ProxyEntityBuilder
             'use Doctrine\ORM\Mapping as ORM;' . PHP_EOL,
             '/**',
             ' * @ORM\Entity()',
-            ' * @ORM\Table(name="'.StringUtility::pluralize($entity->getName()).'")',
+            ' * @ORM\Table(name="' . SchemaModifier::toTableName($entity->getName()) . '")',
             ' */',
-            'class ' . $entity->getName(),
+            'class ' . StringUtility::toPascalCase($entity->getName()),
             '{' . PHP_EOL,
         ];
     }
@@ -90,6 +98,11 @@ class ProxyEntityBuilder
 
     protected function getFieldElements(EntityField $entityField): array
     {
+        $camelCaseName = StringUtility::toCamelCase($entityField->getName());
+        $pascalCaseName = StringUtility::toPascalCase($entityField->getName());
+
+        // todo: entityfield->getDoctrineAnnotation
+
         $params = [
             'type' => '"' . $entityField->getType() . '"',
             'nullable' => 'true',
@@ -103,17 +116,17 @@ class ProxyEntityBuilder
             '/**',
             ' * @ORM\Column(' . $this->buildParameters($params) . ')',
             ' */',
-            'private $' . $entityField->getName() . ';' . PHP_EOL,
+            'private $' . $camelCaseName . ';' . PHP_EOL,
         ];
 
         $methods = [
-            'public function get' . ucfirst($entityField->getName()) . '()',
+            'public function get' . $pascalCaseName . '()',
             '{',
-            self::IDENT . 'return $this->' . $entityField->getName() . ';',
+            self::IDENT . 'return $this->' . $camelCaseName . ';',
             '}' . PHP_EOL,
-            'public function set' . ucfirst($entityField->getName()) . '($value): self',
+            'public function set' . $pascalCaseName . '($' . $camelCaseName . '): self',
             '{',
-            self::IDENT . '$this->' . $entityField->getName() . ' = $value;' . PHP_EOL,
+            self::IDENT . '$this->' . $camelCaseName . ' = $' . $camelCaseName . ';' . PHP_EOL,
             self::IDENT . 'return $this;',
             '}' . PHP_EOL,
         ];
