@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Modifier;
 
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
+use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
 
 class SchemaModifier
@@ -29,12 +30,14 @@ class SchemaModifier
             )
             DEFAULT CHARACTER SET utf8mb4
             COLLATE utf8mb4_unicode_ci ENGINE = InnoDB
-            ', $name));
+            ', self::toTableName($name)));
     }
 
     public function renameTable($oldName, $newName)
     {
-        $this->connection->executeQuery(sprintf('RENAME TABLE %s TO %s', $oldName, $newName));
+        $this->connection->executeQuery(
+            sprintf('RENAME TABLE %s TO %s', self::toTableName($oldName), self::toTableName($newName))
+        );
     }
 
     public function addField($tableName, $fieldName, $fieldType)
@@ -49,5 +52,10 @@ class SchemaModifier
         $this->connection->executeQuery(sprintf('
             ALTER TABLE %s CHANGE %s %s %s DEFAULT NULL
             ', $tableName, $oldFieldName, $newFieldName, $this->entityFieldRegistry->find($newFieldType)->getMySQLFieldType()));
+    }
+
+    static protected function toTableName($string): string
+    {
+        return StringUtility::pluralize(StringUtility::toSnakeCase($string));
     }
 }

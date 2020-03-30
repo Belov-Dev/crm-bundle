@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Controller;
 
+use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Form\EntityFieldTypeForm;
 use A2Global\CRMBundle\Form\EntityTypeForm;
 use A2Global\CRMBundle\Modifier\ProxyEntityModifier;
@@ -51,8 +52,9 @@ class EntityCRUDController extends AbstractController
     public function entityEdit(Request $request, Entity $entity = null)
     {
         $isCreating = is_null($entity);
+        $url = $this->generateUrl('a2crm_entity_edit', ['entity' => $isCreating ? null : $entity->getId()]);
         $form = $this->createForm(EntityTypeForm::class, $entity, [
-            'action' => $this->generateUrl('a2crm_entity_edit', ['entity' => $isCreating ? null : $entity->getId()]),
+            'action' => $url,
             'csrf_protection' => false,
         ])->add('Submit', SubmitType::class);
 
@@ -63,30 +65,31 @@ class EntityCRUDController extends AbstractController
         }
 
         if (!$isCreating) {
-            $entityNameBefore = $entity->getNameSnakeCasePlural();
+            $entityNameBefore = $entity->getName();
         }
         $form->handleRequest($request);
 
         if (!$form->isSubmitted() || !$form->isValid()) {
             $request->getSession()->getFlashBag()->add('warning', 'data invalid');
 
-            return $this->redirectToRoute('a2crm_entity_edit', ['entity' => $isCreating ? null : $entity->getId()]);
+            return $this->redirect($url);
         }
 
         /** @var Entity $entity */
         $entity = $form->getData();
+        $entity->setName(StringUtility::normalize($entity->getName()));
 
         if ($isCreating) {
             $this->entityManager->persist($entity);
-            $this->schemaModifier->createTable($entity->getNameSnakeCasePlural());
+            $this->schemaModifier->createTable($entity->getName());
             $this->entityManager->flush();
         } else {
             $this->entityManager->flush();
-            $this->schemaModifier->renameTable($entityNameBefore, $entity->getNameSnakeCasePlural());
+            $this->schemaModifier->renameTable($entityNameBefore, $entity->getName());
         }
         $request->getSession()->getFlashBag()->add('success', 'Entity created');
 
-        return $this->redirectToRoute('a2crm_entity_field_list', ['entity' => $isCreating ? null : $entity->getId()]);
+        return $this->redirect($url);
     }
 
     /** @Route("/{entity}/field/list", name="field_list") */

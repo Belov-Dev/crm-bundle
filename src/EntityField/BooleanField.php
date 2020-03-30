@@ -4,12 +4,12 @@ namespace A2Global\CRMBundle\EntityField;
 
 class BooleanField extends AbstractField
 {
-    public function getNameOriginal(): string
+    public function getName(): string
     {
         return 'Boolean';
     }
 
-    public function getNameFriendly(): string
+    public function getFriendlyName(): string
     {
         return 'Boolean: True/False';
     }

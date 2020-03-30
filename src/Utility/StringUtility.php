@@ -2,37 +2,37 @@
 
 namespace A2Global\CRMBundle\Utility;
 
-
-
 use Doctrine\Common\Inflector\Inflector;
 
 class StringUtility
 {
-    public static function variate($original)
+    static public function normalize($string): string
     {
-        $readable = ucfirst(trim(mb_strtolower(preg_replace('/\s{1,}/', ' ', preg_replace('/[^a-zA-Z\d\s]/',' ',$original)))));
-        $snakeCase = mb_strtolower(str_replace(' ', '_', $readable));
-        $camelCase = lcfirst(implode(array_map('ucfirst', explode(' ', $readable))));
-        $pascalCase = ucfirst($camelCase);
+        // remove everything, except letters, numbers and spaces
+        $string = preg_replace('/[^a-zA-Z\d\s]/', ' ', $string);
+        // 'SuperEXTRAString' -> 'Super EXTRA String'
+        $string = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', ' $0', $string);
+        // remove multiply spaces and trim
+        $string = trim(preg_replace('/\s{1,}/', ' ', $string));
+        // lowercase everything, uppercase only first letter
+        $string = ucfirst(mb_strtolower($string));
 
-        return [
-            'readable' => $readable,
-            'snakeCase' => $snakeCase,
-            'snakeCasePlural' => self::pluralize($snakeCase),
-            'camelCase' => $camelCase,
-            'camelCasePlural' => self::pluralize($camelCase),
-            'pascalCase' => $pascalCase,
-        ];
+        return $string;
     }
 
-    public static function camelCaseToSnakeCase($string): string
+    static public function toCamelCase($string): string
     {
-        return ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $string)), '_');
+        return lcfirst(implode(array_map('ucfirst', explode(' ', self::normalize($string)))));
     }
 
-    public static function snakeCaseToCamelCase($string): string
+    static public function toSnakeCase($string): string
     {
-        return implode(array_map('ucfirst', explode(' ', $string)));
+        return mb_strtolower(implode('_', explode(' ', self::normalize($string))));
+    }
+
+    static public function toPascalCase($string): string
+    {
+        return ucfirst(self::toCamelCase($string));
     }
 
     public static function pluralize($string): string

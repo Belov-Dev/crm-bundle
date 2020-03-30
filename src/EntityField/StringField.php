@@ -4,7 +4,7 @@ namespace A2Global\CRMBundle\EntityField;
 
 class StringField extends AbstractField
 {
-    public function getNameOriginal(): string
+    public function getName(): string
     {
         return 'String';
     }

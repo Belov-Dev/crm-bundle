@@ -4,12 +4,12 @@ namespace A2Global\CRMBundle\EntityField;
 
 class IntegerField extends AbstractField
 {
-    public function getNameOriginal(): string
+    public function getName(): string
     {
         return 'Integer';
     }
 
-    public function getNameFriendly(): string
+    public function getFriendlyName(): string
     {
         return 'Number';
     }

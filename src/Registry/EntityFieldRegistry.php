@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Registry;
 
 use A2Global\CRMBundle\EntityField\EntityFieldInterface;
+use A2Global\CRMBundle\Utility\StringUtility;
 
 class EntityFieldRegistry
 {
@@ -42,8 +43,8 @@ class EntityFieldRegistry
         $choices = [];
 
         /** @var EntityFieldInterface $fieldType */
-        foreach ($this->fieldTypes as $fieldType) {
-            $choices[$fieldType->getNameFriendly()] = $fieldType->getNameCamelCase();
+        foreach ($this->fieldTypes as $fieldNameCamelCase => $fieldType) {
+            $choices[$fieldType->getFriendlyName()] = $fieldNameCamelCase;
         }
 
         return $choices;
@@ -53,7 +54,7 @@ class EntityFieldRegistry
     {
         /** @var EntityFieldInterface $fieldType */
         foreach ($fieldTypes as $fieldType) {
-            $this->fieldTypes[$fieldType->getNameCamelCase()] = $fieldType;
+            $this->fieldTypes[StringUtility::toCamelCase($fieldType->getName())] = $fieldType;
         }
     }
 }
