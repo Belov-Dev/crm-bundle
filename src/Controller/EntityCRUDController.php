@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Form\EntityFieldTypeForm;
 use A2Global\CRMBundle\Form\EntityTypeForm;
 use A2Global\CRMBundle\Modifier\ProxyEntityModifier;
@@ -89,17 +90,7 @@ class EntityCRUDController extends AbstractController
         }
         $request->getSession()->getFlashBag()->add('success', 'Entity created');
 
-        return $this->redirect($url);
-    }
-
-    /** @Route("/{entity}/field/list", name="field_list") */
-    public function entityFieldList(Entity $entity)
-    {
-        return $this->render('@A2CRM/entity/entity_field.list.html.twig', [
-            'entity' => $entity,
-            'fields' => $this->entityManager->getRepository('A2CRMBundle:EntityField')
-                ->findBy(['entityId' => $entity->getId()]),
-        ]);
+        return $this->redirectToRoute('a2crm_entity_list');
     }
 
     /** @Route("/{entity}/field/edit/{entityField}", name="field_edit") */
@@ -134,7 +125,10 @@ class EntityCRUDController extends AbstractController
             return $this->redirect($url);
         }
         /** @var EntityField $entityField */
-        $entityField = $form->getData()->setEntityId($entity->getId());
+        $entityField = $form->getData();
+        $entityField
+            ->setName(StringUtility::normalize($entityField->getName()))
+            ->setEntity($entity);
 
         if ($isCreating) {
             $this->schemaModifier->addField($entity->getName(), $entityField->getName(), $entityField->getType());
@@ -148,6 +142,6 @@ class EntityCRUDController extends AbstractController
         $this->proxyEntityModifier->update($entity);
         $request->getSession()->getFlashBag()->add('success', 'Field added');
 
-        return $this->redirectToRoute('a2crm_entity_field_list', ['entity' => $entity->getId()]);
+        return $this->redirectToRoute('a2crm_entity_list');
     }
 }

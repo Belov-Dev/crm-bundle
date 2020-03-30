@@ -2,16 +2,16 @@
 
 namespace A2Global\CRMBundle\Modifier;
 
-use A2Global\CRMBundle\Builder\ProxyEntityBuiler;
+use A2Global\CRMBundle\Builder\ProxyEntityBuilder;
 use A2Global\CRMBundle\Entity\Entity;
 
 class ProxyEntityModifier
 {
-    private $proxyEntityBuiler;
+    private $proxyEntityBuilder;
 
-    public function __construct(ProxyEntityBuiler $proxyEntityBuiler)
+    public function __construct(ProxyEntityBuilder $proxyEntityBuilder)
     {
-        $this->proxyEntityBuiler = $proxyEntityBuiler;
+        $this->proxyEntityBuilder = $proxyEntityBuilder;
     }
 
     public function update(Entity $entity)
@@ -33,7 +33,7 @@ class ProxyEntityModifier
             throw new \Exception('Cache subdirectory is not writeable: ' . $directory);
         }
         $filepath = $directory.'/'.ucfirst($entity->getName()).'.php';
-        file_put_contents($filepath, $this->proxyEntityBuiler->buildForEntity($entity));
+        file_put_contents($filepath, $this->proxyEntityBuilder->buildForEntity($entity));
         @chmod($filepath, 0664);
     }
 }

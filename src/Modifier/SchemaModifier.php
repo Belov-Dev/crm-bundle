@@ -44,18 +44,32 @@ class SchemaModifier
     {
         $this->connection->executeQuery(sprintf('
             ALTER TABLE %s ADD %s %s DEFAULT NULL
-            ', $tableName, $fieldName, $this->entityFieldRegistry->find($fieldType)->getMySQLFieldType()));
+            ',
+            self::toTableName($tableName),
+            self::toFieldName($fieldName),
+            $this->entityFieldRegistry->find($fieldType)->getMySQLFieldType()
+        ));
     }
 
     public function updateField($tableName, $oldFieldName, $newFieldName, $newFieldType)
     {
         $this->connection->executeQuery(sprintf('
             ALTER TABLE %s CHANGE %s %s %s DEFAULT NULL
-            ', $tableName, $oldFieldName, $newFieldName, $this->entityFieldRegistry->find($newFieldType)->getMySQLFieldType()));
+            ',
+            self::toTableName($tableName),
+            self::toFieldName($oldFieldName),
+            self::toFieldName($newFieldName),
+            $this->entityFieldRegistry->find($newFieldType)->getMySQLFieldType()
+        ));
     }
 
     static protected function toTableName($string): string
     {
         return StringUtility::pluralize(StringUtility::toSnakeCase($string));
+    }
+
+    static protected function toFieldName($string): string
+    {
+        return StringUtility::toSnakeCase($string);
     }
 }

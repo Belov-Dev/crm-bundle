@@ -67,4 +67,16 @@ class EntityField
 
         return $this;
     }
+
+    public function getEntity(): Entity
+    {
+        return $this->entity;
+    }
+
+    public function setEntity(Entity $entity): self
+    {
+        $this->entity = $entity;
+
+        return $this;
+    }
 }

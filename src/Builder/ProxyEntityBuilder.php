@@ -8,7 +8,7 @@ use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ProxyEntityBuiler
+class ProxyEntityBuilder
 {
     const IDENT = "\t";
 
@@ -28,13 +28,13 @@ class ProxyEntityBuiler
     public function buildForEntity(Entity $entity)
     {
         $methods = [];
-        $fields = $this->entityManager->getRepository('A2CRMBundle:EntityField')->findBy(['entityId' => $entity->getId()]);
         $elements = $this->getBaseElements($entity);
         $fieldElements = $this->getIdFieldElements();
         $elements = array_merge($elements, $fieldElements[0]);
         $methods = array_merge($methods, $fieldElements[1]);
 
-        foreach ($fields as $field) {
+        /** @var EntityField $field */
+        foreach ($entity->getFields() as $field) {
             $fieldElements = $this->getFieldElements($field);
             $elements = array_merge($elements, $fieldElements[0]);
             $methods = array_merge($methods, $fieldElements[1]);

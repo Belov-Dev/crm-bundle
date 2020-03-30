@@ -22,6 +22,14 @@ class Entity
      */
     private $name;
 
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="A2Global\CRMBundle\Entity\EntityField",
+     *     mappedBy="entity"
+     * )
+     */
+    private $fields;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -35,6 +43,18 @@ class Entity
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    public function setFields($fields): self
+    {
+        $this->fields = $fields;
 
         return $this;
     }
