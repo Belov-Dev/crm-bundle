@@ -18,4 +18,33 @@ class EntityFieldRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, EntityField::class);
     }
+
+    // /**
+    //  * @return EntityField[] Returns an array of EntityField objects
+    //  */
+    /*
+    public function findByExampleField($value)
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.exampleField = :val')
+            ->setParameter('val', $value)
+            ->orderBy('e.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    */
+
+    /*
+    public function findOneBySomeField($value): ?EntityField
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+    */
 }

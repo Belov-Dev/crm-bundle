@@ -17,6 +17,10 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.request }
 
+    A2Global\CRMBundle\EventListener\DoctrineEventListener:
+        tags:
+            - { name: doctrine.event_listener, event: 'prePersist' }
+
     A2Global\CRMBundle\Registry\EntityFieldRegistry:
         arguments: [!tagged { tag: 'entity_field.type' }]
 

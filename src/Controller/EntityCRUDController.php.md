@@ -2,8 +2,6 @@
 
 namespace A2Global\CRMBundle\Controller;
 
-use A2Global\CRMBundle\Entity\Entity;
-use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Form\EntityFieldTypeForm;
 use A2Global\CRMBundle\Form\EntityTypeForm;
 use A2Global\CRMBundle\Modifier\ProxyEntityModifier;
@@ -65,7 +63,7 @@ class EntityCRUDController extends AbstractController
         }
 
         if (!$isCreating) {
-            $entityNameBefore = $entity->getName();
+            $entityNameBefore = $entity->getNameSnakeCasePlural();
         }
         $form->handleRequest($request);
 
@@ -79,12 +77,13 @@ class EntityCRUDController extends AbstractController
         $entity = $form->getData();
 
         if ($isCreating) {
-            $this->schemaModifier->createTable(StringUtility::singleToPlural($entity->getName()));
             $this->entityManager->persist($entity);
+            $this->schemaModifier->createTable($entity->getNameSnakeCasePlural());
+            $this->entityManager->flush();
         } else {
-            $this->schemaModifier->renameTable($entityNameBefore, StringUtility::singleToPlural($entity->getName()));
+            $this->entityManager->flush();
+            $this->schemaModifier->renameTable($entityNameBefore, $entity->getNameSnakeCasePlural());
         }
-        $this->entityManager->flush();
         $request->getSession()->getFlashBag()->add('success', 'Entity created');
 
         return $this->redirectToRoute('a2crm_entity_field_list', ['entity' => $isCreating ? null : $entity->getId()]);
