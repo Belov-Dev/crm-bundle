@@ -1,0 +1,30 @@
+{% extends '@A2CRM/layout.html.twig' %}
+
+{% block content_title %}
+    {{ entity.name }} form
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-5">
+            <form action="{{ form.url }}" method="POST" class="form-horizontal">
+                {% for name, field in form.elements %}
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{{ name }}</label>
+                        <div class="col-sm-8">
+                            {{ field|raw }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="form-group">
+                    <div class="col-sm-offset-4 col-sm-8">
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

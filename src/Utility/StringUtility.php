@@ -44,4 +44,16 @@ class StringUtility
     {
         return Inflector::singularize($string);
     }
+
+    public static function getVariations($string): array
+    {
+        return [
+            'readable' => self::normalize($string),
+            'readablePlural' => self::pluralize(self::normalize($string)),
+            'camelCase' => self::toCamelCase($string),
+            'snakeCase' => self::toSnakeCase($string),
+            'snakeCasePlural' => self::pluralize(self::toSnakeCase($string)),
+            'pascalCase' => self::toPascalCase($string),
+        ];
+    }
 }

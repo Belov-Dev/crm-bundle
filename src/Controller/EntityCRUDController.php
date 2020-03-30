@@ -4,6 +4,7 @@ namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\EntityField\EntityFieldInterface;
 use A2Global\CRMBundle\Form\EntityFieldTypeForm;
 use A2Global\CRMBundle\Form\EntityTypeForm;
 use A2Global\CRMBundle\Modifier\ProxyEntityModifier;
@@ -11,9 +12,12 @@ use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
+use http\Env\Response;
+use PHPUnit\Util\Json;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -98,7 +102,7 @@ class EntityCRUDController extends AbstractController
     /** @Route("/{entity}/field/edit/{entityField}", name="field_edit") */
     public function entityFieldEdit(Request $request, Entity $entity, $entityField = null)
     {
-        // todo why entityField is fillled when /edit/ without entity field id?
+        // todo why entityField is fillled when /edit/ without entity field id? maybe {entityField?} instead of {entityField}
         if ($entityField) {
             $entityField = $this->entityManager->getRepository('A2CRMBundle:EntityField')->find($entityField);
         }
@@ -106,17 +110,21 @@ class EntityCRUDController extends AbstractController
         $url = $this->generateUrl('a2crm_entity_field_edit', [
             'entity' => $entity->getId(),
             'entityField' => $isCreating ? null : $entityField->getId(),
+            'autocomplete' => 'off',
         ]);
         $form = $this->createForm(EntityFieldTypeForm::class, $entityField, [
             'action' => $url,
             'csrf_protection' => false,
         ])
             ->add('type', ChoiceType::class, ['choices' => $this->entityFieldRegistry->getFormFieldChoices()])
-            ->add('Submit', SubmitType::class);
+            ->add('submit', SubmitType::class);
 
         if ($request->getMethod() != Request::METHOD_POST) {
             return $this->render('@A2CRM/entity/entity_field.edit.html.twig', [
                 'form' => $form->createView(),
+                'entity' => $entity,
+                'entityField' => $entityField,
+                'entityName' => StringUtility::getVariations($entity->getName()),
             ]);
         }
 
@@ -149,5 +157,22 @@ class EntityCRUDController extends AbstractController
         $request->getSession()->getFlashBag()->add('success', 'Field added');
 
         return $this->redirectToRoute('a2crm_entity_list');
+    }
+
+    /** @Route("/{entity}/field/edit-extended/{fieldType}/{entityField?}", name="field_edit_extended") */
+    public function entityFieldEditExtended(Request $request, Entity $entity, $fieldType, $entityField = null)
+    {
+        $extended = false;
+        /** @var EntityFieldInterface $entityField */
+        $entityField = $this->entityFieldRegistry->find($fieldType);
+
+        if($extendedFormControls = $entityField->getExtendedFormControls($entity, $entityField)){
+            $extended = true;
+        }
+
+        return new JsonResponse([
+            'extended' => $extended,
+            'html' => $extendedFormControls,
+        ]);
     }
 }

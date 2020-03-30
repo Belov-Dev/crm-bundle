@@ -1,9 +1,50 @@
 {% extends '@A2CRM/layout.html.twig' %}
 
 {% block content %}
+    {{ form_start(form) }}
     <div class="row">
-        <div class="col-sm-4">
-            {{ form(form) }}
-        </div>
+        <div class="col-sm-5">
+            {{ form_row(form.name) }}
+            {{ form_row(form.type) }}
+
+            <div id="form-extended" hidden>
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-5 required" for="entity_field_type_form_type">Type</label>
+                    <div class="col-sm-7">
+                        <select id="entity_field_type_form_type" name="entity_field_type_form[type]" class="form-control">
+                            <option value="boolean" selected="selected">Boolean: True/False</option>
+                            <option value="integer">Number</option><option value="relation">Other entity</option>
+                            <option value="string">String</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {{ form_row(form.submit) }}
+            </div>
     </div>
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+    <script>
+        $(function(){
+            $('#entity_field_type_form_type').on('change', function(){
+                let url = '/manage/entity/{{ entity.id }}/field/edit-extended/' + $(this).val() + '{% if entityField.id is defined %}/{{ entityField.id }}{% endif %}';
+                console.log(url);
+
+                $.post(url, {}, function(result){
+                    if(result.extended){
+                        $('#form-extended').html(result.html).slideDown(400);
+                    }else{
+                        $('#form-extended').slideUp(400, function(){
+                            $(this).html('');
+                        });
+                    }
+                });
+
+            }).change();
+        })
+    </script>
 {% endblock %}

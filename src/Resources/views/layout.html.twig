@@ -54,12 +54,10 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="{{ path('a2crm_object_entity_list') }}">Database</a></li>
                 <li><a href="{{ path('a2crm_entity_list') }}">Entities</a></li>
-                <li><a href="{{ path('a2crm_entity_edit') }}">Create entity</a></li>
             </ul>
             <ul class="nav nav-sidebar">
-                <li><a href="">Nav item</a></li>
+                <li><a href="{{ path('a2crm_object_list', {'objectName': 'book'}) }}">Books</a></li>
                 <li><a href="">Nav item again</a></li>
                 <li><a href="">One more nav</a></li>
                 <li><a href="">Another nav item</a></li>
@@ -150,10 +148,10 @@
 </div>
 
 
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="/lib/jquery/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
-<script src="/lib/bootstrap/3.4/js/bootstrap.min.js"></script>
+{% block javascript %}
+    <script src="/lib/jquery/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <script src="/lib/bootstrap/3.4/js/bootstrap.min.js"></script>
+{% endblock %}
+
 </body>
 </html>

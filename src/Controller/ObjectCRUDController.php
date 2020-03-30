@@ -2,9 +2,13 @@
 
 namespace A2Global\CRMBundle\Controller;
 
+use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /** @Route("/manage/object", name="a2crm_object_") */
@@ -12,39 +16,109 @@ class ObjectCRUDController extends AbstractController
 {
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private $entityFieldRegistry;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        EntityFieldRegistry $entityFieldRegistry
+    )
     {
         $this->entityManager = $entityManager;
-    }
-
-    /** @Route("/list", name="entity_list") */
-    public function entityList()
-    {
-        return $this->render('@A2CRM/object/entity.list.html.twig', [
-            'entities' => $this->entityManager->getRepository('A2CRMBundle:Entity')->findAll(),
-        ]);
+        $this->entityFieldRegistry = $entityFieldRegistry;
     }
 
     /** @Route("/{objectName}/list", name="list") */
     public function objectList($objectName)
     {
         $data = [];
-        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findOneBy(['name' => $objectName]);
-        $fields = $this->entityManager->getRepository('A2CRMBundle:EntityField')->findBy(['entityId' => $entity->getId()]);
-        $repository = $this->entityManager->getRepository('App:'.StringUtility::underScoreToCamelCase($objectName));
+        $fields = [];
+        $objectName = StringUtility::getVariations($objectName);
+        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findOneBy(['name' => $objectName['readable']]);
 
-        foreach($repository->findAll() as $object){
-            $item = [];
+        /** @var EntityField $field */
+        foreach ($entity->getFields() as $field) {
+            $fields[StringUtility::toCamelCase($field->getName())] = $field->getName();
+        }
+        $repository = $this->entityManager->getRepository('App:' . $objectName['pascalCase']);
 
-            foreach($fields as $field){
-                $item[$field->getName()] = (string) $object->{'get'.$field->getName()}();
+        foreach ($repository->findAll() as $object) {
+            $item = ['id' => $object->getId()];
+
+            foreach ($fields as $fieldNameCamelCase => $fieldName) {
+                $getter = 'get' . $fieldNameCamelCase;
+                $value = $object->{$getter}();
+
+                if (is_bool($value)) {
+                    $value = $value ? '+' : '-';
+                } elseif ($value instanceof DateTimeInterface) {
+                    $value = $value->format('H:i:s j/m/Y');
+                }
+                $item[$fieldNameCamelCase] = $value;
             }
             $data[] = $item;
         }
 
         return $this->render('@A2CRM/object/object.list.html.twig', [
+            'entity' => $entity,
+            'name' => $objectName,
             'fields' => $fields,
             'data' => $data,
+        ]);
+    }
+
+    /** @Route("/{objectName}/edit/{objectId?}", name="edit") */
+    public function objectEdit(Request $request, $objectName, $objectId = null)
+    {
+        $isCreating = is_null($objectId);
+        $objectNameReadable = StringUtility::normalize($objectName);
+        $objectPascalCase = StringUtility::toPascalCase($objectName);
+        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findOneBy(['name' => $objectNameReadable]);
+
+        if ($isCreating) {
+            $classname = 'App\\Entity\\' . StringUtility::toPascalCase($entity->getName());
+            $object = new $classname;
+        } else {
+            $object = $this->entityManager->getRepository('App:' . $objectPascalCase)->find($objectId);
+        }
+
+        if ($request->getMethod() == Request::METHOD_POST) {
+            $formData = $request->request->get('field');
+
+            /** @var EntityField $field */
+            foreach ($entity->getFields() as $field) {
+                $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
+
+                if (isset($formData[$fieldNameCamelCase])) {
+                    $object->{'set' . $fieldNameCamelCase}($formData[$fieldNameCamelCase]);
+                }
+            }
+
+            if ($isCreating) {
+                $this->entityManager->persist($object);
+            }
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('a2crm_object_list', ['objectName' => $objectName]);
+        }
+        $url = $this->generateUrl('a2crm_object_edit', ['objectName' => $objectName, 'objectId' => $objectId]);
+
+        $form = [
+            'url' => $url,
+            'elements' => [],
+        ];
+
+        /** @var EntityField $field */
+        foreach ($entity->getFields() as $field) {
+            $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
+            $form['elements'][$field->getName()] = $this->entityFieldRegistry
+                ->find($field->getType())
+                ->getFormControlHTML($fieldNameCamelCase, $object->{'get'.$fieldNameCamelCase}());
+        }
+
+        return $this->render('@A2CRM/object/object.edit.html.twig', [
+            'entity' => $entity,
+            'object' => $object,
+            'form' => $form,
         ]);
     }
 }
