@@ -2,6 +2,9 @@
 
 namespace A2Global\CRMBundle\EntityField;
 
+use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\Modifier\SchemaModifier;
+
 class BooleanField extends AbstractField
 {
     public function getName(): string
@@ -14,8 +17,13 @@ class BooleanField extends AbstractField
         return 'Boolean: True/False';
     }
 
-    public function getMySQLFieldType(): string
+
+    public function getMySQLCreateQuery(EntityField $object): string
     {
-        return 'TINYINT(1)';
+        return sprintf(
+            'ALTER TABLE %s ADD %s TINYINT(1) DEFAULT NULL',
+            SchemaModifier::toTableName($object->getEntity()->getName()),
+            SchemaModifier::toFieldName($object->getName())
+        );
     }
 }

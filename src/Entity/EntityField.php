@@ -28,6 +28,11 @@ class EntityField
     private $type;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $configuration;
+
+    /**
      * @ORM\ManyToOne(
      *     targetEntity="A2Global\CRMBundle\Entity\Entity"
      * )
@@ -76,6 +81,18 @@ class EntityField
     public function setEntity(Entity $entity): self
     {
         $this->entity = $entity;
+
+        return $this;
+    }
+
+    public function getConfiguration(): array
+    {
+        return json_decode($this->configuration ?? '[]', true);
+    }
+
+    public function setConfiguration($configuration): self
+    {
+        $this->configuration = json_encode($configuration);
 
         return $this;
     }

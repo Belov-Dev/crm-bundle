@@ -72,4 +72,13 @@ class SchemaModifier
     {
         return StringUtility::toSnakeCase($string);
     }
+
+    static public function generateKey($columnNames, $prefix = 'FK', $maxSize = 30)
+    {
+        $hash = implode('', array_map(static function ($column) {
+            return dechex(crc32($column));
+        }, $columnNames));
+
+        return strtoupper(substr($hash, 0, $maxSize));
+    }
 }

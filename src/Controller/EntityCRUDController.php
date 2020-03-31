@@ -4,6 +4,7 @@ namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\EntityField\EntityFieldConfigurableInterface;
 use A2Global\CRMBundle\EntityField\EntityFieldInterface;
 use A2Global\CRMBundle\Form\EntityFieldTypeForm;
 use A2Global\CRMBundle\Form\EntityTypeForm;
@@ -127,7 +128,6 @@ class EntityCRUDController extends AbstractController
                 'entityName' => StringUtility::getVariations($entity->getName()),
             ]);
         }
-
         if (!$isCreating) {
             $entityFieldNameBefore = $entityField->getName();
         }
@@ -142,37 +142,40 @@ class EntityCRUDController extends AbstractController
         $entityField = $form->getData();
         $entityField
             ->setName(StringUtility::normalize($entityField->getName()))
-            ->setEntity($entity);
+            ->setEntity($entity)
+            ->setConfiguration($request->request->get('configuration'));
 
         if ($isCreating) {
-            $this->schemaModifier->addField($entity->getName(), $entityField->getName(), $entityField->getType());
+            $mysqlQuery = $this->entityFieldRegistry->find($entityField->getType())->getMysqlCreateQuery($entityField);
             $this->entityManager->persist($entityField);
-        } else {
-            $this->schemaModifier->updateField($entity->getName(), $entityFieldNameBefore, $entityField->getName(), $entityField->getType());
+        }else{
+            $mysqlQuery = $this->entityFieldRegistry->find($entityField->getType())->getMysqlUpdateQuery($entityField);
         }
+        $this->entityManager->getConnection()->executeQuery($mysqlQuery);
         $this->entityManager->flush();
+        exit;
 
         // Should goes after flush, to generate proxy class with actual data
-        $this->proxyEntityModifier->update($entity);
+//        $this->proxyEntityModifier->update($entity);
         $request->getSession()->getFlashBag()->add('success', 'Field added');
 
         return $this->redirectToRoute('a2crm_entity_list');
     }
 
-    /** @Route("/{entity}/field/edit-extended/{fieldType}/{entityField?}", name="field_edit_extended") */
-    public function entityFieldEditExtended(Request $request, Entity $entity, $fieldType, $entityField = null)
+    /** @Route("/{entity}/field/edit-configuration/{fieldType}/{entityField?}", name="field_edit_extended") */
+    public function entityFieldEditConfiguration(Request $request, Entity $entity, $fieldType, $entityField = null)
     {
-        $extended = false;
+        $hasConfiguration = false;
         /** @var EntityFieldInterface $entityField */
         $entityField = $this->entityFieldRegistry->find($fieldType);
 
-        if($extendedFormControls = $entityField->getExtendedFormControls($entity, $entityField)){
-            $extended = true;
+        if($entityField instanceof EntityFieldConfigurableInterface){
+            $hasConfiguration = true;
         }
 
         return new JsonResponse([
-            'extended' => $extended,
-            'html' => $extendedFormControls,
+            'hasConfiguration' => $hasConfiguration,
+            'html' => $hasConfiguration ? $entityField->getFormConfigurationControls($entity, $entityField) : '',
         ]);
     }
 }

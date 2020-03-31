@@ -3,9 +3,13 @@
 namespace A2Global\CRMBundle\EntityField;
 
 use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\Modifier\SchemaModifier;
+use A2Global\CRMBundle\Utility\StringUtility;
+use Cassandra\Schema;
 use Doctrine\ORM\EntityManagerInterface;
 
-class RelationField extends AbstractField
+class RelationField extends AbstractField implements EntityFieldConfigurableInterface
 {
     private $entityManager;
 
@@ -24,12 +28,31 @@ class RelationField extends AbstractField
         return 'Other entity';
     }
 
-    public function getMySQLFieldType(): string
+    public function getMySQLCreateQuery(EntityField $object): string
     {
-        return 'TINYINT(1)';
+        $targetEntity = $this->entityManager->getRepository('A2CRMBundle:Entity')->find($object->getConfiguration()['target_entity']);
+        $tableName = SchemaModifier::toTableName($object->getEntity()->getName());
+        $fieldName = sprintf('%s_id', StringUtility::toSnakeCase($targetEntity->getName()));
+        $uniqueKey = SchemaModifier::generateKey([$tableName, $fieldName]);
+
+        $query = [];
+        $query[] = sprintf(
+            'ALTER TABLE %s ADD %s INT DEFAULT NULL',
+            $tableName, $fieldName
+        );
+        $query[] = sprintf(
+            'ALTER TABLE %s ADD CONSTRAINT FK_%s FOREIGN KEY (%s) REFERENCES %s (id)',
+            $tableName, $uniqueKey, $fieldName, SchemaModifier::toTableName($targetEntity->getName())
+        );
+        $query[] = sprintf(
+            'CREATE INDEX IDX_%s ON %s (%s)',
+            $uniqueKey, $tableName, $fieldName
+        );
+
+        return implode(';'.PHP_EOL, $query);
     }
 
-    public function getExtendedFormControls(Entity $entity, $object = null)
+    public function getFormConfigurationControls(Entity $entity, $object = null)
     {
         $elements = [];
 
@@ -45,11 +68,11 @@ class RelationField extends AbstractField
 
     protected function getExtendedFormHTML($elements)
     {
-        $pattern=<<<EOF
+        $pattern = <<<EOF
             <div class="form-group row">
-                <label class="col-form-label col-sm-4 required" for="entity_field_type_form_type">Related entity</label>
+                <label class="col-form-label col-sm-4 required">Related entity</label>
                 <div class="col-sm-8">
-                    <select id="entity_field_type_form_type" name="entity_field_type_form[type]" class="form-control">
+                    <select id="entity_field_type_form_type" name="configuration[target_entity]" class="form-control">
                         %s
                     </select>
                 </div>

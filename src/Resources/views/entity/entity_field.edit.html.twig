@@ -7,7 +7,7 @@
             {{ form_row(form.name) }}
             {{ form_row(form.type) }}
 
-            <div id="form-extended" hidden>
+            <div id="form-configuration" hidden>
                 <div class="form-group row">
                     <label class="col-form-label col-sm-5 required" for="entity_field_type_form_type">Type</label>
                     <div class="col-sm-7">
@@ -31,14 +31,14 @@
     <script>
         $(function(){
             $('#entity_field_type_form_type').on('change', function(){
-                let url = '/manage/entity/{{ entity.id }}/field/edit-extended/' + $(this).val() + '{% if entityField.id is defined %}/{{ entityField.id }}{% endif %}';
+                let url = '/manage/entity/{{ entity.id }}/field/edit-configuration/' + $(this).val() + '{% if entityField.id is defined %}/{{ entityField.id }}{% endif %}';
                 console.log(url);
 
                 $.post(url, {}, function(result){
-                    if(result.extended){
-                        $('#form-extended').html(result.html).slideDown(400);
+                    if(result.hasConfiguration){
+                        $('#form-configuration').html(result.html).slideDown(400);
                     }else{
-                        $('#form-extended').slideUp(400, function(){
+                        $('#form-configuration').slideUp(400, function(){
                             $(this).html('');
                         });
                     }
