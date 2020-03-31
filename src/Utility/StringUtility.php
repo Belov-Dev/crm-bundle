@@ -56,4 +56,16 @@ class StringUtility
             'pascalCase' => self::toPascalCase($string),
         ];
     }
+
+    public static function getShortClassName($fullyQualifiedClassNameOrObject): string
+    {
+        // using second best variant. not creating ReflectionClass, not eating more memory.
+        // https://stackoverflow.com/a/41264231
+
+        if (is_object($fullyQualifiedClassNameOrObject)) {
+            $fullyQualifiedClassNameOrObject = get_class($fullyQualifiedClassNameOrObject);
+        }
+
+        return substr($fullyQualifiedClassNameOrObject, strrpos($fullyQualifiedClassNameOrObject, '\\') + 1);
+    }
 }

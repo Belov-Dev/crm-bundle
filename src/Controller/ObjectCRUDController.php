@@ -52,6 +52,10 @@ class ObjectCRUDController extends AbstractController
                     $value = $value ? '+' : '-';
                 } elseif ($value instanceof DateTimeInterface) {
                     $value = $value->format('H:i:s j/m/Y');
+                }elseif(is_object($value)) {
+                    if (!method_exists($value, '__toString')) {
+                        $value = StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
+                    }
                 }
                 $item[$fieldNameCamelCase] = $value;
             }

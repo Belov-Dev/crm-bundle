@@ -152,10 +152,9 @@ class EntityCRUDController extends AbstractController
         }
         $this->entityManager->getConnection()->executeQuery($mysqlQuery);
         $this->entityManager->flush();
-        exit;
 
         // Should goes after flush, to generate proxy class with actual data
-//        $this->proxyEntityModifier->update($entity);
+        $this->proxyEntityModifier->update($entity);
         $request->getSession()->getFlashBag()->add('success', 'Field added');
 
         return $this->redirectToRoute('a2crm_entity_list');

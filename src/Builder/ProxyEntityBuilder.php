@@ -35,9 +35,7 @@ class ProxyEntityBuilder
 
     public function buildForEntity(Entity $entity)
     {
-        $methods = [];
         $elements = $this->getBaseElements($entity);
-
         $fieldElements = $this->getIdFieldElements();
         $properties = $fieldElements[0];
         $methods = $fieldElements[1];
@@ -53,7 +51,7 @@ class ProxyEntityBuilder
                 $this->indentElements($this->entityFieldRegistry->find($field->getType())->getDoctrineClassMethodsCode($field))
             );
         }
-        $elements = array_merge($elements, $properties, $methods, $this->getFinalElements());
+        $elements = array_merge($elements, $properties, $methods, $this->getFinalElements($entity));
 
         return implode(PHP_EOL, $elements);
     }
@@ -73,9 +71,34 @@ class ProxyEntityBuilder
         ];
     }
 
-    protected function getFinalElements()
+    protected function getFinalElements(Entity $entity)
     {
-        return ['}'];
+        $nameGetter = null;
+
+        /** @var EntityField $field */
+        foreach($entity->getFields() as $field){
+            $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
+
+            if(in_array($fieldNameCamelCase, ['name', 'title', 'username'])){
+                $nameGetter = $fieldNameCamelCase;
+                break;
+            }
+        }
+
+        if($nameGetter){
+            $code = 'return sprintf(\'%s. %s\', $this->getId(), $this->get'.StringUtility::toPascalCase($nameGetter).'());';
+        }else{
+            $code = 'return \''.$entity->getName().' #\' . $this->getId();';
+        }
+
+        return [
+            '',
+            self::IDENT . 'public function __toString()',
+            self::IDENT . '{',
+            self::IDENT . self::IDENT . $code,
+            self::IDENT . '}',
+            '}',
+        ];
     }
 
     protected function getIdFieldElements(): array
