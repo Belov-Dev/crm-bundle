@@ -16,9 +16,9 @@ abstract class AbstractField implements EntityFieldInterface
         return $this->getName();
     }
 
-    public function getFormControlHTML($fieldName, $value = null): string
+    public function getFormControlHTML(EntityField $field, $value = null): string
     {
-        return sprintf('<input type="text" name="field[%s]" class="form-control" autocomplete="off" value="%s">', $fieldName, htmlspecialchars($value));
+        return sprintf('<input type="text" name="field[%s]" class="form-control" autocomplete="off" value="%s">', StringUtility::toSnakeCase($field->getName()), htmlspecialchars($value));
     }
 
     public function getDoctrineClassPropertyCode(EntityField $object): array
@@ -48,5 +48,12 @@ abstract class AbstractField implements EntityFieldInterface
             self::INDENT . 'return $this;',
             '}',
         ];
+    }
+
+    public function setValueToObject($object, EntityField $field, $value)
+    {
+        $setter = 'set'.StringUtility::toPascalCase($field->getName());
+
+        return $object->{$setter}($value);
     }
 }

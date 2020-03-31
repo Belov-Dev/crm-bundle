@@ -12,9 +12,11 @@ interface EntityFieldInterface
 
     public function getMySQLCreateQuery(EntityField $object): string;
 
-    public function getFormControlHTML($fieldName, $value = null): string;
+    public function getFormControlHTML(EntityField $field, $value = null): string;
 
     public function getDoctrineClassPropertyCode(EntityField $object): array;
 
     public function getDoctrineClassMethodsCode(EntityField $object): array;
+
+    public function setValueToObject($object, EntityField $field, $value);
 }

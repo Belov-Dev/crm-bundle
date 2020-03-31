@@ -29,9 +29,7 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
 
     public function getMySQLCreateQuery(EntityField $object): string
     {
-        $targetEntity = $this->entityManager
-            ->getRepository('A2CRMBundle:Entity')
-            ->find($object->getConfiguration()['target_entity']);
+        $targetEntity = $this->getTargetEntity($object);
         $tableName = SchemaModifier::toTableName($object->getEntity()->getName());
         $fieldName = sprintf('%s_id', StringUtility::toSnakeCase($targetEntity->getName()));
         $uniqueKey = SchemaModifier::generateKey([$tableName, $fieldName]);
@@ -50,36 +48,21 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
             $uniqueKey, $tableName, $fieldName
         );
 
-        return implode(';'.PHP_EOL, $query);
-    }
-
-    public function getFormConfigurationControls(Entity $entity, $object = null)
-    {
-        $elements = [];
-
-        foreach ($this->entityManager->getRepository('A2CRMBundle:Entity')->findAll() as $relatedEntity) {
-            if ($entity->getId() == $relatedEntity->getId()) {
-                continue;
-            }
-            $elements[] = sprintf('<option value="%s">%s</option>', $relatedEntity->getId(), $relatedEntity->getName());
-        }
-
-        return $this->getExtendedFormHTML($elements);
+        return implode(';' . PHP_EOL, $query);
     }
 
     public function getDoctrineClassPropertyCode(EntityField $object): array
     {
-        $targetEntity = $this->entityManager
-            ->getRepository('A2CRMBundle:Entity')
-            ->find($object->getConfiguration()['target_entity']);
+        $targetEntity = $this->getTargetEntity($object);
+
         return [
             '',
             '/**',
             ' * @ORM\ManyToOne(',
-            ' *     targetEntity="'.StringUtility::toPascalCase($targetEntity->getName()).'"',
+            ' *     targetEntity="' . StringUtility::toPascalCase($targetEntity->getName()) . '"',
             ' * )',
             ' * @ORM\JoinColumn(',
-            ' *     name="'.StringUtility::toSnakeCase($targetEntity->getName()).'_id",',
+            ' *     name="' . StringUtility::toSnakeCase($targetEntity->getName()) . '_id",',
             ' *     referencedColumnName="id"',
             ' * )',
             ' */',
@@ -103,6 +86,52 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
             self::INDENT . 'return $this;',
             '}',
         ];
+    }
+
+    public function getFormControlHTML(EntityField $field, $value = null): string
+    {
+        $targetEntity = $this->getTargetEntity($field);
+        $optionsRepository = $this->entityManager->getRepository('App:' . StringUtility::toPascalCase($targetEntity->getName()));
+
+        $html = [];
+        $html[] = sprintf('<select class="form-control" name="field[%s]">', StringUtility::toSnakeCase($field->getName()));
+
+        foreach ($optionsRepository->findAll() as $item) {
+            $isSelected = $value && ($value->getId() == $item->getId());
+            $html[] = sprintf('<option value="%s" %s>%s', $item->getId(), ($isSelected ? 'selected' : ''), (string)$item);
+        }
+        $html[] = '</select>';
+
+        return implode(PHP_EOL, $html);
+    }
+
+    public function setValueToObject($object, EntityField $field, $value)
+    {
+        $setter = 'set' . StringUtility::toPascalCase($field->getName());
+        $value = $this->entityManager
+            ->getRepository('App:'.StringUtility::toPascalCase($this->getTargetEntity($field)->getName()))
+            ->find($value);
+
+        return $object->{$setter}($value);
+    }
+
+    public function getFormConfigurationControls(Entity $entity, $object = null)
+    {
+        $elements = [];
+
+        foreach ($this->entityManager->getRepository('A2CRMBundle:Entity')->findAll() as $relatedEntity) {
+            if ($entity->getId() == $relatedEntity->getId()) {
+                continue;
+            }
+            $elements[] = sprintf('<option value="%s">%s</option>', $relatedEntity->getId(), $relatedEntity->getName());
+        }
+
+        return $this->getExtendedFormHTML($elements);
+    }
+
+    protected function getTargetEntity(EntityField $field)
+    {
+        return $this->entityManager->getRepository('A2CRMBundle:Entity')->find($field->getConfiguration()['target_entity']);
     }
 
     protected function getExtendedFormHTML($elements)

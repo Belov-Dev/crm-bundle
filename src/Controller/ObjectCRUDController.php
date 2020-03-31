@@ -90,10 +90,12 @@ class ObjectCRUDController extends AbstractController
 
             /** @var EntityField $field */
             foreach ($entity->getFields() as $field) {
-                $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
+                $fieldNameSnakeCase = StringUtility::toSnakeCase($field->getName());
 
-                if (isset($formData[$fieldNameCamelCase])) {
-                    $object->{'set' . $fieldNameCamelCase}($formData[$fieldNameCamelCase]);
+                if (isset($formData[$fieldNameSnakeCase])) {
+                    $this->entityFieldRegistry
+                        ->find($field->getType())
+                        ->setValueToObject($object, $field, $formData[$fieldNameSnakeCase]);
                 }
             }
 
@@ -116,7 +118,7 @@ class ObjectCRUDController extends AbstractController
             $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
             $form['elements'][$field->getName()] = $this->entityFieldRegistry
                 ->find($field->getType())
-                ->getFormControlHTML($fieldNameCamelCase, $object->{'get'.$fieldNameCamelCase}());
+                ->getFormControlHTML($field, $object->{'get'.$fieldNameCamelCase}());
         }
 
         return $this->render('@A2CRM/object/object.edit.html.twig', [
