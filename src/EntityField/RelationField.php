@@ -6,7 +6,6 @@ use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Utility\StringUtility;
-use Cassandra\Schema;
 use Doctrine\ORM\EntityManagerInterface;
 
 class RelationField extends AbstractField implements EntityFieldConfigurableInterface
@@ -30,7 +29,9 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
 
     public function getMySQLCreateQuery(EntityField $object): string
     {
-        $targetEntity = $this->entityManager->getRepository('A2CRMBundle:Entity')->find($object->getConfiguration()['target_entity']);
+        $targetEntity = $this->entityManager
+            ->getRepository('A2CRMBundle:Entity')
+            ->find($object->getConfiguration()['target_entity']);
         $tableName = SchemaModifier::toTableName($object->getEntity()->getName());
         $fieldName = sprintf('%s_id', StringUtility::toSnakeCase($targetEntity->getName()));
         $uniqueKey = SchemaModifier::generateKey([$tableName, $fieldName]);
@@ -64,6 +65,44 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
         }
 
         return $this->getExtendedFormHTML($elements);
+    }
+
+    public function getDoctrineClassPropertyCode(EntityField $object): array
+    {
+        $targetEntity = $this->entityManager
+            ->getRepository('A2CRMBundle:Entity')
+            ->find($object->getConfiguration()['target_entity']);
+        return [
+            '',
+            '/**',
+            ' * @ORM\ManyToOne(',
+            ' *     targetEntity="'.StringUtility::toPascalCase($targetEntity->getName()).'"',
+            ' * )',
+            ' * @ORM\JoinColumn(',
+            ' *     name="'.StringUtility::toSnakeCase($targetEntity->getName()).'_id",',
+            ' *     referencedColumnName="id"',
+            ' * )',
+            ' */',
+            'private $' . StringUtility::toCamelCase($object->getName()) . ';',
+        ];
+    }
+
+    public function getDoctrineClassMethodsCode(EntityField $object): array
+    {
+        return [
+            '',
+            'public function get' . StringUtility::toPascalCase($object->getName()) . '()',
+            '{',
+            self::INDENT . 'return $this->' . StringUtility::toCamelCase($object->getName()) . ';',
+            '}',
+            '',
+            'public function set' . StringUtility::toPascalCase($object->getName()) . '($value): self',
+            '{',
+            self::INDENT . '$this->' . StringUtility::toCamelCase($object->getName()) . ' = $value;',
+            '',
+            self::INDENT . 'return $this;',
+            '}',
+        ];
     }
 
     protected function getExtendedFormHTML($elements)

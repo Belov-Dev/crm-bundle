@@ -2,7 +2,6 @@
 
 namespace A2Global\CRMBundle\EntityField;
 
-use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
 
 interface EntityFieldInterface
@@ -14,4 +13,8 @@ interface EntityFieldInterface
     public function getMySQLCreateQuery(EntityField $object): string;
 
     public function getFormControlHTML($fieldName, $value = null): string;
+
+    public function getDoctrineClassPropertyCode(EntityField $object): array;
+
+    public function getDoctrineClassMethodsCode(EntityField $object): array;
 }

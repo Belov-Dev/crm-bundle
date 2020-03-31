@@ -37,17 +37,23 @@ class ProxyEntityBuilder
     {
         $methods = [];
         $elements = $this->getBaseElements($entity);
+
         $fieldElements = $this->getIdFieldElements();
-        $elements = array_merge($elements, $fieldElements[0]);
-        $methods = array_merge($methods, $fieldElements[1]);
+        $properties = $fieldElements[0];
+        $methods = $fieldElements[1];
 
         /** @var EntityField $field */
         foreach ($entity->getFields() as $field) {
-            $fieldElements = $this->getFieldElements($field);
-            $elements = array_merge($elements, $fieldElements[0]);
-            $methods = array_merge($methods, $fieldElements[1]);
+            $properties = array_merge(
+                $properties,
+                $this->indentElements($this->entityFieldRegistry->find($field->getType())->getDoctrineClassPropertyCode($field))
+            );
+            $methods = array_merge(
+                $methods,
+                $this->indentElements($this->entityFieldRegistry->find($field->getType())->getDoctrineClassMethodsCode($field))
+            );
         }
-        $elements = array_merge($elements, $methods, $this->getFinalElements());
+        $elements = array_merge($elements, $properties, $methods, $this->getFinalElements());
 
         return implode(PHP_EOL, $elements);
     }
@@ -88,49 +94,6 @@ class ProxyEntityBuilder
             'public function getId(): ?int',
             '{',
             self::IDENT . 'return $this->id;',
-            '}',
-        ];
-
-        return [
-            $this->indentElements($property),
-            $this->indentElements($methods),
-        ];
-    }
-
-    protected function getFieldElements(EntityField $entityField): array
-    {
-        $camelCaseName = StringUtility::toCamelCase($entityField->getName());
-        $pascalCaseName = StringUtility::toPascalCase($entityField->getName());
-
-        // todo: entityfield->getDoctrineAnnotation
-
-        $params = [
-            'type' => '"' . $entityField->getType() . '"',
-            'nullable' => 'true',
-        ];
-
-        if ($entityField->getType() == 'string') {
-            $params['length'] = '255';
-        }
-
-        $property = [
-            '',
-            '/**',
-            ' * @ORM\Column(' . $this->buildParameters($params) . ')',
-            ' */',
-            'private $' . $camelCaseName . ';',
-        ];
-
-        $methods = [
-            '',
-            'public function get' . $pascalCaseName . '()',
-            '{',
-            self::IDENT . 'return $this->' . $camelCaseName . ';',
-            '}' . PHP_EOL,
-            'public function set' . $pascalCaseName . '($' . $camelCaseName . '): self',
-            '{',
-            self::IDENT . '$this->' . $camelCaseName . ' = $' . $camelCaseName . ';' . PHP_EOL,
-            self::IDENT . 'return $this;',
             '}',
         ];
 

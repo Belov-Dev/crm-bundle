@@ -17,7 +17,6 @@ class BooleanField extends AbstractField
         return 'Boolean: True/False';
     }
 
-
     public function getMySQLCreateQuery(EntityField $object): string
     {
         return sprintf(
