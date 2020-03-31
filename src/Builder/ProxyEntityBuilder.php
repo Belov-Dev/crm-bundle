@@ -63,7 +63,7 @@ class ProxyEntityBuilder
             ' * @ORM\Table(name="' . SchemaModifier::toTableName($entity->getName()) . '")',
             ' */',
             'class ' . StringUtility::toPascalCase($entity->getName()),
-            '{' . PHP_EOL,
+            '{',
         ];
     }
 
@@ -80,14 +80,15 @@ class ProxyEntityBuilder
             ' * @ORM\GeneratedValue()',
             ' * @ORM\Column(type="integer")',
             ' */',
-            'private $id;' . PHP_EOL,
+            'private $id;',
         ];
 
         $methods = [
+            '',
             'public function getId(): ?int',
             '{',
             self::IDENT . 'return $this->id;',
-            '}' . PHP_EOL,
+            '}',
         ];
 
         return [
@@ -113,13 +114,15 @@ class ProxyEntityBuilder
         }
 
         $property = [
+            '',
             '/**',
             ' * @ORM\Column(' . $this->buildParameters($params) . ')',
             ' */',
-            'private $' . $camelCaseName . ';' . PHP_EOL,
+            'private $' . $camelCaseName . ';',
         ];
 
         $methods = [
+            '',
             'public function get' . $pascalCaseName . '()',
             '{',
             self::IDENT . 'return $this->' . $camelCaseName . ';',
@@ -128,7 +131,7 @@ class ProxyEntityBuilder
             '{',
             self::IDENT . '$this->' . $camelCaseName . ' = $' . $camelCaseName . ';' . PHP_EOL,
             self::IDENT . 'return $this;',
-            '}' . PHP_EOL,
+            '}',
         ];
 
         return [

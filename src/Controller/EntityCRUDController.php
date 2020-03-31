@@ -111,7 +111,6 @@ class EntityCRUDController extends AbstractController
         $url = $this->generateUrl('a2crm_entity_field_edit', [
             'entity' => $entity->getId(),
             'entityField' => $isCreating ? null : $entityField->getId(),
-            'autocomplete' => 'off',
         ]);
         $form = $this->createForm(EntityFieldTypeForm::class, $entityField, [
             'action' => $url,
@@ -148,7 +147,7 @@ class EntityCRUDController extends AbstractController
         if ($isCreating) {
             $mysqlQuery = $this->entityFieldRegistry->find($entityField->getType())->getMysqlCreateQuery($entityField);
             $this->entityManager->persist($entityField);
-        }else{
+        } else {
             $mysqlQuery = $this->entityFieldRegistry->find($entityField->getType())->getMysqlUpdateQuery($entityField);
         }
         $this->entityManager->getConnection()->executeQuery($mysqlQuery);
@@ -169,7 +168,7 @@ class EntityCRUDController extends AbstractController
         /** @var EntityFieldInterface $entityField */
         $entityField = $this->entityFieldRegistry->find($fieldType);
 
-        if($entityField instanceof EntityFieldConfigurableInterface){
+        if ($entityField instanceof EntityFieldConfigurableInterface) {
             $hasConfiguration = true;
         }
 
@@ -177,5 +176,13 @@ class EntityCRUDController extends AbstractController
             'hasConfiguration' => $hasConfiguration,
             'html' => $hasConfiguration ? $entityField->getFormConfigurationControls($entity, $entityField) : '',
         ]);
+    }
+
+    /** @Route("/{entity}/proxy/update", name="update_proxy") */
+    public function updateProxy(Entity $entity)
+    {
+        $this->proxyEntityModifier->update($entity);
+
+        return $this->redirectToRoute('a2crm_entity_list');
     }
 }

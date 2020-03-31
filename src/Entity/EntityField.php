@@ -90,7 +90,7 @@ class EntityField
         return json_decode($this->configuration ?? '[]', true);
     }
 
-    public function setConfiguration($configuration): self
+    public function setConfiguration($configuration = []): self
     {
         $this->configuration = json_encode($configuration);
 
