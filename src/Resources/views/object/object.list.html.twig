@@ -1,8 +1,10 @@
 {% extends '@A2CRM/layout.html.twig' %}
 
-<a href="{{ path('a2crm_object_edit', {'objectName': objectName})}}" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> Create new {{ entity.name }}</a>
-<br><br>
-
 {% block content %}
+
+    <a href="{{ path('a2crm_object_edit', {'objectName': objectName})}}" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> Create new {{ entity.name }}</a>
+    <br><br>
+
     {% include '@A2CRM/datagrid/datagrid.html.twig' %}
+
 {% endblock %}

@@ -33,19 +33,19 @@ class SampleCustomDataGrid extends AbstractDataGrid implements DataGridInterface
     {
         $data = [];
         $dir = __DIR__ . '/..{/*,/*/*,/*/*/*,/*/*/*/*,/*/*/*/*/*}';
-        $i = 1;
+        $i = 0;
 
         foreach (glob($dir, GLOB_BRACE) as $file) {
+            ++$i;
             $pi = pathinfo($file);
             $data[] = [
-                'id' => $i,
+                'id' => $i + 1,
                 'name' => basename($file),
                 'size' => (int)filesize($file) . ' bytes',
                 'updatedAt' => date('H:i j M, Y', filemtime($file)),
                 'path' => realpath($file),
                 'extension' => $pi['extension'] ?? '',
             ];
-            ++$i;
         }
         $this->data = $data;
         $this->pagesTotal = (int)ceil($i / $this->getPerPage());
