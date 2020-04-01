@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="A2Global\CRMBundle\Repository\EntityFieldRepository")
- * @ORM\Table(name="a2crm_entity_fields")
+ * @ORM\Table(name="crm_entity_fields")
  */
 class EntityField
 {

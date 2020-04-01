@@ -128,7 +128,7 @@ class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
                 $value = $object->{$getter}();
 
                 if (is_bool($value)) {
-                    $value = $value ? '+' : '-';
+                    $value = $value ? 'Yes' : 'No';
                 } elseif ($value instanceof DateTimeInterface) {
                     $value = $value->format('H:i:s j/m/Y');
                 } elseif (is_object($value)) {

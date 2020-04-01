@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
-/** @Route("/manage/object", name="a2crm_object_") */
+/** @Route("/admin/crm/object", name="crm_object_") */
 class ObjectCRUDController extends AbstractController
 {
     private $entityManager;
@@ -88,9 +88,9 @@ class ObjectCRUDController extends AbstractController
             }
             $this->entityManager->flush();
 
-            return $this->redirectToRoute('a2crm_object_list', ['objectName' => $objectName]);
+            return $this->redirectToRoute('crm_object_list', ['objectName' => $objectName]);
         }
-        $url = $this->generateUrl('a2crm_object_edit', ['objectName' => $objectName, 'objectId' => $objectId]);
+        $url = $this->generateUrl('crm_object_edit', ['objectName' => $objectName, 'objectId' => $objectId]);
 
         $form = [
             'url' => $url,

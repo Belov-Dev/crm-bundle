@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/manage/samples/", name="a2crm_samples_") */
+/** @Route("/admin/crm/samples/", name="crm_samples_") */
 class SamplesController extends AbstractController
 {
     private $entityManager;

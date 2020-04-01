@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/** @Route("/admin/crm/", name="crm_") */
 class DefaultController extends AbstractController
 {
     private $entityManager;
@@ -20,15 +21,15 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/manage", name="a2crm_homepage")
+     * @Route("", name="dashboard")
      */
     public function index()
     {
-        return $this->render('@A2CRM/homepage.html.twig');
+        return $this->render('@A2CRM/dashboard.html.twig');
     }
 
     /**
-     * @Route("/manage/heartbeat", name="a2crm_hearbeat")
+     * @Route("/manage/heartbeat", name="crm_hearbeat")
      */
     public function heartbeat()
     {

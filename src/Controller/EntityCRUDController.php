@@ -13,8 +13,6 @@ use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
-use http\Env\Response;
-use PHPUnit\Util\Json;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -22,7 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/manage/entity", name="a2crm_entity_") */
+/** @Route("/admin/crm/entity", name="crm_entity_") */
 class EntityCRUDController extends AbstractController
 {
     private $entityManager;
@@ -58,7 +56,7 @@ class EntityCRUDController extends AbstractController
     public function entityEdit(Request $request, Entity $entity = null)
     {
         $isCreating = is_null($entity);
-        $url = $this->generateUrl('a2crm_entity_edit', ['entity' => $isCreating ? null : $entity->getId()]);
+        $url = $this->generateUrl('crm_entity_edit', ['entity' => $isCreating ? null : $entity->getId()]);
         $form = $this->createForm(EntityTypeForm::class, $entity, [
             'action' => $url,
             'csrf_protection' => false,
@@ -97,7 +95,7 @@ class EntityCRUDController extends AbstractController
         $this->proxyEntityModifier->update($entity);
         $request->getSession()->getFlashBag()->add('success', 'Entity created');
 
-        return $this->redirectToRoute('a2crm_entity_list');
+        return $this->redirectToRoute('crm_entity_list');
     }
 
     /** @Route("/{entity}/field/edit/{entityField}", name="field_edit") */
@@ -108,7 +106,7 @@ class EntityCRUDController extends AbstractController
             $entityField = $this->entityManager->getRepository('A2CRMBundle:EntityField')->find($entityField);
         }
         $isCreating = is_null($entityField);
-        $url = $this->generateUrl('a2crm_entity_field_edit', [
+        $url = $this->generateUrl('crm_entity_field_edit', [
             'entity' => $entity->getId(),
             'entityField' => $isCreating ? null : $entityField->getId(),
         ]);
@@ -157,7 +155,7 @@ class EntityCRUDController extends AbstractController
         $this->proxyEntityModifier->update($entity);
         $request->getSession()->getFlashBag()->add('success', 'Field added');
 
-        return $this->redirectToRoute('a2crm_entity_list');
+        return $this->redirectToRoute('crm_entity_list');
     }
 
     /** @Route("/{entity}/field/edit-configuration/{fieldType}/{entityField?}", name="field_edit_extended") */
@@ -182,6 +180,6 @@ class EntityCRUDController extends AbstractController
     {
         $this->proxyEntityModifier->update($entity);
 
-        return $this->redirectToRoute('a2crm_entity_list');
+        return $this->redirectToRoute('crm_entity_list');
     }
 }

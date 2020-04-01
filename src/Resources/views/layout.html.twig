@@ -26,6 +26,7 @@
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
+        <!--
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
                     aria-expanded="false" aria-controls="navbar">
@@ -47,6 +48,7 @@
                 <input type="text" class="form-control" placeholder="Search...">
             </form>
         </div>
+        -->
     </div>
 </nav>
 
@@ -54,19 +56,8 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="{{ path('a2crm_entity_list') }}">Entities</a></li>
-            </ul>
-            <ul class="nav nav-sidebar">
-                <li><a href="{{ path('a2crm_object_list', {'objectName': 'book'}) }}">Books</a></li>
-                <li><a href="">Nav item again</a></li>
-                <li><a href="">One more nav</a></li>
-                <li><a href="">Another nav item</a></li>
-                <li><a href="">More navigation</a></li>
-            </ul>
-            <ul class="nav nav-sidebar">
-                <li><a href="">Nav item again</a></li>
-                <li><a href="">One more nav</a></li>
-                <li><a href="">Another nav item</a></li>
+                <li><a href="{{ path('crm_dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ path('crm_entity_list') }}">Entities</a></li>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

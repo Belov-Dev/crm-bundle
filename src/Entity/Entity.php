@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="A2Global\CRMBundle\Repository\EntityRepository")
- * @ORM\Table(name="a2crm_entities")
+ * @ORM\Table(name="crm_entities")
  */
 class Entity
 {
