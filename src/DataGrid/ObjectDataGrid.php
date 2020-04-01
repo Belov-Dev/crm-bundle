@@ -12,21 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
 {
-    const PER_PAGE = 10;
+    protected $data;
 
-    const MAX_PAGES_IN_PAGINATOR = 5;
-
-    private $fields = [];
-
-    private $data = [];
-
-    private $currentPage = 1;
-
-    private $perPage = self::PER_PAGE;
-
-    private $pagesTotal = 0;
-
-    private $queryString = [];
+    protected $fields;
 
     private $entityManager;
 
@@ -72,16 +60,6 @@ class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
         return $this;
     }
 
-    public function getData(): array
-    {
-        return $this->data;
-    }
-
-    public function getFields(): array
-    {
-        return $this->fields;
-    }
-
     public function getPagination()
     {
         $maxPages = self::MAX_PAGES_IN_PAGINATOR;
@@ -118,7 +96,7 @@ class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
         ];
     }
 
-    public function getRowActionsTemplateName(string $objectName): ?string
+    public function getRowActionsTemplateName(): ?string
     {
         return '@A2CRM/datagrid/datagrid.actions.html.twig';
     }

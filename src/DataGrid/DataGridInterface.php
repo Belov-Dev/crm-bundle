@@ -4,5 +4,5 @@ namespace A2Global\CRMBundle\DataGrid;
 
 interface DataGridInterface
 {
-    public function getRowActionsTemplateName(string $objectName): ?string;
+    public function getRowActionsTemplateName(): ?string;
 }
