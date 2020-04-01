@@ -135,7 +135,9 @@ class ObjectDataGrid
 
     protected function buildData()
     {
-        foreach ($this->entityRepository->findAll() as $object) {
+        $offset = ($this->currentPage - 1) * $this->perPage;
+
+        foreach ($this->entityRepository->findBy([], [], $this->perPage, $offset) as $object) {
             $item = ['id' => $object->getId()];
 
             foreach ($this->fields as $fieldNameCamelCase => $fieldName) {
