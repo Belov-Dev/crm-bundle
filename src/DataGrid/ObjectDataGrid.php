@@ -10,9 +10,9 @@ use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ObjectDataGrid
+class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
 {
-    const PER_PAGE = 15;
+    const PER_PAGE = 10;
 
     const MAX_PAGES_IN_PAGINATOR = 5;
 
@@ -28,15 +28,15 @@ class ObjectDataGrid
 
     private $queryString = [];
 
+    private $entityManager;
+
+    private $entityFieldRegistry;
+
     /** @var Entity */
     private $entity;
 
     /** @var ServiceEntityRepository */
     private $entityRepository;
-
-    private $entityManager;
-
-    private $entityFieldRegistry;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -90,13 +90,13 @@ class ObjectDataGrid
         unset($queryString['page']);
         $queryString = http_build_query($queryString);
 
-        if($this->currentPage <= $maxPagesHalf){
+        if ($this->currentPage <= $maxPagesHalf) {
             $pagesFrom = 1;
             $pagesTo = min($maxPages, $this->pagesTotal);
-        }elseif($this->currentPage > ($this->pagesTotal - $maxPagesHalf)){
+        } elseif ($this->currentPage > ($this->pagesTotal - $maxPagesHalf)) {
             $pagesFrom = max(1, $this->pagesTotal - $maxPages + 1);
             $pagesTo = $this->pagesTotal;
-        }else{
+        } else {
             $pagesFrom = $this->currentPage - $maxPagesHalf + 1;
             $pagesTo = $this->currentPage + $maxPagesHalf - 1;
         }
@@ -114,8 +114,13 @@ class ObjectDataGrid
             'nextPage' => $this->currentPage + 1,
             'showFirstPage' => $pagesFrom > 1,
             'showLastPage' => $this->currentPage + $maxPagesHalf <= $this->pagesTotal,
-            'url' => '?'.$queryString,
+            'url' => '?' . $queryString,
         ];
+    }
+
+    public function getRowActionsTemplateName(string $objectName): ?string
+    {
+        return '@A2CRM/datagrid/datagrid.actions.html.twig';
     }
 
     protected function buildFields()

@@ -6,11 +6,12 @@ use A2Global\CRMBundle\DataGrid\ObjectDataGrid;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
-use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
 
 /** @Route("/manage/object", name="a2crm_object_") */
 class ObjectCRUDController extends AbstractController
@@ -21,15 +22,19 @@ class ObjectCRUDController extends AbstractController
 
     private $objectDataGrid;
 
+    private $twig;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityFieldRegistry $entityFieldRegistry,
-        ObjectDataGrid $objectDataGrid
+        ObjectDataGrid $objectDataGrid,
+        Environment $twig
     )
     {
         $this->entityManager = $entityManager;
         $this->entityFieldRegistry = $entityFieldRegistry;
         $this->objectDataGrid = $objectDataGrid;
+        $this->twig = $twig;
     }
 
     /** @Route("/{objectName}/list", name="list") */
@@ -43,43 +48,10 @@ class ObjectCRUDController extends AbstractController
             ->setEntity($entity)
             ->build($request->query->all());
 
-//        $data = [];
-//        $fields = [];
-//        $objectName = StringUtility::getVariations($objectName);
-//
-//        /** @var EntityField $field */
-//        foreach ($entity->getFields() as $field) {
-//            $fields[StringUtility::toCamelCase($field->getName())] = $field->getName();
-//        }
-//        $repository = $this->entityManager->getRepository('App:' . $objectName['pascalCase']);
-//
-//        foreach ($repository->findAll() as $object) {
-//            $item = ['id' => $object->getId()];
-//
-//            foreach ($fields as $fieldNameCamelCase => $fieldName) {
-//                $getter = 'get' . $fieldNameCamelCase;
-//                $value = $object->{$getter}();
-//
-//                if (is_bool($value)) {
-//                    $value = $value ? '+' : '-';
-//                } elseif ($value instanceof DateTimeInterface) {
-//                    $value = $value->format('H:i:s j/m/Y');
-//                }elseif(is_object($value)) {
-//                    if (!method_exists($value, '__toString')) {
-//                        $value = StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
-//                    }
-//                }
-//                $item[$fieldNameCamelCase] = $value;
-//            }
-//            $data[] = $item;
-//        }
-
         return $this->render('@A2CRM/object/object.list.html.twig', [
             'dataGrid' => $dataGrid,
-//            'entity' => $entity,
-//            'name' => $objectName,
-//            'fields' => $fields,
-//            'data' => $data,
+            'entity' => $entity,
+            'objectName' => $objectName,
         ]);
     }
 

@@ -1,3 +1,5 @@
+<a href="{{ path('a2crm_object_edit', {'objectName': objectName})}}" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> Create new {{ entity.name }}</a>
+<br><br>
 {% if dataGrid.pagination.enabled %}
     {% include '@A2CRM/datagrid/datagrid.pagination.html.twig' %}
 {% endif %}
@@ -5,27 +7,38 @@
 <table class="table table-striped table-bordered table-responsive" style="width:auto;">
     <thead>
     <tr>
+        {% if dataGrid.rowActionsTemplateName(objectName) %}
+            <th>&nbsp;</th>
+        {% endif %}
+
         {% for field in dataGrid.fields %}
             <th>{{ field.title }}</th>
         {% endfor %}
     </tr>
     </thead>
     <tbody>
+
     {% for item in dataGrid.data %}
+
         <tr>
-            {#            <td>#}
-            {#                <div class="btn-group btn-group-xs">#}
-            {#                    <a href="#" class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></a>#}
-            {#                    <a href="{{ path('a2crm_object_edit', {'objectName': name.snakeCase, 'objectId': item.id }) }}"#}
-            {#                       class="btn btn-default"><i class="glyphicon glyphicon-pencil"></i></a>#}
-            {#                </div>#}
-            {#            </td>#}
+
+            {% if dataGrid.rowActionsTemplateName(objectName) %}
+                {% include dataGrid.rowActionsTemplateName(objectName) with {'object': item, 'objectName': objectName} %}
+            {% endif %}
+
             {% for value in item %}
                 <td>
                     {{ value }}
                 </td>
             {% endfor %}
+
         </tr>
+
     {% endfor %}
+
     </tbody>
 </table>
+
+{% if dataGrid.pagination.enabled %}
+    {% include '@A2CRM/datagrid/datagrid.pagination.html.twig' %}
+{% endif %}
