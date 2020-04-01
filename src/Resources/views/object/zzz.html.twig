@@ -1,0 +1,32 @@
+<a href="{{ path('a2crm_object_edit', {'objectName': name.snakeCase }) }}" class="btn btn-success"><i
+            class="glyphicon glyphicon-plus"></i> Add new {{ entity.name }}</a><br><br>
+
+<table class="table table-striped table-bordered table-responsive" style="width:auto;">
+    <thead>
+    <tr>
+        <th>&nbsp;</th>
+        <th>#</th>
+        {% for field in fields %}
+            <th>{{ field }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+        <tr>
+            <td>
+                <div class="btn-group btn-group-xs">
+                    <a href="#" class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></a>
+                    <a href="{{ path('a2crm_object_edit', {'objectName': name.snakeCase, 'objectId': item.id }) }}"
+                       class="btn btn-default"><i class="glyphicon glyphicon-pencil"></i></a>
+                </div>
+            </td>
+            {% for value in item %}
+                <td>
+                    {{ value }}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

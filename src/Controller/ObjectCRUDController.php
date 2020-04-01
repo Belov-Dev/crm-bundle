@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Controller;
 
+use A2Global\CRMBundle\DataGrid\ObjectDataGrid;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
@@ -18,55 +19,67 @@ class ObjectCRUDController extends AbstractController
 
     private $entityFieldRegistry;
 
+    private $objectDataGrid;
+
     public function __construct(
         EntityManagerInterface $entityManager,
-        EntityFieldRegistry $entityFieldRegistry
+        EntityFieldRegistry $entityFieldRegistry,
+        ObjectDataGrid $objectDataGrid
     )
     {
         $this->entityManager = $entityManager;
         $this->entityFieldRegistry = $entityFieldRegistry;
+        $this->objectDataGrid = $objectDataGrid;
     }
 
     /** @Route("/{objectName}/list", name="list") */
-    public function objectList($objectName)
+    public function objectList(Request $request, $objectName)
     {
-        $data = [];
-        $fields = [];
-        $objectName = StringUtility::getVariations($objectName);
-        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findOneBy(['name' => $objectName['readable']]);
+        $entity = $this->entityManager
+            ->getRepository('A2CRMBundle:Entity')
+            ->findOneBy(['name' => StringUtility::normalize($objectName)]);
 
-        /** @var EntityField $field */
-        foreach ($entity->getFields() as $field) {
-            $fields[StringUtility::toCamelCase($field->getName())] = $field->getName();
-        }
-        $repository = $this->entityManager->getRepository('App:' . $objectName['pascalCase']);
+        $dataGrid = $this->objectDataGrid
+            ->setEntity($entity)
+            ->build($request->query->all());
 
-        foreach ($repository->findAll() as $object) {
-            $item = ['id' => $object->getId()];
-
-            foreach ($fields as $fieldNameCamelCase => $fieldName) {
-                $getter = 'get' . $fieldNameCamelCase;
-                $value = $object->{$getter}();
-
-                if (is_bool($value)) {
-                    $value = $value ? '+' : '-';
-                } elseif ($value instanceof DateTimeInterface) {
-                    $value = $value->format('H:i:s j/m/Y');
-                }elseif(is_object($value)) {
-                    if (!method_exists($value, '__toString')) {
-                        $value = StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
-                    }
-                }
-                $item[$fieldNameCamelCase] = $value;
-            }
-            $data[] = $item;
-        }
+//        $data = [];
+//        $fields = [];
+//        $objectName = StringUtility::getVariations($objectName);
+//
+//        /** @var EntityField $field */
+//        foreach ($entity->getFields() as $field) {
+//            $fields[StringUtility::toCamelCase($field->getName())] = $field->getName();
+//        }
+//        $repository = $this->entityManager->getRepository('App:' . $objectName['pascalCase']);
+//
+//        foreach ($repository->findAll() as $object) {
+//            $item = ['id' => $object->getId()];
+//
+//            foreach ($fields as $fieldNameCamelCase => $fieldName) {
+//                $getter = 'get' . $fieldNameCamelCase;
+//                $value = $object->{$getter}();
+//
+//                if (is_bool($value)) {
+//                    $value = $value ? '+' : '-';
+//                } elseif ($value instanceof DateTimeInterface) {
+//                    $value = $value->format('H:i:s j/m/Y');
+//                }elseif(is_object($value)) {
+//                    if (!method_exists($value, '__toString')) {
+//                        $value = StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
+//                    }
+//                }
+//                $item[$fieldNameCamelCase] = $value;
+//            }
+//            $data[] = $item;
+//        }
 
         return $this->render('@A2CRM/object/object.list.html.twig', [
-            'entity' => $entity,
-            'name' => $objectName,
-            'fields' => $fields,
-            'data' => $data,
+            'dataGrid' => $dataGrid,
+//            'entity' => $entity,
+//            'name' => $objectName,
+//            'fields' => $fields,
+//            'data' => $data,
         ]);
     }
 

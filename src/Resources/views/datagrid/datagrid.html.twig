@@ -1,0 +1,29 @@
+{% include '@A2CRM/datagrid/datagrid.pagination.html.twig' %}
+
+<table class="table table-striped table-bordered table-responsive" style="width:auto;">
+    <thead>
+    <tr>
+        {% for field in dataGrid.fields %}
+            <th>{{ field.title }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in dataGrid.data %}
+        <tr>
+            {#            <td>#}
+            {#                <div class="btn-group btn-group-xs">#}
+            {#                    <a href="#" class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></a>#}
+            {#                    <a href="{{ path('a2crm_object_edit', {'objectName': name.snakeCase, 'objectId': item.id }) }}"#}
+            {#                       class="btn btn-default"><i class="glyphicon glyphicon-pencil"></i></a>#}
+            {#                </div>#}
+            {#            </td>#}
+            {% for value in item %}
+                <td>
+                    {{ value }}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
