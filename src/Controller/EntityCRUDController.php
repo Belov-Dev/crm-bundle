@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/admin/crm/entity", name="crm_entity_") */
+/** @Route("/admin/crm/entity/", name="crm_entity_") */
 class EntityCRUDController extends AbstractController
 {
     private $entityManager;
@@ -44,7 +44,7 @@ class EntityCRUDController extends AbstractController
         $this->entityFieldRegistry = $entityFieldRegistry;
     }
 
-    /** @Route("/list", name="list") */
+    /** @Route("list", name="list") */
     public function entityList()
     {
         return $this->render('@A2CRM/entity/entity.list.html.twig', [
@@ -52,7 +52,7 @@ class EntityCRUDController extends AbstractController
         ]);
     }
 
-    /** @Route("/edit/{entity}", name="edit") */
+    /** @Route("edit/{entity}", name="edit") */
     public function entityEdit(Request $request, Entity $entity = null)
     {
         $isCreating = is_null($entity);
@@ -98,7 +98,7 @@ class EntityCRUDController extends AbstractController
         return $this->redirectToRoute('crm_entity_list');
     }
 
-    /** @Route("/{entity}/field/edit/{entityField}", name="field_edit") */
+    /** @Route("{entity}/field/edit/{entityField}", name="field_edit") */
     public function entityFieldEdit(Request $request, Entity $entity, $entityField = null)
     {
         // todo why entityField is fillled when /edit/ without entity field id? maybe {entityField?} instead of {entityField}
@@ -110,6 +110,10 @@ class EntityCRUDController extends AbstractController
             'entity' => $entity->getId(),
             'entityField' => $isCreating ? null : $entityField->getId(),
         ]);
+
+        if($isCreating){
+            $entityField = (new EntityField())->setType('string');
+        }
         $form = $this->createForm(EntityFieldTypeForm::class, $entityField, [
             'action' => $url,
             'csrf_protection' => false,
@@ -118,6 +122,7 @@ class EntityCRUDController extends AbstractController
             ->add('submit', SubmitType::class);
 
         if ($request->getMethod() != Request::METHOD_POST) {
+
             return $this->render('@A2CRM/entity/entity_field.edit.html.twig', [
                 'form' => $form->createView(),
                 'entity' => $entity,
@@ -125,8 +130,9 @@ class EntityCRUDController extends AbstractController
                 'entityName' => StringUtility::getVariations($entity->getName()),
             ]);
         }
+
         if (!$isCreating) {
-            $entityFieldNameBefore = $entityField->getName();
+            $entityFieldBefore = clone $entityField;
         }
         $form->handleRequest($request);
 
@@ -146,7 +152,7 @@ class EntityCRUDController extends AbstractController
             $mysqlQuery = $this->entityFieldRegistry->find($entityField->getType())->getMysqlCreateQuery($entityField);
             $this->entityManager->persist($entityField);
         } else {
-            $mysqlQuery = $this->entityFieldRegistry->find($entityField->getType())->getMysqlUpdateQuery($entityField);
+            $mysqlQuery = $this->entityFieldRegistry->find($entityField->getType())->getMySQLUpdateQuery($entityFieldBefore, $entityField);
         }
         $this->entityManager->getConnection()->executeQuery($mysqlQuery);
         $this->entityManager->flush();
@@ -158,7 +164,7 @@ class EntityCRUDController extends AbstractController
         return $this->redirectToRoute('crm_entity_list');
     }
 
-    /** @Route("/{entity}/field/edit-configuration/{fieldType}/{entityField?}", name="field_edit_extended") */
+    /** @Route("{entity}/field/edit-configuration/{fieldType}/{entityField?}", name="field_edit_extended") */
     public function entityFieldEditConfiguration(Request $request, Entity $entity, $fieldType, $entityField = null)
     {
         $hasConfiguration = false;
@@ -175,7 +181,7 @@ class EntityCRUDController extends AbstractController
         ]);
     }
 
-    /** @Route("/{entity}/proxy/update", name="update_proxy") */
+    /** @Route("{entity}/proxy/update", name="update_proxy") */
     public function updateProxy(Entity $entity)
     {
         $this->proxyEntityModifier->update($entity);

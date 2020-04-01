@@ -27,6 +27,16 @@ class BooleanField extends AbstractField
         );
     }
 
+    public function getMySQLUpdateQuery(EntityField $entityFieldBefore, EntityField $entityFieldAfter): string
+    {
+        return sprintf(
+            'ALTER TABLE %s CHANGE %s %s TINYINT(1) DEFAULT NULL',
+            SchemaModifier::toTableName($entityFieldBefore->getEntity()->getName()),
+            SchemaModifier::toFieldName($entityFieldBefore->getName()),
+            SchemaModifier::toFieldName($entityFieldAfter->getName())
+        );
+    }
+
     public function getFormControlHTML(EntityField $field, $value = null): string
     {
         $html = [];

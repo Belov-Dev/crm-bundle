@@ -7,18 +7,7 @@
             {{ form_row(form.name) }}
             {{ form_row(form.type) }}
 
-            <div id="form-configuration" hidden>
-                <div class="form-group row">
-                    <label class="col-form-label col-sm-5 required" for="entity_field_type_form_type">Type</label>
-                    <div class="col-sm-7">
-                        <select id="entity_field_type_form_type" name="entity_field_type_form[type]" class="form-control">
-                            <option value="boolean" selected="selected">Boolean: True/False</option>
-                            <option value="integer">Number</option><option value="relation">Other entity</option>
-                            <option value="string">String</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+            <div id="form-configuration" hidden></div>
 
             {{ form_row(form.submit) }}
             </div>
@@ -31,7 +20,7 @@
     <script>
         $(function(){
             $('#entity_field_type_form_type').on('change', function(){
-                let url = '/manage/entity/{{ entity.id }}/field/edit-configuration/' + $(this).val() + '{% if entityField.id is defined %}/{{ entityField.id }}{% endif %}';
+                let url = '/admin/crm/entity/{{ entity.id }}/field/edit-configuration/' + $(this).val() + '{% if entityField.id is defined %}/{{ entityField.id }}{% endif %}';
                 console.log(url);
 
                 $.post(url, {}, function(result){

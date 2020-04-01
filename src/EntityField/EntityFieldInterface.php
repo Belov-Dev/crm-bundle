@@ -12,6 +12,8 @@ interface EntityFieldInterface
 
     public function getMySQLCreateQuery(EntityField $object): string;
 
+    public function getMySQLUpdateQuery(EntityField $entityFieldBefore, EntityField $entityFieldAfter): string;
+
     public function getFormControlHTML(EntityField $field, $value = null): string;
 
     public function getDoctrineClassPropertyCode(EntityField $object): array;

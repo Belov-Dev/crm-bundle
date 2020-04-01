@@ -13,7 +13,9 @@ class EntityFieldTypeForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
+            ->add('name', null, [
+                'attr' => ['autocomplete' => 'off'],
+            ])
 //            ->add('type', ChoiceType::class, [
 //                'choices' => [
 //                    'String' => 'string',

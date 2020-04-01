@@ -25,4 +25,14 @@ class IntegerField extends AbstractField
             SchemaModifier::toFieldName($object->getName())
         );
     }
+
+    public function getMySQLUpdateQuery(EntityField $entityFieldBefore, EntityField $entityFieldAfter): string
+    {
+        return sprintf(
+            'ALTER TABLE %s CHANGE %s %s INT DEFAULT NULL',
+            SchemaModifier::toTableName($entityFieldBefore->getEntity()->getName()),
+            SchemaModifier::toFieldName($entityFieldBefore->getName()),
+            SchemaModifier::toFieldName($entityFieldAfter->getName())
+        );
+    }
 }

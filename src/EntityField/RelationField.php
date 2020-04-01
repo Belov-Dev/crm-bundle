@@ -7,6 +7,7 @@ use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class RelationField extends AbstractField implements EntityFieldConfigurableInterface
 {
@@ -49,6 +50,11 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
         );
 
         return implode(';' . PHP_EOL, $query);
+    }
+
+    public function getMySQLUpdateQuery(EntityField $entityFieldBefore, EntityField $entityFieldAfter): string
+    {
+        throw new Exception('this feature is under construction');
     }
 
     public function getDoctrineClassPropertyCode(EntityField $object): array
@@ -109,7 +115,7 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
     {
         $setter = 'set' . StringUtility::toPascalCase($field->getName());
         $value = $this->entityManager
-            ->getRepository('App:'.StringUtility::toPascalCase($this->getTargetEntity($field)->getName()))
+            ->getRepository('App:' . StringUtility::toPascalCase($this->getTargetEntity($field)->getName()))
             ->find($value);
 
         return $object->{$setter}($value);
