@@ -1,8 +1,10 @@
+{{ dump(dataGrid.pagination) }}
+
 <nav aria-label="Page navigation">
     <ul class="pagination">
 
         {% if dataGrid.pagination.hasPreviousPage %}
-            <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.previousPage }}">&larr; Previous page</a></li>
+            <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.previousPage }}">&larr; Previous</a></li>
         {% endif %}
 
         {% if dataGrid.pagination.showFirstPage %}
@@ -18,7 +20,7 @@
         {% endif %}
 
         {% if dataGrid.pagination.hasNextPage %}
-            <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.nextPage }}">Next page &rarr;</a></li>
+            <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.nextPage }}">Next &rarr;</a></li>
         {% endif %}
 
     </ul>

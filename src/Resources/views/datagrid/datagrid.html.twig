@@ -1,4 +1,6 @@
-{% include '@A2CRM/datagrid/datagrid.pagination.html.twig' %}
+{% if dataGrid.pagination.enabled %}
+    {% include '@A2CRM/datagrid/datagrid.pagination.html.twig' %}
+{% endif %}
 
 <table class="table table-striped table-bordered table-responsive" style="width:auto;">
     <thead>

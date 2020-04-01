@@ -14,6 +14,8 @@ class ObjectDataGrid
 {
     const PER_PAGE = 15;
 
+    const MAX_PAGES_IN_PAGINATOR = 5;
+
     private $fields = [];
 
     private $data = [];
@@ -82,17 +84,25 @@ class ObjectDataGrid
 
     public function getPagination()
     {
-        $totalPagesInPaginator = 5;
-        $half = (int)ceil($totalPagesInPaginator / 2);
-        $pagesFrom = $this->currentPage <= $half ? 1 : $this->currentPage - $half + 1;
-        $pagesTo = $pagesFrom + $totalPagesInPaginator - 1;
-        $pagesTo = min($pagesTo, $this->pagesTotal);
-
+        $maxPages = self::MAX_PAGES_IN_PAGINATOR;
+        $maxPagesHalf = (int)ceil($maxPages / 2);
         $queryString = $this->queryString;
         unset($queryString['page']);
         $queryString = http_build_query($queryString);
 
+        if($this->currentPage <= $maxPagesHalf){
+            $pagesFrom = 1;
+            $pagesTo = min($maxPages, $this->pagesTotal);
+        }elseif($this->currentPage > ($this->pagesTotal - $maxPagesHalf)){
+            $pagesFrom = max(1, $this->pagesTotal - $maxPages + 1);
+            $pagesTo = $this->pagesTotal;
+        }else{
+            $pagesFrom = $this->currentPage - $maxPagesHalf + 1;
+            $pagesTo = $this->currentPage + $maxPagesHalf - 1;
+        }
+
         return [
+            'enabled' => $this->pagesTotal > 1,
             'currentPage' => $this->currentPage,
             'perPage' => $this->perPage,
             'totalPages' => $this->pagesTotal,
@@ -103,7 +113,7 @@ class ObjectDataGrid
             'hasNextPage' => $this->currentPage < $this->pagesTotal,
             'nextPage' => $this->currentPage + 1,
             'showFirstPage' => $pagesFrom > 1,
-            'showLastPage' => $this->currentPage + $half <= $this->pagesTotal,
+            'showLastPage' => $this->currentPage + $maxPagesHalf <= $this->pagesTotal,
             'url' => '?'.$queryString,
         ];
     }
