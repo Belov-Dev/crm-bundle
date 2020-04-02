@@ -4,6 +4,7 @@ namespace A2Global\CRMBundle\EntityField;
 
 use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\Utility\StringUtility;
 use Twig\Environment;
 
 class ChoiceField extends StringField implements EntityFieldConfigurableInterface
@@ -26,20 +27,16 @@ class ChoiceField extends StringField implements EntityFieldConfigurableInterfac
 
     public function getFormControlHTML(EntityField $field, $value = null): string
     {
-//        $configuration$field->getConfiguration()
-//        $targetEntity = $this->getTargetEntity($field);
-//        $optionsRepository = $this->entityManager->getRepository('App:' . StringUtility::toPascalCase($targetEntity->getName()));
-//
-//        $html = [];
-//        $html[] = sprintf('<select class="form-control" name="field[%s]">', StringUtility::toSnakeCase($field->getName()));
-//
-//        foreach ($optionsRepository->findAll() as $item) {
-//            $isSelected = $value && ($value->getId() == $item->getId());
-//            $html[] = sprintf('<option value="%s" %s>%s', $item->getId(), ($isSelected ? 'selected' : ''), (string)$item);
-//        }
-//        $html[] = '</select>';
-//
-//        return implode(PHP_EOL, $html);
+        $html = [];
+        $html[] = sprintf('<select class="form-control" name="field[%s]">', StringUtility::toSnakeCase($field->getName()));
+
+        foreach ($field->getConfiguration()['choices'] as $option) {
+            $isSelected = $value && ($value == $option);
+            $html[] = sprintf('<option value="%s" %s>%s', $option, ($isSelected ? 'selected' : ''), $option);
+        }
+        $html[] = '</select>';
+
+        return implode(PHP_EOL, $html);
     }
 
     public function getFormConfigurationControls(Entity $entity, $field)
