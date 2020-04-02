@@ -43,7 +43,14 @@ class ChoiceField extends StringField implements EntityFieldConfigurableInterfac
     {
         return $this->twig->render('@A2CRM/entity/entity_field.choice.configuration.html.twig', [
             'entity' => $entity,
-            'field' =>  $field,
+            'field' => $field,
         ]);
+    }
+
+    public function getFixtureValue($field)
+    {
+        $options = $field->getConfiguration()['choices'];
+
+        return $options[array_rand($options)];
     }
 }

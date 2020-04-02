@@ -64,4 +64,9 @@ class BooleanField extends AbstractField
 
         return $object->{$setter}((bool)$value);
     }
+
+    public function getFixtureValue($field)
+    {
+        return [true, false][rand(0, 1)];
+    }
 }

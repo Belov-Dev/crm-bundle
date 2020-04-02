@@ -8,6 +8,35 @@ use A2Global\CRMBundle\Utility\StringUtility;
 
 class StringField extends AbstractField
 {
+    const WORDS = [
+        'Alpha',
+        'Bravo',
+        'Charlie',
+        'Delta',
+        'Echo',
+        'Foxtrot',
+        'Golf',
+        'Hotel',
+        'India',
+        'Juliett',
+        'Kilo',
+        'Lima',
+        'Mike',
+        'November',
+        'Oscar',
+        'Papa',
+        'Quebec',
+        'Romeo',
+        'Sierra',
+        'Tango',
+        'Uniform',
+        'Victor',
+        'Whiskey',
+        'X-ray',
+        'Yankee',
+        'Yankee',
+    ];
+
     public function getName(): string
     {
         return 'String';
@@ -41,5 +70,10 @@ class StringField extends AbstractField
             SchemaModifier::toFieldName($entityFieldBefore->getName()),
             SchemaModifier::toFieldName($entityFieldAfter->getName())
         );
+    }
+
+    public function getFixtureValue($field)
+    {
+        return self::WORDS[array_rand(self::WORDS)];
     }
 }

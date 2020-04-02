@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Controller;
 
+use A2Global\CRMBundle\Builder\FixtureBuilder;
 use A2Global\CRMBundle\DataGrid\ObjectDataGrid;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;

@@ -5,7 +5,10 @@
 {% block content %}
 
     <a href="{{ path('crm_entity_edit') }}"
-       class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> Add new entity</a><br><br>
+       class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> Add new entity</a>
+
+    <a href="{{ path('crm_entity_load_fixtures') }}"
+       class="btn btn-danger"><i class="glyphicon glyphicon-list"></i> Fill fixtures</a><br><br>
 
     <div class="row">
         {% for entity in entities %}

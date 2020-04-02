@@ -35,4 +35,9 @@ class IntegerField extends AbstractField
             SchemaModifier::toFieldName($entityFieldAfter->getName())
         );
     }
+
+    public function getFixtureValue($field)
+    {
+        return rand(10, 700);
+    }
 }

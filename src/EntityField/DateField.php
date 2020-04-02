@@ -45,8 +45,13 @@ class DateField extends AbstractField
 
     public function setValueToObject($object, EntityField $field, $value)
     {
-        $setter = 'set'.StringUtility::toPascalCase($field->getName());
+        $setter = 'set' . StringUtility::toPascalCase($field->getName());
 
         return $object->{$setter}(new DateTime($value));
+    }
+
+    public function getFixtureValue($field)
+    {
+        return new DateTime(rand(-30, 30) . 'days');
     }
 }

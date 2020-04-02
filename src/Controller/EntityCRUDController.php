@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Controller;
 
+use A2Global\CRMBundle\Builder\FixtureBuilder;
 use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\EntityField\EntityFieldConfigurableInterface;
@@ -34,12 +35,15 @@ class EntityCRUDController extends AbstractController
 
     private $logger;
 
+    private $fixtureBuilder;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         SchemaModifier $schemaModifier,
         ProxyEntityModifier $proxyEntityModifier,
         EntityFieldRegistry $entityFieldRegistry,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        FixtureBuilder $fixtureBuilder
     )
     {
         $this->entityManager = $entityManager;
@@ -47,6 +51,7 @@ class EntityCRUDController extends AbstractController
         $this->proxyEntityModifier = $proxyEntityModifier;
         $this->entityFieldRegistry = $entityFieldRegistry;
         $this->logger = $logger;
+        $this->fixtureBuilder = $fixtureBuilder;
     }
 
     /** @Route("list", name="list") */
@@ -109,9 +114,9 @@ class EntityCRUDController extends AbstractController
     {
         $isCreating = is_null($entityField);
 
-        if($isCreating){
+        if ($isCreating) {
             $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
-        }else{
+        } else {
             $entity = $entityField->getEntity();
         }
         $url = $this->generateUrl('crm_entity_field_edit', [
@@ -119,7 +124,7 @@ class EntityCRUDController extends AbstractController
             'entityField' => $entityField ? $entityField->getId() : '',
         ]);
 
-        if($isCreating){
+        if ($isCreating) {
             $entityField = (new EntityField())->setType('string');
         }
         $form = $this->createForm(EntityFieldTypeForm::class, $entityField, [
@@ -195,6 +200,14 @@ class EntityCRUDController extends AbstractController
     {
         $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
         $this->proxyEntityModifier->update($entity);
+
+        return $this->redirectToRoute('crm_entity_list');
+    }
+
+    /** @Route("/fixtures/load", name="load_fixtures") */
+    public function loadFixtures()
+    {
+        $this->fixtureBuilder->build();
 
         return $this->redirectToRoute('crm_entity_list');
     }

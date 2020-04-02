@@ -135,6 +135,11 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
         return $this->getExtendedFormHTML($elements);
     }
 
+    public function getFixtureValue($field)
+    {
+        return null;
+    }
+
     protected function getTargetEntity(EntityField $field)
     {
         return $this->entityManager->getRepository('A2CRMBundle:Entity')->find($field->getConfiguration()['target_entity']);
