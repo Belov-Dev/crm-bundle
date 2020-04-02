@@ -1,35 +1,33 @@
-<nav>
-    <ul class="pagination" style="margin-right:30px;">
-        {% if dataGrid.pagination.hasPreviousPage %}
-            <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.previousPage }}"> &larr; </a></li>
-        {% else %}
-            <li class="disabled"><a> &larr; </a></li>
-        {% endif %}
-        {% if dataGrid.pagination.hasNextPage %}
-            <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.nextPage }}"> &rarr; </a></li>
-        {% else %}
-            <li class="disabled"><a> &rarr; </a></li>
-        {% endif %}
-    </ul>
+<ul class="pagination" style="margin-right:30px;">
+    {% if dataGrid.pagination.hasPreviousPage %}
+        <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.previousPage }}"> &larr; </a></li>
+    {% else %}
+        <li class="disabled"><a> &larr; </a></li>
+    {% endif %}
+    {% if dataGrid.pagination.hasNextPage %}
+        <li><a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.nextPage }}"> &rarr; </a></li>
+    {% else %}
+        <li class="disabled"><a> &rarr; </a></li>
+    {% endif %}
+</ul>
 
-    <ul class="pagination">
-
-
-        {% if dataGrid.pagination.showFirstPage %}
-            <li><a href="{{ dataGrid.pagination.url }}&page=1">1…</a></li>
-        {% endif %}
-
-        {% for page in dataGrid.pagination.pagesFrom..dataGrid.pagination.pagesTo %}
-            <li {{ page == dataGrid.pagination.currentPage ? 'class="active"' : '' }}><a
-                        href="{{ dataGrid.pagination.url }}&page={{ page }}" class="ac">{{ page }}</a></li>
-        {% endfor %}
-
-        {% if dataGrid.pagination.showLastPage %}
-            <li>
-                <a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.totalPages }}">…{{ dataGrid.pagination.totalPages }}</a>
-            </li>
-        {% endif %}
+<ul class="pagination">
 
 
-    </ul>
-</nav>
+    {% if dataGrid.pagination.showFirstPage %}
+        <li><a href="{{ dataGrid.pagination.url }}&page=1">1…</a></li>
+    {% endif %}
+
+    {% for page in dataGrid.pagination.pagesFrom..dataGrid.pagination.pagesTo %}
+        <li {{ page == dataGrid.pagination.currentPage ? 'class="active"' : '' }}><a
+                    href="{{ dataGrid.pagination.url }}&page={{ page }}" class="ac">{{ page }}</a></li>
+    {% endfor %}
+
+    {% if dataGrid.pagination.showLastPage %}
+        <li>
+            <a href="{{ dataGrid.pagination.url }}&page={{ dataGrid.pagination.totalPages }}">…{{ dataGrid.pagination.totalPages }}</a>
+        </li>
+    {% endif %}
+
+
+</ul>

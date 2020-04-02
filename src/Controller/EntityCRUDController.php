@@ -185,9 +185,10 @@ class EntityCRUDController extends AbstractController
         ]);
     }
 
-    /** @Route("{entity}/proxy/update", name="update_proxy") */
-    public function updateProxy(Entity $entity)
+    /** @Route("{entityName}/proxy/update", name="update_proxy") */
+    public function updateProxy($entityName)
     {
+        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
         $this->proxyEntityModifier->update($entity);
 
         return $this->redirectToRoute('crm_entity_list');

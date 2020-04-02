@@ -290,6 +290,11 @@
             </div>
             <ul class="sidebar-menu tree" data-widget="tree">
                 {{ crm_menu() }}
+                <li class="header">Database</li>
+                <li><a href="/crm/object/worker/list">Workers</a></li>
+                <li><a href="/crm/object/worker/edit">Add worker</a></li>
+                <li><a href="/crm/object/company/list">Companies</a></li>
+                <li><a href="/crm/object/company/edit">Add company</a></li>
                 <li class="header">CRM</li>
                 <li><a href="{{ path('crm_entity_list') }}">Entities</a></li>
                 <li><a href="#">Menu</a></li>
@@ -326,6 +331,23 @@
 </div>
 
 <script src="/crm/adminlte.js"></script>
+
+<script>
+    $(function(){
+        $('input[data-date-mask]').on('keyup', (function(e){
+            code = e.keyCode || e.which;
+            if(code == 8){
+                return;
+            }
+            var v = this.value;
+            if (v.match(/^\d{2}$/) !== null) {
+                this.value = v + '/';
+            } else if (v.match(/^\d{2}\/\d{2}$/) !== null) {
+                this.value = v + '/';
+            }
+        }));
+    })
+</script>
 
 </body>
 </html>

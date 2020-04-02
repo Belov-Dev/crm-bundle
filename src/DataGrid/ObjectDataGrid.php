@@ -6,15 +6,16 @@ use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
+use DateTime;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
 {
-    protected $data;
+    protected $data = [];
 
-    protected $fields;
+    protected $fields = [];
 
     private $entityManager;
 
@@ -130,7 +131,7 @@ class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
                 if (is_bool($value)) {
                     $value = $value ? 'Yes' : 'No';
                 } elseif ($value instanceof DateTimeInterface) {
-                    $value = $value->format('H:i:s j/m/Y');
+                    $value = $value->format('j/m/Y');
                 } elseif (is_object($value)) {
                     if (!method_exists($value, '__toString')) {
                         $value = StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();

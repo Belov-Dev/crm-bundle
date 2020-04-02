@@ -2,7 +2,6 @@
 
 namespace A2Global\CRMBundle\DataGrid;
 
-use A2Global\CRMBundle\Utility\StringUtility;
 use Twig\Environment;
 
 abstract class AbstractDataGrid implements DataGridInterface
@@ -18,6 +17,10 @@ abstract class AbstractDataGrid implements DataGridInterface
     protected $pagesTotal;
 
     protected $queryString;
+
+    protected $data = [];
+
+    protected $fields = [];
 
     /** @var Environment */
     protected $twigEnvironment;

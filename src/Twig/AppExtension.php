@@ -23,6 +23,7 @@ class AppExtension extends AbstractExtension {
     {
         return [
             new TwigFunction('crm_menu', [AppRuntimeFunctions::class, 'getMenu'], ['is_safe' => ['html']]),
+            new TwigFunction('form_field', [AppRuntimeFunctions::class, 'getFormField'], ['is_safe' => ['html']]),
         ];
     }
 

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
-/** @Route("/admin/crm/object", name="crm_object_") */
+/** @Route("/crm/object", name="crm_object_") */
 class ObjectCRUDController extends AbstractController
 {
     private $entityManager;
@@ -39,13 +39,8 @@ class ObjectCRUDController extends AbstractController
     /** @Route("/{objectName}/list", name="list") */
     public function objectList(Request $request, $objectName)
     {
-        $entity = $this->entityManager
-            ->getRepository('A2CRMBundle:Entity')
-            ->findOneBy(['name' => StringUtility::normalize($objectName)]);
-
-        $dataGrid = $this->objectDataGrid
-            ->setEntity($entity)
-            ->build($request->query->all());
+        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($objectName);
+        $dataGrid = $this->objectDataGrid->setEntity($entity)->build($request->query->all());
 
         return $this->render('@A2CRM/object/object.list.html.twig', [
             'dataGrid' => $dataGrid,
@@ -92,23 +87,28 @@ class ObjectCRUDController extends AbstractController
         }
         $url = $this->generateUrl('crm_object_edit', ['objectName' => $objectName, 'objectId' => $objectId]);
 
-        $form = [
-            'url' => $url,
-            'elements' => [],
-        ];
+        $form = [];
 
         /** @var EntityField $field */
         foreach ($entity->getFields() as $field) {
             $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
-            $form['elements'][$field->getName()] = $this->entityFieldRegistry
+            $form[$fieldNameCamelCase] = $this->entityFieldRegistry
                 ->find($field->getType())
                 ->getFormControlHTML($field, $object->{'get'.$fieldNameCamelCase}());
         }
+        $templateName = sprintf('crm/%s.edit.html.twig', $objectName);
 
-        return $this->render('@A2CRM/object/object.edit.html.twig', [
+        if(!$this->get('twig')->getLoader()->exists($templateName)){
+            $templateName = '@A2CRM/object/object.edit.html.twig';
+        }
+
+        return $this->render($templateName, [
             'entity' => $entity,
             'object' => $object,
             'form' => $form,
+            'formUrl' => $url,
+            'isCreating' => $isCreating,
+            'isEditing' => !$isCreating,
         ]);
     }
 }
