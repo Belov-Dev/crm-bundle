@@ -22,9 +22,9 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
         $this->router = $router;
     }
 
-    public function getFormField($formField)
+    public function getFormField($field)
     {
-        return $formField;
+        return $field['html'];
     }
 
     public function getMenu()

@@ -3,11 +3,11 @@
 {% block content %}
     {{ form_start(form) }}
     <div class="row">
-        <div class="col-sm-5">
+        <div class="col-sm-7">
             {{ form_row(form.name) }}
             {{ form_row(form.type) }}
 
-            <div id="form-configuration" hidden></div>
+            <div id="field-configuration" hidden></div>
 
             {{ form_row(form.submit) }}
             </div>
@@ -20,14 +20,19 @@
     <script>
         $(function(){
             $('#entity_field_type_form_type').on('change', function(){
-                let url = '/admin/crm/entity/{{ entity.id }}/field/edit-configuration/' + $(this).val() + '{% if entityField.id is defined %}/{{ entityField.id }}{% endif %}';
+                let url = '/admin/entity/{{ entity.name|toSnakeCase }}/field/edit-configuration/' + $(this).val() + '{% if entityField.id is defined %}/{{ entityField.id }}{% endif %}';
                 console.log(url);
 
-                $.post(url, {}, function(result){
+                $.get(url, function(result){
                     if(result.hasConfiguration){
-                        $('#form-configuration').html(result.html).slideDown(400);
+                        $('#field-configuration').html(result.html);
+
+                        setTimeout(function(){
+                            $('#field-configuration').slideDown(500);
+                        }, 300);
+
                     }else{
-                        $('#form-configuration').slideUp(400, function(){
+                        $('#field-configuration').slideUp(400, function(){
                             $(this).html('');
                         });
                     }

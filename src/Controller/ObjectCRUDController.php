@@ -7,12 +7,13 @@ use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
-/** @Route("/crm/object", name="crm_object_") */
+/** @Route("/admin/object", name="crm_object_") */
 class ObjectCRUDController extends AbstractController
 {
     private $entityManager;
@@ -23,17 +24,21 @@ class ObjectCRUDController extends AbstractController
 
     private $twig;
 
+    private $logger;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityFieldRegistry $entityFieldRegistry,
         ObjectDataGrid $objectDataGrid,
-        Environment $twig
+        Environment $twig,
+        LoggerInterface $logger
     )
     {
         $this->entityManager = $entityManager;
         $this->entityFieldRegistry = $entityFieldRegistry;
         $this->objectDataGrid = $objectDataGrid;
         $this->twig = $twig;
+        $this->logger = $logger;
     }
 
     /** @Route("/{objectName}/list", name="list") */
@@ -56,6 +61,7 @@ class ObjectCRUDController extends AbstractController
         $objectNameReadable = StringUtility::normalize($objectName);
         $objectPascalCase = StringUtility::toPascalCase($objectName);
         $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findOneBy(['name' => $objectNameReadable]);
+        $this->logger->info('Object edit controller started for the object of entity', [$entity->getName()]);
 
         if ($isCreating) {
             $classname = 'App\\Entity\\' . StringUtility::toPascalCase($entity->getName());
@@ -86,19 +92,24 @@ class ObjectCRUDController extends AbstractController
             return $this->redirectToRoute('crm_object_list', ['objectName' => $objectName]);
         }
         $url = $this->generateUrl('crm_object_edit', ['objectName' => $objectName, 'objectId' => $objectId]);
-
-        $form = [];
+        $form = [
+            'url' => $url,
+            'fields' => [],
+        ];
+        $this->logger->info('Building form for the object');
 
         /** @var EntityField $field */
         foreach ($entity->getFields() as $field) {
+            $this->logger->info('Building form for the field', [$field->getName()]);
             $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
-            $form[$fieldNameCamelCase] = $this->entityFieldRegistry
-                ->find($field->getType())
-                ->getFormControlHTML($field, $object->{'get'.$fieldNameCamelCase}());
+            $form['fields'][$fieldNameCamelCase] = [
+                'title' => $field->getName(),
+                'html' => $this->entityFieldRegistry->find($field->getType())->getFormControlHTML($field, $object->{'get' . $fieldNameCamelCase}()),
+            ];
         }
         $templateName = sprintf('crm/%s.edit.html.twig', $objectName);
 
-        if(!$this->get('twig')->getLoader()->exists($templateName)){
+        if (!$this->get('twig')->getLoader()->exists($templateName)) {
             $templateName = '@A2CRM/object/object.edit.html.twig';
         }
 
@@ -106,7 +117,6 @@ class ObjectCRUDController extends AbstractController
             'entity' => $entity,
             'object' => $object,
             'form' => $form,
-            'formUrl' => $url,
             'isCreating' => $isCreating,
             'isEditing' => !$isCreating,
         ]);

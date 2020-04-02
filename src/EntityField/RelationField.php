@@ -121,7 +121,7 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
         return $object->{$setter}($value);
     }
 
-    public function getFormConfigurationControls(Entity $entity, $object = null)
+    public function getFormConfigurationControls(Entity $entity, $field)
     {
         $elements = [];
 

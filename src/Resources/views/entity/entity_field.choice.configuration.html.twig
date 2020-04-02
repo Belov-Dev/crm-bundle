@@ -1,0 +1,60 @@
+<div id="choice-options"></div>
+
+
+<div class="form-group row">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-8">
+        <a href="#" class="btn btn-default btn-block" id="choice-option-adder">Add new option…</a>
+    </div>
+</div>
+
+
+<div id="choice-option-sample" hidden>
+
+    <div class="form-group row" data-option-container>
+        <div class="col-sm-4">
+            <a href="#" class="btn btn-default pull-right" data-remove-option><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+        <div class="col-sm-8">
+            <input type="text"
+                   data-choice-option
+                   maxlength="255"
+                   autocomplete="off"
+                   class="form-control"
+            >
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        let pattern = $('#choice-option-sample');
+
+        {% if field.configuration.choices is defined %}
+        {% for choice in field.configuration.choices %}
+        console.log('{{ choice }}');
+        addOption('{{ choice }}');
+        {% endfor %}
+        {% else %}
+        addOption();
+        addOption();
+        addOption();
+        {% endif %}
+
+        $('#choice-option-adder').click(function () {
+            addOption();
+        })
+
+        $('[data-remove-option]').click(function () {
+            $(this).parents('[data-option-container]').remove();
+        })
+
+        function addOption(value = '') {
+            let newItem = $(pattern.html());
+            // adding name attribute here, not saving it in pattern to avoid blank extra option
+            newItem.find('input').attr('name', 'configuration[choices][]').val(value);
+            $('#choice-options').append(newItem);
+        }
+    })
+</script>

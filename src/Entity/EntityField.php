@@ -87,7 +87,7 @@ class EntityField
 
     public function getConfiguration(): array
     {
-        return json_decode($this->configuration ?? '[]', true);
+        return json_decode($this->configuration, true) ?: [];
     }
 
     public function setConfiguration($configuration = []): self

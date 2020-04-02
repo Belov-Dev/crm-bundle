@@ -52,7 +52,7 @@ abstract class AbstractField implements EntityFieldInterface
 
     public function setValueToObject($object, EntityField $field, $value)
     {
-        $setter = 'set'.StringUtility::toPascalCase($field->getName());
+        $setter = 'set' . StringUtility::toPascalCase($field->getName());
 
         return $object->{$setter}($value);
     }

@@ -13,6 +13,7 @@ use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -20,7 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/admin/crm/entity/", name="crm_entity_") */
+/** @Route("/admin/entity/", name="crm_entity_") */
 class EntityCRUDController extends AbstractController
 {
     private $entityManager;
@@ -31,17 +32,21 @@ class EntityCRUDController extends AbstractController
 
     private $entityFieldRegistry;
 
+    private $logger;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         SchemaModifier $schemaModifier,
         ProxyEntityModifier $proxyEntityModifier,
-        EntityFieldRegistry $entityFieldRegistry
+        EntityFieldRegistry $entityFieldRegistry,
+        LoggerInterface $logger
     )
     {
         $this->entityManager = $entityManager;
         $this->schemaModifier = $schemaModifier;
         $this->proxyEntityModifier = $proxyEntityModifier;
         $this->entityFieldRegistry = $entityFieldRegistry;
+        $this->logger = $logger;
     }
 
     /** @Route("list", name="list") */
@@ -99,20 +104,19 @@ class EntityCRUDController extends AbstractController
         return $this->redirectToRoute('crm_entity_list');
     }
 
-    /** @Route("{entityName}/field/edit/{entityFieldName?}", name="field_edit") */
-    public function entityFieldEdit(Request $request, $entityName, $entityFieldName = null)
+    /** @Route("{entityName}/field/edit/{entityField?}", name="field_edit") */
+    public function entityFieldEdit(Request $request, $entityName, EntityField $entityField = null)
     {
-        $isCreating = is_null($entityFieldName);
+        $isCreating = is_null($entityField);
 
         if($isCreating){
             $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
         }else{
-            $entityField = $this->entityManager->getRepository('A2CRMBundle:EntityField')->findByName($entityFieldName);
             $entity = $entityField->getEntity();
         }
         $url = $this->generateUrl('crm_entity_field_edit', [
             'entityName' => $entityName,
-            'entityFieldName' => $entityFieldName,
+            'entityField' => $entityField ? $entityField->getId() : '',
         ]);
 
         if($isCreating){
@@ -168,20 +172,21 @@ class EntityCRUDController extends AbstractController
         return $this->redirectToRoute('crm_entity_list');
     }
 
-    /** @Route("{entity}/field/edit-configuration/{fieldType}/{entityField?}", name="field_edit_extended") */
-    public function entityFieldEditConfiguration(Request $request, Entity $entity, $fieldType, $entityField = null)
+    /** @Route("{entityName}/field/edit-configuration/{fieldType}/{entityField?}", name="field_edit_extended") */
+    public function entityFieldEditConfiguration(Request $request, $entityName, $fieldType, EntityField $entityField = null)
     {
+        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
         $hasConfiguration = false;
-        /** @var EntityFieldInterface $entityField */
-        $entityField = $this->entityFieldRegistry->find($fieldType);
+        /** @var EntityFieldInterface $fieldType */
+        $fieldType = $this->entityFieldRegistry->find($fieldType);
 
-        if ($entityField instanceof EntityFieldConfigurableInterface) {
+        if ($fieldType instanceof EntityFieldConfigurableInterface) {
             $hasConfiguration = true;
         }
 
         return new JsonResponse([
             'hasConfiguration' => $hasConfiguration,
-            'html' => $hasConfiguration ? $entityField->getFormConfigurationControls($entity, $entityField) : '',
+            'html' => $hasConfiguration ? $fieldType->getFormConfigurationControls($entity, $entityField, $fieldType) : '',
         ]);
     }
 
