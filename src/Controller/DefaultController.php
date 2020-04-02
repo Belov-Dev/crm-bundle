@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/** @Route("/admin/crm/", name="crm_") */
+/** @Route("/admin/", name="crm_") */
 class DefaultController extends AbstractController
 {
     private $entityManager;
@@ -26,13 +26,5 @@ class DefaultController extends AbstractController
     public function index()
     {
         return $this->render('@A2CRM/dashboard.html.twig');
-    }
-
-    /**
-     * @Route("/manage/heartbeat", name="crm_hearbeat")
-     */
-    public function heartbeat()
-    {
-        return new Response(sprintf('Heartbeat: OK [%s]', (new DateTime())->format(DATE_RFC7231)));
     }
 }
