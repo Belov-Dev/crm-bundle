@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Repository;
 
 use A2Global\CRMBundle\Entity\EntityField;
+use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -17,6 +18,12 @@ class EntityFieldRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, EntityField::class);
+    }
+
+
+    public function findByName($name): ?EntityField
+    {
+        return $this->findOneBy(['name' => StringUtility::normalize($name)]);
     }
 
     // /**

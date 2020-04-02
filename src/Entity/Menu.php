@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="A2Global\CRMBundle\Repository\MenuRepository")
+ * @ORM\Table(name="crm_menu")
  */
 class Menu
 {
@@ -25,6 +26,11 @@ class Menu
      * @ORM\Column(type="string", length=255)
      */
     private $route;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $orderId;
 
     public function getId(): ?int
     {
@@ -51,6 +57,18 @@ class Menu
     public function setRoute(string $route): self
     {
         $this->route = $route;
+
+        return $this;
+    }
+
+    public function getOrderId(): ?int
+    {
+        return $this->orderId;
+    }
+
+    public function setOrderId(int $orderId): self
+    {
+        $this->orderId = $orderId;
 
         return $this;
     }

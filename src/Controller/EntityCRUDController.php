@@ -52,11 +52,12 @@ class EntityCRUDController extends AbstractController
         ]);
     }
 
-    /** @Route("edit/{entity}", name="edit") */
-    public function entityEdit(Request $request, Entity $entity = null)
+    /** @Route("edit/{entityName?}", name="edit") */
+    public function entityEdit(Request $request, $entityName = null)
     {
-        $isCreating = is_null($entity);
-        $url = $this->generateUrl('crm_entity_edit', ['entity' => $isCreating ? null : $entity->getId()]);
+        $isCreating = is_null($entityName);
+        $entity = $isCreating ? null : $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
+        $url = $this->generateUrl('crm_entity_edit', ['entityName' => $entityName]);
         $form = $this->createForm(EntityTypeForm::class, $entity, [
             'action' => $url,
             'csrf_protection' => false,
@@ -98,17 +99,20 @@ class EntityCRUDController extends AbstractController
         return $this->redirectToRoute('crm_entity_list');
     }
 
-    /** @Route("{entity}/field/edit/{entityField}", name="field_edit") */
-    public function entityFieldEdit(Request $request, Entity $entity, $entityField = null)
+    /** @Route("{entityName}/field/edit/{entityFieldName?}", name="field_edit") */
+    public function entityFieldEdit(Request $request, $entityName, $entityFieldName = null)
     {
-        // todo why entityField is fillled when /edit/ without entity field id? maybe {entityField?} instead of {entityField}
-        if ($entityField) {
-            $entityField = $this->entityManager->getRepository('A2CRMBundle:EntityField')->find($entityField);
+        $isCreating = is_null($entityFieldName);
+
+        if($isCreating){
+            $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
+        }else{
+            $entityField = $this->entityManager->getRepository('A2CRMBundle:EntityField')->findByName($entityFieldName);
+            $entity = $entityField->getEntity();
         }
-        $isCreating = is_null($entityField);
         $url = $this->generateUrl('crm_entity_field_edit', [
-            'entity' => $entity->getId(),
-            'entityField' => $isCreating ? null : $entityField->getId(),
+            'entityName' => $entityName,
+            'entityFieldName' => $entityFieldName,
         ]);
 
         if($isCreating){

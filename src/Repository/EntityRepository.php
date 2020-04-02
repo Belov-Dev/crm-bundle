@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Repository;
 
 use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -19,6 +20,10 @@ class EntityRepository extends ServiceEntityRepository
         parent::__construct($registry, Entity::class);
     }
 
+    public function findByName($name): ?Entity
+    {
+        return $this->findOneBy(['name' => StringUtility::normalize($name)]);
+    }
     // /**
     //  * @return Entity[] Returns an array of Entity objects
     //  */

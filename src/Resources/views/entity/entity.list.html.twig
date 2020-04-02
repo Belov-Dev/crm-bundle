@@ -12,13 +12,13 @@
                         <th>
                             <div class="btn-group btn-group-xs">
                                 <a href="#" class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></a>
-                                <a href="{{ path('crm_entity_update_proxy', {'entity': entity.id}) }}"
-                                   class="btn btn-default"><i class="glyphicon glyphicon-refresh"></i></a>
-                                <a href="{{ path('crm_entity_edit', {'entity': entity.id}) }}"
+{#                                <a href="{{ path('crm_entity_update_proxy', {'entityName': entity.name|toSnakeCase}) }}"#}
+{#                                   class="btn btn-default"><i class="glyphicon glyphicon-refresh"></i></a>#}
+                                <a href="{{ path('crm_entity_edit', {'entityName': entity.name|toSnakeCase}) }}"
                                    class="btn btn-default"><i class="glyphicon glyphicon-pencil"></i></a>
 
                                 {% set entityNameSnakeCase = entity.name|toSnakeCase %}
-                                <a href="{{ path('crm_object_list', {'objectName': entityNameSnakeCase}) }}"
+                                <a href="{{ path('crm_object_list', {'objectName': entity.name|toSnakeCase}) }}"
                                    class="btn btn-default"><i class="glyphicon glyphicon-eye-open"></i></a>
                             </div>
                         </th>
@@ -33,7 +33,7 @@
                             <td>
                                 <div class="btn-group btn-group-xs">
                                     <a href="#" class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></a>
-                                    <a href="{{ path('crm_entity_field_edit', {'entity': entity.id, 'entityField': field.id}) }}"
+                                    <a href="{{ path('crm_entity_field_edit', {'entityName': entity.name|toSnakeCase, 'entityFieldName': field.name|toSnakeCase}) }}"
                                        class="btn btn-default"><i class="glyphicon glyphicon-pencil"></i></a>
                                 </div>
                             </td>
@@ -45,7 +45,7 @@
                     <tr>
                         <td>&nbsp;</td>
                         <td>
-                            <a href="{{ path('crm_entity_field_edit', {'entity': entity.id}) }}" class="btn btn-default btn-xs btn-block">
+                            <a href="{{ path('crm_entity_field_edit', {'entityName': entity.name|toSnakeCase}) }}" class="btn btn-default btn-xs btn-block">
                                 <i class="glyphicon glyphicon-plus"></i> add new field
                             </a>
                         </td>
