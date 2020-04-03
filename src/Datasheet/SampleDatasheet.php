@@ -16,14 +16,20 @@ class SampleDatasheet implements DatasheetInterface
     public function getItems(int $startFrom = 0, int $limit = 0)
     {
         // For array use: array_splice($startFrom, $limit);
-        // For DQL queries use: ->setFirstResult($startFrom)->setMaxResults($limit)
-        // For raw mysql queries (not recommended), use: '...LIMIT $startFrom, $limit'
+        // for Doctrine: $entityManager->getRepository('App:ClassName')->findBy([], [], $limit, $startFrom);
+        // for DQL: ->setFirstResult($startFrom)->setMaxResults($limit)
+        // for raw mysql queries (not recommended) use: '...LIMIT $startFrom, $limit'
 
         return array_splice($this->items, $startFrom, $limit);
     }
 
     public function getItemsTotal()
     {
+        // For array use: count($this->items);
+        // for Doctrine: $entityManager->getRepository('App:ClassName')->findBy([], [], $limit, $startFrom);
+        // for DQL: ->setFirstResult($startFrom)->setMaxResults($limit)
+        // for raw mysql queries (not recommended) use: '...LIMIT $startFrom, $limit'
+
         return count($this->items);
     }
 

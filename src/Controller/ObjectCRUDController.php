@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Controller;
 
+use A2Global\CRMBundle\Datasheet\ObjectDatasheet;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
@@ -19,7 +20,7 @@ class ObjectCRUDController extends AbstractController
 
     private $entityFieldRegistry;
 
-    private $objectDataGrid;
+    private $objectDatasheet;
 
     private $twig;
 
@@ -28,14 +29,14 @@ class ObjectCRUDController extends AbstractController
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityFieldRegistry $entityFieldRegistry,
-//        ObjectDataSheet $objectDataGrid,
+        ObjectDatasheet $objectDatasheet,
         Environment $twig,
         LoggerInterface $logger
     )
     {
         $this->entityManager = $entityManager;
         $this->entityFieldRegistry = $entityFieldRegistry;
-//        $this->objectDataGrid = $objectDataGrid;
+        $this->objectDatasheet = $objectDatasheet;
         $this->twig = $twig;
         $this->logger = $logger;
     }
@@ -44,12 +45,9 @@ class ObjectCRUDController extends AbstractController
     public function objectList(Request $request, $objectName)
     {
         $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($objectName);
-        $dataGrid = $this->objectDataGrid->setEntity($entity)->build($request->query->all());
 
         return $this->render('@A2CRM/object/object.list.html.twig', [
-            'dataGrid' => $dataGrid,
-            'entity' => $entity,
-            'objectName' => $objectName,
+            'datasheet' => $this->objectDatasheet->setEntity($entity),
         ]);
     }
 
