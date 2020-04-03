@@ -4,38 +4,30 @@ namespace A2Global\CRMBundle\Datasheet;
 
 class SampleDatasheet implements DatasheetInterface
 {
+    // this is for sample purposes only
     protected $items = [];
 
+    // this is for sample purposes only
     public function __construct()
     {
-        /*
-         * Building big array of sample items
-         * This will fill $this->items[] variable on the top of this file
-         */
         $this->buildSampleItems();
     }
 
     public function getItems(int $startFrom = 0, int $limit = 0)
     {
-        // In case if no pagination is needed:
-//         return $this->items;
+        // For array use: array_splice($startFrom, $limit);
+        // For DQL queries use: ->setFirstResult($startFrom)->setMaxResults($limit)
+        // For raw mysql queries (not recommended), use: '...LIMIT $startFrom, $limit'
 
-        /*
-         * Return $limit items starting from the $startFrom
-         *
-         * For array use: array_splice($startFrom, $limit);
-         * For DQL queries use: ->setFirstResult($startFrom)->setMaxResults($limit)
-         * For raw mysql queries (not recommended), use: '...LIMIT $startFrom, $limit'
-         */
         return array_splice($this->items, $startFrom, $limit);
     }
 
-    // Optional method, if you want to enable automatic pagination
     public function getItemsTotal()
     {
         return count($this->items);
     }
 
+    // this is for sample purposes only
     protected function buildSampleItems()
     {
         // Initial settings
