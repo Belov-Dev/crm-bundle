@@ -26,7 +26,7 @@ class DatasheetBuilder
     public function getTable(DataSheetInterface $datasheet)
     {
         $hasPagination = method_exists($datasheet, 'getItemsTotal');
-        $hasFields = method_exists($datasheet, 'getFields');
+        $hasActions = method_exists($datasheet, 'getActionsTemplate');
 
         if ($hasPagination) {
             $queryString = $this->requestStack->getMasterRequest()->query->all();
@@ -36,20 +36,20 @@ class DatasheetBuilder
         } else {
             $items = $datasheet->getItems();
         }
+        $fields = [];
 
-        if (!$hasFields) {
-            $fields = [];
-
-            foreach ($items[0] as $field => $value) {
-                $fields[$field] = [
-                    'title' => StringUtility::normalize($field),
-                ];
-            }
+        foreach ($items[0] as $field => $value) {
+            $fields[$field] = [
+                'title' => StringUtility::normalize($field),
+            ];
         }
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
+            'datasheet' => $datasheet,
             'fields' => $fields,
             'items' => $items,
+            'hasActions' => $hasActions,
+            'actionsTemplate' => $hasActions ? $datasheet->getActionsTemplate() : null,
         ]);
     }
 
@@ -87,7 +87,7 @@ class DatasheetBuilder
 
         // TODO MINOR do not show ...5 when total 5 pages
 
-        return $this->twig->render('@A2CRM/datasheet/datagrid.pagination.html.twig', [
+        return $this->twig->render('@A2CRM/datasheet/datasheet.pagination.html.twig', [
             'pagination' => [
                 'currentPage' => $currentPage,
                 'perPage' => $perPage,

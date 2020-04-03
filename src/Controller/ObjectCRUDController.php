@@ -48,6 +48,7 @@ class ObjectCRUDController extends AbstractController
 
         return $this->render('@A2CRM/object/object.list.html.twig', [
             'datasheet' => $this->objectDatasheet->setEntity($entity),
+            'objectName' => $objectName,
         ]);
     }
 

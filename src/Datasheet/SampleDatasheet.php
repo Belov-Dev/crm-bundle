@@ -33,6 +33,11 @@ class SampleDatasheet implements DatasheetInterface
         return count($this->items);
     }
 
+    public function getActionsTemplate()
+    {
+        return '@A2CRM/sample/datasheet.actions.html.twig';
+    }
+
     // this is for sample purposes only
     protected function buildSampleItems()
     {

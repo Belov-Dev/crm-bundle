@@ -30,6 +30,11 @@ class ObjectDatasheet implements DatasheetInterface
         return $this;
     }
 
+    public function getEntity()
+    {
+        return $this->entity;
+    }
+
     public function getItems(int $startFrom = 0, int $limit = 0)
     {
         $items = [];
@@ -42,17 +47,7 @@ class ObjectDatasheet implements DatasheetInterface
 
             foreach ($this->fields as $fieldName => $field) {
                 $value = $object->{'get' . $fieldName}();
-
-                if (is_bool($value)) {
-                    $value = $value ? 'Yes' : 'No';
-                } elseif ($value instanceof DateTimeInterface) {
-                    $value = $value->format('j/m/Y');
-                } elseif (is_object($value)) {
-                    if (!method_exists($value, '__toString')) {
-                        $value = StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
-                    }
-                }
-                $item[$fieldName] = $value;
+                $item[$fieldName] = $this->handleValue($value);
             }
             $items[] = $item;
         }
@@ -70,6 +65,11 @@ class ObjectDatasheet implements DatasheetInterface
             ->getSingleScalarResult();
     }
 
+    public function getActionsTemplate()
+    {
+        return '@A2CRM/object/object.datasheet.actions.html.twig';
+    }
+
     protected function buildFields()
     {
         /** @var EntityField $field */
@@ -79,5 +79,30 @@ class ObjectDatasheet implements DatasheetInterface
                 'entity' => $field,
             ];
         }
+    }
+
+    protected function handleValue($value)
+    {
+        if (is_bool($value)) {
+            if ($value) {
+                return '<span class="badge bg-light-blue">Yes</span>';
+            } else {
+                return '<span class="badge">No</span>';
+            }
+        }
+
+        if ($value instanceof DateTimeInterface) {
+            return $value->format('j/m/Y');
+        }
+
+        if (is_object($value)) {
+            if (!method_exists($value, '__toString')) {
+                return StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
+            } else {
+                return (string)$value;
+            }
+        }
+
+        return $value;
     }
 }
