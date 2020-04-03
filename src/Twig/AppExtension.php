@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace A2Global\CRMBundle\Twig;
 
 use A2Global\CRMBundle\Utility\StringUtility;
-use App\Cindy\Twig\AppRuntimeMenu;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -24,6 +23,8 @@ class AppExtension extends AbstractExtension {
         return [
             new TwigFunction('crm_menu', [AppRuntimeFunctions::class, 'getMenu'], ['is_safe' => ['html']]),
             new TwigFunction('form_field', [AppRuntimeFunctions::class, 'getFormField'], ['is_safe' => ['html']]),
+            new TwigFunction('datasheet', [AppRuntimeFunctions::class, 'getDatasheet'], ['is_safe' => ['html']]),
+            new TwigFunction('pagination', [AppRuntimeFunctions::class, 'getPagination'], ['is_safe' => ['html']]),
         ];
     }
 

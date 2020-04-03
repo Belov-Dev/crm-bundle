@@ -4,7 +4,7 @@ namespace A2Global\CRMBundle\DataGrid;
 
 use Twig\Environment;
 
-abstract class AbstractDataGrid implements DataGridInterface
+abstract class AbstractDatasheet
 {
     const PER_PAGE = 10;
 

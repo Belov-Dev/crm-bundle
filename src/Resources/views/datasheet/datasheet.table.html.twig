@@ -1,0 +1,24 @@
+<table class="table table-hover table-stiped table-sm table-striped">
+    <thead>
+    {#    {% if dataGrid.rowActionsTemplateName() %}#}
+    {#        <th>&nbsp;</th>#}
+    {#    {% endif %}#}
+    {% for field in fields %}
+        <th>{{ field.title }}</th>
+    {% endfor %}
+    </thead>
+    <tbody>
+    {% for item in items %}
+        <tr>
+            {#            {% if dataGrid.rowActionsTemplateName() %}#}
+            {#                {% include dataGrid.rowActionsTemplateName(objectName) with {'object': item, 'objectName': objectName} %}#}
+            {#            {% endif %}#}
+            {% for name, value in item %}
+                <td>
+                    {{ value }}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

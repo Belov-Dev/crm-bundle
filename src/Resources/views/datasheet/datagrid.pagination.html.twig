@@ -1,0 +1,34 @@
+<ul class="pagination" style="margin-right:30px;">
+
+    {% if pagination.hasPreviousPage %}
+        <li><a href="?{{ pagination.queryString }}&page={{ pagination.previousPage }}"> &larr; </a></li>
+    {% else %}
+        <li class="disabled"><a> &larr; </a></li>
+    {% endif %}
+
+    {% if pagination.hasNextPage %}
+        <li><a href="?{{ pagination.queryString }}&page={{ pagination.nextPage }}"> &rarr; </a></li>
+    {% else %}
+        <li class="disabled"><a> &rarr; </a></li>
+    {% endif %}
+
+</ul>
+
+<ul class="pagination">
+
+    {% if pagination.showFirstPage %}
+        <li><a href="?{{ pagination.queryString }}&page=1">1…</a></li>
+    {% endif %}
+
+    {% for page in pagination.pagesFrom..pagination.pagesTo %}
+        <li {{ page == pagination.currentPage ? 'class="active"' : '' }}><a
+                    href="?{{ pagination.queryString }}&page={{ page }}" class="ac">{{ page }}</a></li>
+    {% endfor %}
+
+    {% if pagination.showLastPage %}
+        <li>
+            <a href="?{{ pagination.queryString }}&page={{ pagination.totalPages }}">…{{ pagination.totalPages }}</a>
+        </li>
+    {% endif %}
+
+</ul>

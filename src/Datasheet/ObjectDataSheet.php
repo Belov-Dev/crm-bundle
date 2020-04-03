@@ -6,12 +6,11 @@ use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
-use DateTime;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
+class ObjectDataSheet extends AbstractDataSheet
 {
     protected $data = [];
 
@@ -63,38 +62,7 @@ class ObjectDataGrid extends AbstractDataGrid implements DataGridInterface
 
     public function getPagination()
     {
-        $maxPages = self::MAX_PAGES_IN_PAGINATOR;
-        $maxPagesHalf = (int)ceil($maxPages / 2);
-        $queryString = $this->queryString;
-        unset($queryString['page']);
-        $queryString = http_build_query($queryString);
 
-        if ($this->currentPage <= $maxPagesHalf) {
-            $pagesFrom = 1;
-            $pagesTo = min($maxPages, $this->pagesTotal);
-        } elseif ($this->currentPage > ($this->pagesTotal - $maxPagesHalf)) {
-            $pagesFrom = max(1, $this->pagesTotal - $maxPages + 1);
-            $pagesTo = $this->pagesTotal;
-        } else {
-            $pagesFrom = $this->currentPage - $maxPagesHalf + 1;
-            $pagesTo = $this->currentPage + $maxPagesHalf - 1;
-        }
-
-        return [
-            'enabled' => $this->pagesTotal > 1,
-            'currentPage' => $this->currentPage,
-            'perPage' => $this->perPage,
-            'totalPages' => $this->pagesTotal,
-            'pagesFrom' => $pagesFrom,
-            'pagesTo' => $pagesTo,
-            'hasPreviousPage' => $this->currentPage > 1,
-            'previousPage' => $this->currentPage - 1,
-            'hasNextPage' => $this->currentPage < $this->pagesTotal,
-            'nextPage' => $this->currentPage + 1,
-            'showFirstPage' => $pagesFrom > 1,
-            'showLastPage' => $this->currentPage + $maxPagesHalf <= $this->pagesTotal,
-            'url' => '?' . $queryString,
-        ];
     }
 
     public function getRowActionsTemplateName(): ?string

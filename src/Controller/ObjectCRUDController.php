@@ -2,8 +2,6 @@
 
 namespace A2Global\CRMBundle\Controller;
 
-use A2Global\CRMBundle\Builder\FixtureBuilder;
-use A2Global\CRMBundle\DataGrid\ObjectDataGrid;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
@@ -30,14 +28,14 @@ class ObjectCRUDController extends AbstractController
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityFieldRegistry $entityFieldRegistry,
-        ObjectDataGrid $objectDataGrid,
+//        ObjectDataSheet $objectDataGrid,
         Environment $twig,
         LoggerInterface $logger
     )
     {
         $this->entityManager = $entityManager;
         $this->entityFieldRegistry = $entityFieldRegistry;
-        $this->objectDataGrid = $objectDataGrid;
+//        $this->objectDataGrid = $objectDataGrid;
         $this->twig = $twig;
         $this->logger = $logger;
     }
