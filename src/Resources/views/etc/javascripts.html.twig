@@ -1,0 +1,26 @@
+<script src="/crm/adminlte.js"></script>
+<script>
+    $(function () {
+
+        $('input[data-date-mask]').on('keyup', (function (e) {
+            code = e.keyCode || e.which;
+            if (code == 8) {
+                return;
+            }
+            var v = this.value;
+            if (v.match(/^\d{2}$/) !== null) {
+                this.value = v + '/';
+            } else if (v.match(/^\d{2}\/\d{2}$/) !== null) {
+                this.value = v + '/';
+            }
+        }));
+
+        // TODO MAJOR support many forms on the single web page
+
+        $('[data-datasheet-filter-reset]').on('click', function(){
+            $(this).parents('.input-group').find('input').val('');
+            $('[data-datasheet-form]').submit();
+        })
+
+    })
+</script>

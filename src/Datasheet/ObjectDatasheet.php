@@ -35,7 +35,7 @@ class ObjectDatasheet implements DatasheetInterface
         return $this->entity;
     }
 
-    public function getItems(int $startFrom = 0, int $limit = 0)
+    public function getItems(int $startFrom = 0, int $limit = 0, $sort = [], $filters = [])
     {
         $items = [];
         $objects = $this->entityManager

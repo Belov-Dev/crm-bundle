@@ -13,8 +13,11 @@ class SampleDatasheet implements DatasheetInterface
         $this->buildSampleItems();
     }
 
-    public function getItems(int $startFrom = 0, int $limit = 0)
+    public function getItems(int $startFrom = 0, int $limit = 0, $sort = [], $filters = [])
     {
+        // Optional
+        $this->filterItems($filters);
+
         // For array use: array_splice($startFrom, $limit);
         // for Doctrine: $entityManager->getRepository('App:ClassName')->findBy([], [], $limit, $startFrom);
         // for DQL: ->setFirstResult($startFrom)->setMaxResults($limit)
@@ -33,9 +36,80 @@ class SampleDatasheet implements DatasheetInterface
         return count($this->items);
     }
 
+    // Optional
     public function getActionsTemplate()
     {
         return '@A2CRM/sample/datasheet.actions.html.twig';
+    }
+
+    /**
+     * Optional
+     *
+     * If you want to explicitly define fields, to:
+     *   - change title of the column
+     *   - enable filtering
+     *   - enable sorting
+     * Only columns for the defined fields will be shown in the datasheet
+     *
+     * fields = [
+     *    'fieldName' => [
+     *        'title' => 'Username',
+     *        'hasFiltering' => true,
+     *        'hasSorting' => true,
+     *    ],
+     * ]
+     *
+     * Dont forget to properly react on $sort and $filters in getItems() method
+     */
+    public function getFields()
+    {
+        return [
+            'id' => [
+                'title' => 'ID',
+                'hasSorting' => true,
+                'hasFiltering' => true,
+            ],
+            'name' => [
+                'title' => 'Name',
+                'hasFiltering' => true,
+            ],
+            'size' => [
+                'title' => 'Size',
+            ],
+            'updatedAt' => [
+                'title' => 'Last updated at',
+            ],
+            'path' => [
+                'title' => 'Path',
+                'hasFiltering' => true,
+            ],
+            'extension' => [
+                'title' => 'Extension',
+                'hasFiltering' => true,
+            ],
+        ];
+    }
+
+    public function filterItems($filters = [])
+    {
+        foreach ($this->items as $key => $item) {
+            foreach ($filters as $field => $searchString) {
+                if (!trim($searchString)) {
+                    continue;
+                }
+
+                if($field == 'id'){
+                    if($item[$field] != $searchString){
+                        unset($this->items[$key]);
+                    }
+                    continue;
+                }
+
+                if (!stristr($item[$field], $searchString)) {
+                    unset($this->items[$key]);
+                }
+            }
+        }
     }
 
     // this is for sample purposes only

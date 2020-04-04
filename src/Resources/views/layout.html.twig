@@ -352,23 +352,7 @@
 </div>
 
 {% block javascript %}
-    <script src="/crm/adminlte.js"></script>
-    <script>
-    $(function () {
-        $('input[data-date-mask]').on('keyup', (function (e) {
-            code = e.keyCode || e.which;
-            if (code == 8) {
-                return;
-            }
-            var v = this.value;
-            if (v.match(/^\d{2}$/) !== null) {
-                this.value = v + '/';
-            } else if (v.match(/^\d{2}\/\d{2}$/) !== null) {
-                this.value = v + '/';
-            }
-        }));
-    })
-    </script>
+    {% include '@A2CRM/etc/javascripts.html.twig' %}
 {% endblock %}
 
 </body>

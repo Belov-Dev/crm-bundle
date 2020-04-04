@@ -27,21 +27,41 @@ class DatasheetBuilder
     {
         $hasPagination = method_exists($datasheet, 'getItemsTotal');
         $hasActions = method_exists($datasheet, 'getActionsTemplate');
+        $hasFields = method_exists($datasheet, 'getFields');
+        $hasFiltering = false;
+        $queryString = $this->requestStack->getMasterRequest()->query->all();
+
+        $filters = $queryString['filters'] ?? [];
+        unset($queryString['filters']);
+        $filterFormUrl = http_build_query($queryString);
 
         if ($hasPagination) {
-            $queryString = $this->requestStack->getMasterRequest()->query->all();
             $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
             $perPage = $queryString['per_page'] ?? self::DEFAULT_PER_PAGE;
-            $items = $datasheet->getItems(($currentPage - 1) * $perPage, $perPage);
+            $items = $datasheet->getItems(($currentPage - 1) * $perPage, $perPage, null, $filters);
         } else {
-            $items = $datasheet->getItems();
+            // TODO MINOR check filtering without pagination
+            $items = $datasheet->getItems(null, null, null, $filters);
         }
-        $fields = [];
 
-        foreach ($items[0] as $field => $value) {
-            $fields[$field] = [
-                'title' => StringUtility::normalize($field),
-            ];
+        if(!$hasFields) {
+            $fields = [];
+
+            foreach ($items[0] as $field => $value) {
+                $fields[$field] = [
+                    'title' => StringUtility::normalize($field),
+                ];
+            }
+        }else{
+            $fields = $datasheet->getFields();
+
+            foreach($fields as $field){
+                if(isset($field['hasFiltering'])){
+                    $hasFiltering = true;
+
+                    break;
+                }
+            }
         }
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
@@ -49,7 +69,11 @@ class DatasheetBuilder
             'fields' => $fields,
             'items' => $items,
             'hasActions' => $hasActions,
+            'hasFiltering' => $hasFiltering,
             'actionsTemplate' => $hasActions ? $datasheet->getActionsTemplate() : null,
+            'filterFormUrl' => $filterFormUrl,
+            'filterFormHidden' => $queryString,
+            'filters' => $filters,
         ]);
     }
 

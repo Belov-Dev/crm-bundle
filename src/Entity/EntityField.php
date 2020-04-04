@@ -28,11 +28,6 @@ class EntityField
     private $type;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $configuration;
-
-    /**
      * @ORM\ManyToOne(
      *     targetEntity="A2Global\CRMBundle\Entity\Entity"
      * )
@@ -43,6 +38,21 @@ class EntityField
      * )
      */
     private $entity;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $hasFiltering;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $showInDatasheet;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $configuration;
 
     public function getId(): ?int
     {
@@ -93,6 +103,30 @@ class EntityField
     public function setConfiguration($configuration = []): self
     {
         $this->configuration = json_encode($configuration);
+
+        return $this;
+    }
+
+    public function hasFiltering(): ?bool
+    {
+        return $this->hasFiltering;
+    }
+
+    public function setHasFiltering($hasFiltering): self
+    {
+        $this->hasFiltering = $hasFiltering;
+
+        return true;
+    }
+
+    public function getShowInDatasheet(): ?bool
+    {
+        return $this->showInDatasheet;
+    }
+
+    public function setShowInDatasheet($showInDatasheet): self
+    {
+        $this->showInDatasheet = $showInDatasheet;
 
         return $this;
     }
