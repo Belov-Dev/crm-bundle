@@ -9,7 +9,7 @@ use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
-class ObjectDatasheet implements DatasheetInterface
+class ObjectDatasheet// implements DatasheetInterface
 {
     protected $entityManager;
 

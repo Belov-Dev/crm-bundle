@@ -2,8 +2,8 @@
 
 namespace A2Global\CRMBundle\Builder;
 
+use A2Global\CRMBundle\Datasheet\ArrayDatasheet;
 use A2Global\CRMBundle\DataSheet\DataSheetInterface;
-use A2Global\CRMBundle\Utility\StringUtility;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
@@ -25,53 +25,31 @@ class DatasheetBuilder
 
     public function getTable(DataSheetInterface $datasheet)
     {
-        $hasPagination = method_exists($datasheet, 'getItemsTotal');
-        $hasActions = method_exists($datasheet, 'getActionsTemplate');
-        $hasFields = method_exists($datasheet, 'getFields');
-        $hasFiltering = false;
         $queryString = $this->requestStack->getMasterRequest()->query->all();
-
+        $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
+        $perPage = $queryString['per_page'] ?? self::DEFAULT_PER_PAGE;
+        $startFrom = ($currentPage - 1) * $perPage;
         $filters = $queryString['filters'] ?? [];
         unset($queryString['filters']);
         $filterFormUrl = http_build_query($queryString);
         $filterFormHiddenFields = $queryString;
         unset($filterFormHiddenFields['page']);
+        $datasheet->build($startFrom, $perPage, null, $filters);
 
-        if ($hasPagination) {
-            $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
-            $perPage = $queryString['per_page'] ?? self::DEFAULT_PER_PAGE;
-            $items = $datasheet->getItems(($currentPage - 1) * $perPage, $perPage, null, $filters);
-        } else {
-            // TODO MINOR check filtering without pagination
-            $items = $datasheet->getItems(null, null, null, $filters);
+        if ($datasheet instanceof ArrayDatasheet) {
+            $datasheet->buildFields();
+            $datasheet->applyFilters($filters);
+            $datasheet->buildItemsTotal();
+            $datasheet->applyPagination($startFrom, $perPage);
         }
-
-        if (!$hasFields) {
-            $fields = [];
-
-            foreach ($items[0] as $field => $value) {
-                $fields[$field] = [
-                    'title' => StringUtility::normalize($field),
-                ];
-            }
-        } else {
-            $fields = $datasheet->getFields();
-
-            foreach ($fields as $field) {
-                if (isset($field['hasFiltering'])) {
-                    $hasFiltering = true;
-
-                    break;
-                }
-            }
-        }
+        $hasActions = !empty($datasheet->getActionsTemplate());
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
-            'fields' => $fields,
-            'items' => $items,
+            'fields' => $datasheet->getFields(),
+            'items' => $datasheet->getItems(),
             'hasActions' => $hasActions,
-            'hasFiltering' => $hasFiltering,
+            'hasFiltering' => $this->hasFiltering($datasheet->getFields()),
             'actionsTemplate' => $hasActions ? $datasheet->getActionsTemplate() : null,
             'filterFormUrl' => $filterFormUrl,
             'filterFormHiddenFields' => $filterFormHiddenFields,
@@ -81,9 +59,6 @@ class DatasheetBuilder
 
     public function getPagination(DataSheetInterface $datasheet)
     {
-        if (!method_exists($datasheet, 'getItemsTotal')) {
-            return null;
-        }
         $queryString = $this->requestStack->getMasterRequest()->query->all();
         $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
         $perPage = $queryString['per_page'] ?? self::DEFAULT_PER_PAGE;
@@ -129,5 +104,16 @@ class DatasheetBuilder
                 'queryString' => http_build_query($queryString),
             ],
         ]);
+    }
+
+    protected function hasFiltering($fields): bool
+    {
+        foreach ($fields as $field) {
+            if (isset($field['hasFiltering']) && $field['hasFiltering']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

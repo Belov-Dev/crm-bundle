@@ -1,23 +1,21 @@
-{#{{ dump(filters) }}#}
-
-
 <table class="table table-hover table-stiped table-sm table-striped table-condensed">
     <thead>
 
-
     {% if hasFiltering %}
+
         <form action="?" method="GET" data-datasheet-form>
+
             {% for name, value in filterFormHiddenFields %}
                 <input type="hidden" name="{{ name }}" value="{{ value }}">
             {% endfor %}
+
             <tr>
 
-                {% if hasActions %}
-                    <th>
-                        <button type="submit" class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-search"></i>
-                        </button>
-                    </th>
-                {% endif %}
+                <th>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                </th>
 
                 {% for fieldName, field in fields %}
                     <th>
@@ -49,7 +47,7 @@
 
     <tr>
 
-        {% if hasActions %}
+        {% if hasActions or hasFiltering %}
             <th>&nbsp;</th>
         {% endif %}
 
@@ -70,6 +68,8 @@
                 <td>
                     {% include actionsTemplate with {'item': item, 'datasheet': datasheet} %}
                 </td>
+            {% elseif hasFiltering %}
+                <td>&nbsp;</td>
             {% endif %}
 
             {% for name, value in item %}
