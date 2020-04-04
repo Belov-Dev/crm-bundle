@@ -151,7 +151,7 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
             <div class="form-group row">
                 <label class="col-form-label col-sm-4 required">Related entity</label>
                 <div class="col-sm-8">
-                    <select id="entity_field_type_form_type" name="configuration[target_entity]" class="form-control">
+                    <select id="entity_field_type_form_type" name="entityFieldForm[configuration][target_entity]" class="form-control">
                         %s
                     </select>
                 </div>

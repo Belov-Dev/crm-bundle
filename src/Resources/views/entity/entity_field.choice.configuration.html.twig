@@ -50,7 +50,7 @@
         function addOption(value = '') {
             let newItem = $(pattern.html());
             // adding name attribute here, not saving it in pattern to avoid blank extra option
-            newItem.find('input').attr('name', 'configuration[choices][]').val(value);
+            newItem.find('input').attr('name', 'entityFieldForm[configuration][choices][]').val(value);
             $('#choice-options').append(newItem);
         }
     })

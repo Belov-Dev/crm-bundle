@@ -41,13 +41,13 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
         $items = [];
 
         foreach ($this->entityManager->getRepository('A2CRMBundle:Menu')->findAll() as $menuItem) {
-            if($menuItem->getRoute()) {
+            if ($menuItem->getRoute()) {
                 $items[] = sprintf(
                     '<li><a href="%s">%s</a></li>',
                     $menuItem->getRoute(),
                     $menuItem->getTitle()
                 );
-            }else{
+            } else {
                 $items[] = sprintf('<li class="header">%s</li>', $menuItem->getTitle());
             }
         }
@@ -57,7 +57,7 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
 
     public function getDatasheet($datasheet)
     {
-        if(!$datasheet instanceof DataSheetInterface){
+        if (!$datasheet instanceof DataSheetInterface) {
             throw new Exception(sprintf('Invalid class `%s`, please provide object of DataSheetInterface to build the datasheet', get_class($datasheet)));
         }
 
@@ -66,7 +66,7 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
 
     public function getPagination($datasheet)
     {
-        if(!$datasheet instanceof DataSheetInterface){
+        if (!$datasheet instanceof DataSheetInterface) {
             throw new Exception(sprintf('Invalid class `%s`, please provide object of DataSheetInterface to build the datasheet', get_class($datasheet)));
         }
 

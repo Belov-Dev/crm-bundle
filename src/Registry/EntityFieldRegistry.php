@@ -44,7 +44,7 @@ class EntityFieldRegistry
 
         /** @var EntityFieldInterface $fieldType */
         foreach ($this->fieldTypes as $fieldNameCamelCase => $fieldType) {
-            $choices[$fieldType->getFriendlyName()] = $fieldNameCamelCase;
+            $choices[$fieldNameCamelCase] = $fieldType->getFriendlyName();
         }
 
         return $choices;

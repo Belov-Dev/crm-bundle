@@ -10,6 +10,8 @@ abstract class AbstractDatasheet implements DatasheetInterface
 
     protected $itemsTotal = [];
 
+    protected $actionTemplate = null;
+
     protected $actionsTemplate = null;
 
     public function setFields($fields)
@@ -40,6 +42,11 @@ abstract class AbstractDatasheet implements DatasheetInterface
     public function getItemsTotal()
     {
         return $this->itemsTotal;
+    }
+
+    public function getActionTemplate()
+    {
+        return $this->actionTemplate;
     }
 
     public function getActionsTemplate()

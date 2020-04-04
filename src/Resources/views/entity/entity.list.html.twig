@@ -1,61 +1,106 @@
 {% extends '@A2CRM/layout.html.twig' %}
 
-{% block page_title %}Entities list{% endblock %}
+{% block page_title %}
+    Entity management
+{% endblock %}
 
 {% block content %}
-
-    <a href="{{ path('crm_entity_edit') }}"
-       class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> Add new entity</a>
-
-    <a href="{{ path('crm_entity_load_fixtures') }}"
-       class="btn btn-danger"><i class="glyphicon glyphicon-list"></i> Fill fixtures</a><br><br>
-
     <div class="row">
-        {% for entity in entities %}
-            <div class="col-sm-3">
+        <div class="col-xs-2">
+            <div class="box">
+                <div class="box-header">
+                    <b>Entities:</b>
+                </div>
+                {{ datasheet(datasheet.entities) }}
+            </div>
+        </div>
+        {% if entity is defined %}
+            <div class="col-xs-6">
                 <div class="box">
-                    <table class="box-body table table-striped table-responsive table-bordered">
-                        <thead>
-                        <tr>
-                            <th>
-                                {{ entity.name }}
-                                <div class="btn-group btn-group-xs pull-right">
-                                    <a href="{{ path('crm_entity_update_proxy', {'entityName': entity.name|toSnakeCase}) }}"
-                                       class="btn btn-primary"><i class="glyphicon glyphicon-refresh"></i></a>
-                                    <a href="{{ path('crm_entity_edit', {'entityName': entity.name|toSnakeCase}) }}"
-                                       class="btn btn-primary"><i class="glyphicon glyphicon-pencil"></i></a>
-
-                                    {% set entityNameSnakeCase = entity.name|toSnakeCase %}
-                                    <a href="{{ path('crm_object_list', {'objectName': entity.name|toSnakeCase}) }}"
-                                       class="btn btn-primary"><i class="glyphicon glyphicon-eye-open"></i></a>
-                                </div>
-
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for field in entity.fields %}
-                            <tr>
-                                <td>
-                                    <a href="{{ path('crm_entity_field_edit', {'entityName': entity.name|toSnakeCase, 'entityField': field.id}) }}">
-                                        {{ field.name }}
-                                        <small class="text-muted">({{ field.type }})</small>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        <tr>
-                            <td>
-                                <a href="{{ path('crm_entity_field_edit', {'entityName': entity.name|toSnakeCase}) }}"
-                                   class="btn btn-default btn-sm btn-block">
-                                    <i class="glyphicon glyphicon-plus"></i> add new field
-                                </a>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <div class="box-header">
+                        <b>Entity fields:</b>
+                    </div>
+                    {% if datasheet.entityFields is defined and datasheet.entityFields %}
+                        {{ datasheet(datasheet.entityFields) }}
+                    {% endif %}
                 </div>
             </div>
-        {% endfor %}
+        {% endif %}
+        <div class="col-xs-4">
+            <div class="box">
+                <div class="box-body">
+                    <form action="{{ path('crm_admin_entity_update', {'entity': entity.id ?? '' }) }}"
+                          method="POST">
+                        <div class="form-group">
+                            <label>Entity name:</label>
+                            <input type="text" class="form-control" name="entityForm[name]"
+                                   value="{{ entity.name ?? '' }}" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-primary btn-block"
+                                   value="{{ entity.name is defined ? 'Rename entity' : 'Create new entity' }}">
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% if entity is defined %}
+                <div class="box">
+                    <div class="box-body">
+                        <form action="{{ path('crm_admin_entity_field', {'entity': entity.id ?? '', 'field': entityField.id ?? ''}) }}"
+                              method="POST">
+                            <div class="form-group">
+                                <label>Field name:</label>
+                                <input type="text" class="form-control" name="entityFieldForm[name]"
+                                       value="{{ entityField.name ?? '' }}" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label>Field type:</label>
+                                <select class="form-control" name="entityFieldForm[type]" id="entityFieldFormType">
+                                    {% for entityFieldType, entityFieldTypeTitle in entityFieldTypes %}
+                                        <option value="{{ entityFieldType }}" {{ entityField is defined and (entityFieldType == entityField.type) ? 'selected' : '' }}>{{ entityFieldTypeTitle }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div id="field-configuration"></div>
+                            <div class="form-group">
+                                <input type="submit" class="btn btn-primary btn-block"
+                                       value="{{ entityField.name is defined ? 'Update field' : 'Add new field' }}">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+{{ parent() }}
+{% if entity is defined %}
+<script>
+
+    $(function(){
+        $('#entityFieldFormType').on('change', function(){
+            let url = '/admin/crm/entity/field-configuration/' + $(this).val() + '/{{ entity.id }}/{{ entityField.id ?? '' }}';
+            console.log(url);
+
+            $.get(url, function(result){
+                if(result.hasConfiguration){
+                    $('#field-configuration').html(result.html);
+
+                    setTimeout(function(){
+                        $('#field-configuration').slideDown(500);
+                    }, 300);
+
+                }else{
+                    $('#field-configuration').slideUp(400, function(){
+                        $(this).html('');
+                    });
+                }
+            });
+
+        }).change();
+    })
+</script>
+{% endif %}
 {% endblock %}

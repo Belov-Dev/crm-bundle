@@ -36,21 +36,28 @@ class DatasheetBuilder
         unset($filterFormHiddenFields['page']);
         $datasheet->build($startFrom, $perPage, null, $filters);
 
+        if (!count($datasheet->getItems())) {
+            return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig');
+        }
+
         if ($datasheet instanceof ArrayDatasheet) {
             $datasheet->buildFields();
             $datasheet->applyFilters($filters);
             $datasheet->buildItemsTotal();
             $datasheet->applyPagination($startFrom, $perPage);
+            $hasActions = !empty($datasheet->getActionsTemplate());
+            $hasAction = !empty($datasheet->getActionTemplate());
         }
-        $hasActions = !empty($datasheet->getActionsTemplate());
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
             'fields' => $datasheet->getFields(),
             'items' => $datasheet->getItems(),
             'hasActions' => $hasActions,
-            'hasFiltering' => $this->hasFiltering($datasheet->getFields()),
             'actionsTemplate' => $hasActions ? $datasheet->getActionsTemplate() : null,
+            'hasAction' => $hasAction,
+            'actionTemplate' => $hasAction ? $datasheet->getActionTemplate() : null,
+            'hasFiltering' => $this->hasFiltering($datasheet->getFields()),
             'filterFormUrl' => $filterFormUrl,
             'filterFormHiddenFields' => $filterFormHiddenFields,
             'filters' => $filters,

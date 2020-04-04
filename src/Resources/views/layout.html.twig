@@ -12,15 +12,21 @@
         .content-wrapper {
             overflow: auto;
         }
-        .content{
-            /*float:left;*/
-            /*width:1000px;*/
+
+        .content {
         }
+
+        .content-lg {
+            width: 1000px;
+            padding: 20px;
+        }
+
         * {
             font-size: 10pt;
         }
-        .logo *{
-            font-size:17pt;
+
+        .logo * {
+            font-size: 17pt;
         }
     </style>
 </head>
@@ -318,7 +324,8 @@
                 <li class="header">Admin</li>
                 <li><a href="{{ path('crm_personality') }}">Personality</a></li>
                 <li class="header">CRM</li>
-                <li><a href="{{ path('crm_entity_list') }}">Entities</a></li>
+                <li><a href="{{ path('crm_admin_entity_list') }}">Entities</a></li>
+
             </ul>
         </section>
     </aside>
@@ -332,10 +339,12 @@
 
         </section>
 
-
         <section class="content">
-            {% block content %}{% endblock %}
-            {% block page_content %}{% endblock %}
+            <div class="row">
+                <div class="col-md-12 col-lg-9">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
         </section>
 
     </div>
@@ -352,7 +361,7 @@
 </div>
 
 {% block javascript %}
-    {% include '@A2CRM/etc/javascripts.html.twig' %}
+{% include '@A2CRM/etc/javascripts.html.twig' %}
 {% endblock %}
 
 </body>
