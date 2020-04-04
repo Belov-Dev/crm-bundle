@@ -12,14 +12,29 @@ abstract class AbstractDatasheet implements DatasheetInterface
 
     protected $actionsTemplate = null;
 
+    public function setFields($fields)
+    {
+        $this->fields = $fields;
+    }
+
     public function getFields()
     {
         return $this->fields;
     }
 
+    public function setItems($items)
+    {
+        $this->items = $items;
+    }
+
     public function getItems()
     {
         return $this->items;
+    }
+
+    public function setItemsTotal($total)
+    {
+        $this->itemsTotal = $total;
     }
 
     public function getItemsTotal()

@@ -8,21 +8,19 @@ abstract class ArrayDatasheet extends AbstractDatasheet
 {
     protected $hasFilter = [];
 
-    public function setItems($items)
-    {
-        $this->items = $items;
-    }
-
     public function buildFields()
     {
         $item = reset($this->items);
+        $fields = [];
 
         foreach ($item as $key => $value) {
-            $this->fields[$key] = [
+            $fields[$key] = [
                 'title' => StringUtility::normalize($key),
                 'hasFiltering' => in_array($key, $this->hasFilter),
             ];
         }
+
+        $this->setFields($fields);
     }
 
     public function applyFilters($filters = [])
@@ -54,6 +52,6 @@ abstract class ArrayDatasheet extends AbstractDatasheet
 
     public function buildItemsTotal()
     {
-        $this->itemsTotal = count($this->items);
+        $this->setItemsTotal(count($this->items));
     }
 }

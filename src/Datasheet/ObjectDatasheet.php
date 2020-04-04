@@ -9,16 +9,14 @@ use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
-class ObjectDatasheet// implements DatasheetInterface
+class ObjectDatasheet extends AbstractDatasheet
 {
+    protected $actionsTemplate = '@A2CRM/object/object.datasheet.actions.html.twig';
+
     protected $entityManager;
 
     /** @var Entity */
     protected $entity;
-
-    protected $fields = [];
-
-    protected $itemsTotal = 0;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -28,7 +26,6 @@ class ObjectDatasheet// implements DatasheetInterface
     public function setEntity(Entity $entity): self
     {
         $this->entity = $entity;
-        $this->buildFields();
 
         return $this;
     }
@@ -38,14 +35,9 @@ class ObjectDatasheet// implements DatasheetInterface
         return $this->entity;
     }
 
-    public function getFields()
+    public function build(int $startFrom = 0, int $limit = 0, $sort = [], $filters = [])
     {
-        return $this->fields;
-    }
-
-    public function getItems(int $startFrom = 0, int $limit = 0, $sort = [], $filters = [])
-    {
-        $items = [];
+        $this->buildFields();
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->entityManager
@@ -63,15 +55,9 @@ class ObjectDatasheet// implements DatasheetInterface
                     ->setParameter($field, sprintf('%%%s%%', $searchString));
             }
         }
-
-        // Count total results
-        $totalQueryBuilder = clone $queryBuilder;
-        $this->itemsTotal = $totalQueryBuilder->select('count(o)')->getQuery()->getSingleScalarResult();
-        $results = $queryBuilder
-            ->setFirstResult($startFrom)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        $this->setItemsTotal((clone $queryBuilder)->select('count(o)')->getQuery()->getSingleScalarResult());
+        $results = $queryBuilder->setFirstResult($startFrom)->setMaxResults($limit)->getQuery()->getResult();
+        $items = [];
 
         foreach ($results as $object) {
             $item = ['id' => $object->getId()];
@@ -83,17 +69,7 @@ class ObjectDatasheet// implements DatasheetInterface
             $items[] = $item;
         }
 
-        return $items;
-    }
-
-    public function getItemsTotal()
-    {
-        return $this->itemsTotal;
-    }
-
-    public function getActionsTemplate()
-    {
-        return '@A2CRM/object/object.datasheet.actions.html.twig';
+        $this->setItems($items);
     }
 
     protected function buildFields()
