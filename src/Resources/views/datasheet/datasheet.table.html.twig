@@ -7,7 +7,7 @@
 
     {% if hasFiltering %}
         <form action="?" method="GET" data-datasheet-form>
-            {% for name, value in filterFormHidden %}
+            {% for name, value in filterFormHiddenFields %}
                 <input type="hidden" name="{{ name }}" value="{{ value }}">
             {% endfor %}
             <tr>

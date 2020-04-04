@@ -34,6 +34,8 @@ class DatasheetBuilder
         $filters = $queryString['filters'] ?? [];
         unset($queryString['filters']);
         $filterFormUrl = http_build_query($queryString);
+        $filterFormHiddenFields = $queryString;
+        unset($filterFormHiddenFields['page']);
 
         if ($hasPagination) {
             $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
@@ -44,7 +46,7 @@ class DatasheetBuilder
             $items = $datasheet->getItems(null, null, null, $filters);
         }
 
-        if(!$hasFields) {
+        if (!$hasFields) {
             $fields = [];
 
             foreach ($items[0] as $field => $value) {
@@ -52,11 +54,11 @@ class DatasheetBuilder
                     'title' => StringUtility::normalize($field),
                 ];
             }
-        }else{
+        } else {
             $fields = $datasheet->getFields();
 
-            foreach($fields as $field){
-                if(isset($field['hasFiltering'])){
+            foreach ($fields as $field) {
+                if (isset($field['hasFiltering'])) {
                     $hasFiltering = true;
 
                     break;
@@ -72,7 +74,7 @@ class DatasheetBuilder
             'hasFiltering' => $hasFiltering,
             'actionsTemplate' => $hasActions ? $datasheet->getActionsTemplate() : null,
             'filterFormUrl' => $filterFormUrl,
-            'filterFormHidden' => $queryString,
+            'filterFormHiddenFields' => $filterFormHiddenFields,
             'filters' => $filters,
         ]);
     }

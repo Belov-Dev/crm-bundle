@@ -7,6 +7,7 @@ use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 class ObjectDatasheet implements DatasheetInterface
 {
@@ -15,7 +16,9 @@ class ObjectDatasheet implements DatasheetInterface
     /** @var Entity */
     protected $entity;
 
-    protected $fields;
+    protected $fields = [];
+
+    protected $itemsTotal = 0;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -35,14 +38,42 @@ class ObjectDatasheet implements DatasheetInterface
         return $this->entity;
     }
 
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
     public function getItems(int $startFrom = 0, int $limit = 0, $sort = [], $filters = [])
     {
         $items = [];
-        $objects = $this->entityManager
-            ->getRepository('App:' . StringUtility::toPascalCase($this->entity->getName()))
-            ->findBy([], [], $limit, $startFrom);
 
-        foreach ($objects as $object) {
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->entityManager
+            ->getRepository('App:' . StringUtility::toPascalCase($this->entity->getName()))
+            ->createQueryBuilder('o');
+
+        if (!empty($filters)) {
+            foreach ($filters as $field => $searchString) {
+                // TODO MINOR this must be moved to datasheet provider
+                if (!trim($searchString)) {
+                    continue;
+                }
+                $queryBuilder
+                    ->andWhere(sprintf('o.%s LIKE :%s', $field, $field))
+                    ->setParameter($field, sprintf('%%%s%%', $searchString));
+            }
+        }
+
+        // Count total results
+        $totalQueryBuilder = clone $queryBuilder;
+        $this->itemsTotal = $totalQueryBuilder->select('count(o)')->getQuery()->getSingleScalarResult();
+        $results = $queryBuilder
+            ->setFirstResult($startFrom)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        foreach ($results as $object) {
             $item = ['id' => $object->getId()];
 
             foreach ($this->fields as $fieldName => $field) {
@@ -57,12 +88,7 @@ class ObjectDatasheet implements DatasheetInterface
 
     public function getItemsTotal()
     {
-        return $this->entityManager
-            ->getRepository('App:' . StringUtility::toPascalCase($this->entity->getName()))
-            ->createQueryBuilder('e')
-            ->select('count(e)')
-            ->getQuery()
-            ->getSingleScalarResult();
+        return $this->itemsTotal;
     }
 
     public function getActionsTemplate()
@@ -72,11 +98,18 @@ class ObjectDatasheet implements DatasheetInterface
 
     protected function buildFields()
     {
+        $this->fields['id'] = [
+            'title' => '#',
+        ];
+
         /** @var EntityField $field */
-        foreach ($this->entity->getFields() as $field) {
+        foreach ($this->getEntity()->getFields() as $field) {
+            if (!$field->getShowInDatasheet()) {
+                continue;
+            }
             $this->fields[StringUtility::toCamelCase($field->getName())] = [
                 'title' => $field->getName(),
-                'entity' => $field,
+                'hasFiltering' => $field->hasFiltering(),
             ];
         }
     }

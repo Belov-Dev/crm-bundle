@@ -90,7 +90,8 @@ class SampleDatasheet implements DatasheetInterface
         ];
     }
 
-    public function filterItems($filters = [])
+    // this is for sample purposes only
+    protected function filterItems($filters = [])
     {
         foreach ($this->items as $key => $item) {
             foreach ($filters as $field => $searchString) {
