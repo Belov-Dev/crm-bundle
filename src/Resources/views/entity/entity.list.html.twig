@@ -57,7 +57,11 @@
                                 <label>Field type:</label>
                                 <select class="form-control" name="entityFieldForm[type]" id="entityFieldFormType">
                                     {% for entityFieldType, entityFieldTypeTitle in entityFieldTypes %}
-                                        <option value="{{ entityFieldType }}" {{ entityField is defined and (entityFieldType == entityField.type) ? 'selected' : '' }}>{{ entityFieldTypeTitle }}</option>
+                                        <option
+                                                value="{{ entityFieldType }}"
+                                                {{ entityField is not defined and (entityFieldType == 'string') ? 'selected' : ''}}
+                                                {{ entityField is defined and (entityFieldType == entityField.type) ? 'selected' : '' }}
+                                        >{{ entityFieldTypeTitle }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

@@ -125,9 +125,7 @@ class EntityCRUDController extends AbstractController
         $isCreating = is_null($field);
 
         if ($isCreating) {
-            $field = (new EntityField())
-                ->setShowInDatasheet(true)
-                ->setType('string');
+            $field = (new EntityField())->setShowInDatasheet(true);
         } else {
             $fieldBefore = clone $field;
         }
