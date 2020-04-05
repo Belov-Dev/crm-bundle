@@ -34,6 +34,7 @@ class FormBuilder
         $url = $this->router->generate('crm_object_save', [
             'objectName' => $objectName,
             'objectId' => $object ? $object->getId() : '',
+            'returnUrl' => $returnUrl,
         ]);
         $form = [
             'url' => $url,

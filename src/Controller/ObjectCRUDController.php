@@ -123,7 +123,10 @@ class ObjectCRUDController extends AbstractController
             $this->entityManager->persist($object);
         }
         $this->entityManager->flush();
+        $returnUrl
+            = $request->query->get('returnUrl') . '?objectId=' . $object->getId()
+            ?: $this->generateUrl('crm_object_list', ['objectName' => $objectName]);
 
-        return $this->redirectToRoute('crm_object_list', ['objectName' => $objectName]);
+        return $this->redirect($returnUrl);
     }
 }
