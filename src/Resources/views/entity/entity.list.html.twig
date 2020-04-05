@@ -41,6 +41,10 @@
                                    value="{{ entity.name is defined ? 'Rename entity' : 'Create new entity' }}">
                         </div>
                     </form>
+                    {% if entity is defined %}
+                        <a href="{{ path('crm_admin_entity_update_proxy', {'entity':entity.id}) }}"
+                           class="btn btn-default btn-sm">Update proxy class</a>
+                    {% endif %}
                 </div>
             </div>
             {% if entity is defined %}
@@ -59,7 +63,7 @@
                                     {% for entityFieldType, entityFieldTypeTitle in entityFieldTypes %}
                                         <option
                                                 value="{{ entityFieldType }}"
-                                                {{ entityField is not defined and (entityFieldType == 'string') ? 'selected' : ''}}
+                                                {{ entityField is not defined and (entityFieldType == 'string') ? 'selected' : '' }}
                                                 {{ entityField is defined and (entityFieldType == entityField.type) ? 'selected' : '' }}
                                         >{{ entityFieldTypeTitle }}</option>
                                     {% endfor %}

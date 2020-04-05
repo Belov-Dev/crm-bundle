@@ -58,15 +58,22 @@ class ProxyEntityBuilder
 
     protected function getBaseElements(Entity $entity): array
     {
+        $entityOptions = [];
+        $repositoryClassName = sprintf('App\\Repository\\%sRepository', StringUtility::toPascalCase($entity->getName()));
+
+        if (class_exists($repositoryClassName)) {
+            $entityOptions[] = sprintf('repositoryClass="%s"', $repositoryClassName);
+        }
+
         return [
             '<?php' . PHP_EOL,
             'namespace App\Entity;' . PHP_EOL,
             'use Doctrine\ORM\Mapping as ORM;' . PHP_EOL,
             '/**',
-            ' * @ORM\Entity()',
+            sprintf(' * @ORM\Entity(%s)', implode(',', $entityOptions)),
             ' * @ORM\Table(name="' . SchemaModifier::toTableName($entity->getName()) . '")',
             ' */',
-            'class ' . StringUtility::toPascalCase($entity->getName()),
+            sprintf('class %s', StringUtility::toPascalCase($entity->getName())),
             '{',
         ];
     }
@@ -76,19 +83,19 @@ class ProxyEntityBuilder
         $nameGetter = null;
 
         /** @var EntityField $field */
-        foreach($entity->getFields() as $field){
+        foreach ($entity->getFields() as $field) {
             $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
 
-            if(in_array($fieldNameCamelCase, ['name', 'title', 'username'])){
+            if (in_array($fieldNameCamelCase, ['name', 'title', 'username'])) {
                 $nameGetter = $fieldNameCamelCase;
                 break;
             }
         }
 
-        if($nameGetter){
-            $code = 'return sprintf(\'%s. %s\', $this->getId(), $this->get'.StringUtility::toPascalCase($nameGetter).'());';
-        }else{
-            $code = 'return \''.$entity->getName().' #\' . $this->getId();';
+        if ($nameGetter) {
+            $code = 'return sprintf(\'%s. %s\', $this->getId(), $this->get' . StringUtility::toPascalCase($nameGetter) . '());';
+        } else {
+            $code = 'return \'' . $entity->getName() . ' #\' . $this->getId();';
         }
 
         return [

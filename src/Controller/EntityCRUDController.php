@@ -167,14 +167,13 @@ class EntityCRUDController extends AbstractController
         ]);
     }
 
-//    /** @Route("{entityName}/proxy/update", name="update_proxy") */
-//    public function updateProxy($entityName)
-//    {
-//        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
-//        $this->proxyEntityModifier->update($entity);
-//
-//        return $this->redirectToRoute('crm_entity_list');
-//    }
+    /** @Route("proxy/update/{entity}", name="update_proxy") */
+    public function updateProxy(Entity $entity)
+    {
+        $this->proxyEntityModifier->update($entity);
+
+        return $this->redirectToRoute('crm_admin_entity_list', ['entityName' => $entity->getName()]);
+    }
 
     /** @Route("/fixtures/load", name="load_fixtures") */
     public function loadFixtures()
