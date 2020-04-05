@@ -2,16 +2,19 @@
 
 namespace A2Global\CRMBundle\EventListener;
 
+use A2Global\CRMBundle\Loader\ProxyClassesLoader;
+
 class KernelRequestEventListener
 {
+    private $proxyClassesLoader;
+
+    public function __construct(ProxyClassesLoader $proxyClassesLoader)
+    {
+        $this->proxyClassesLoader = $proxyClassesLoader;
+    }
+
     public function onKernelRequest()
     {
-        $proxyClassesDirectory = __DIR__ . '/../../var/cache/a2crm';
-
-        foreach (glob($proxyClassesDirectory . '/*') as $proxyClass) {
-            if(!class_exists('App\\Entity\\'.ucfirst($proxyClass))){
-                require_once $proxyClass;
-            }
-        }
+        $this->proxyClassesLoader->load();
     }
 }

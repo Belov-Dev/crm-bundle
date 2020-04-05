@@ -4,6 +4,9 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $projectDir: '%kernel.project_dir%'
+            $cacheDir: '%kernel.cache_dir%'
 
     A2Global\CRMBundle\:
         resource: '../../*'

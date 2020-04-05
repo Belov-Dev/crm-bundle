@@ -14,13 +14,21 @@ class DefaultController extends AbstractController
 
     private $heartbeatProvider;
 
+    private $projectDir;
+
+    private $cacheDir;
+
     public function __construct(
         EntityManagerInterface $entityManager,
-        HeartbeatProvider $heartbeatProvider
+        HeartbeatProvider $heartbeatProvider,
+        $projectDir,
+        $cacheDir
     )
     {
         $this->entityManager = $entityManager;
         $this->heartbeatProvider = $heartbeatProvider;
+        $this->projectDir = $projectDir;
+        $this->cacheDir = $cacheDir;
     }
 
     /**
@@ -38,6 +46,17 @@ class DefaultController extends AbstractController
     {
         return $this->render('@A2CRM/etc/heartbeat.html.twig', [
             'timestamp' => $this->heartbeatProvider->getTimestamp(),
+        ]);
+    }
+
+    /**
+     * @Route("info", name="info")
+     */
+    public function info()
+    {
+        return $this->render('@A2CRM/etc/info.html.twig', [
+            'projectDir' => $this->projectDir,
+            'cacheDir' => $this->cacheDir,
         ]);
     }
 }
