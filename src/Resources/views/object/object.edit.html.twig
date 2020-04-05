@@ -8,21 +8,7 @@
 
     <div class="row">
         <div class="col-sm-5">
-            <form action="{{ form.url }}" method="POST" class="form-horizontal">
-                {% for field in form.fields %}
-                    <div class="form-group ">
-                        <label class="col-sm-4 control-label">{{ field.title }}</label>
-                        <div class="col-sm-8">
-                            {{ form_field(field) }}
-                        </div>
-                    </div>
-                {% endfor %}
-                <div class="form-group">
-                    <div class="col-sm-offset-4 col-sm-8">
-                        <button type="submit" class="btn btn-primary form-control-sm">Submit</button>
-                    </div>
-                </div>
-            </form>
+            {% include '@A2CRM/object/object.form.horizontal.html.twig' with {'form': form} %}
         </div>
     </div>
 

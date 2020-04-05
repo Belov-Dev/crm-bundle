@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Controller;
 
+use A2Global\CRMBundle\Builder\FormBuilder;
 use A2Global\CRMBundle\Datasheet\ObjectDatasheet;
 use A2Global\CRMBundle\Datasheet\ObjectsDatasheet;
 use A2Global\CRMBundle\Entity\EntityField;
@@ -29,13 +30,16 @@ class ObjectCRUDController extends AbstractController
 
     private $objectsDatasheet;
 
+    private $formBuilder;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityFieldRegistry $entityFieldRegistry,
         ObjectDatasheet $objectDatasheet,
         Environment $twig,
         LoggerInterface $logger,
-        ObjectsDatasheet $objectsDatasheet
+        ObjectsDatasheet $objectsDatasheet,
+        FormBuilder $formBuilder
     )
     {
         $this->entityManager = $entityManager;
@@ -44,12 +48,13 @@ class ObjectCRUDController extends AbstractController
         $this->twig = $twig;
         $this->logger = $logger;
         $this->objectsDatasheet = $objectsDatasheet;
+        $this->formBuilder = $formBuilder;
     }
 
     /** @Route("/list/{objectName?}", name="list") */
     public function objectList(Request $request, $objectName = null)
     {
-        if(!$objectName){
+        if (!$objectName) {
             return $this->render('@A2CRM/object/objects.list.html.twig', [
                 'datasheet' => $this->objectsDatasheet
             ]);
@@ -66,67 +71,59 @@ class ObjectCRUDController extends AbstractController
     public function objectEdit(Request $request, $objectName, $objectId = null)
     {
         $isCreating = is_null($objectId);
-        $objectNameReadable = StringUtility::normalize($objectName);
-        $objectPascalCase = StringUtility::toPascalCase($objectName);
-        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findOneBy(['name' => $objectNameReadable]);
-        $this->logger->info('Object edit controller started for the object of entity', [$entity->getName()]);
+        $object = $isCreating ? null : $object = $this->entityManager
+            ->getRepository('App:' . StringUtility::toPascalCase($objectName))
+            ->find($objectId);
+        $entity = $this->entityManager
+            ->getRepository('A2CRMBundle:Entity')
+            ->findByName($objectName);
+        $form = $this->formBuilder->buildFor(
+            $objectName,
+            $object,
+            $this->generateUrl('crm_object_list', ['objectName' => $objectName])
+        );
+
+        return $this->render('@A2CRM/object/object.edit.html.twig', [
+            'form' => $form,
+            'entity' => $entity,
+            'object' => $object,
+            'isCreating' => $isCreating,
+            'isEditing' => !$isCreating,
+        ]);
+    }
+
+    /** @Route("/save/{objectName}/{objectId?}", name="save") */
+    public function objectUpdate(Request $request, $objectName, $objectId = null)
+    {
+        $isCreating = is_null($objectId);
+        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($objectName);
 
         if ($isCreating) {
             $classname = 'App\\Entity\\' . StringUtility::toPascalCase($entity->getName());
             $object = new $classname;
         } else {
-            $object = $this->entityManager->getRepository('App:' . $objectPascalCase)->find($objectId);
+            $object = $this->entityManager
+                ->getRepository('App:' . StringUtility::toPascalCase($objectName))
+                ->find($objectId);
         }
-
-        if ($request->getMethod() == Request::METHOD_POST) {
-            $formData = $request->request->get('field');
-
-            /** @var EntityField $field */
-            foreach ($entity->getFields() as $field) {
-                $fieldNameSnakeCase = StringUtility::toSnakeCase($field->getName());
-
-                if (isset($formData[$fieldNameSnakeCase])) {
-                    $this->entityFieldRegistry
-                        ->find($field->getType())
-                        ->setValueToObject($object, $field, $formData[$fieldNameSnakeCase]);
-                }
-            }
-
-            if ($isCreating) {
-                $this->entityManager->persist($object);
-            }
-            $this->entityManager->flush();
-
-            return $this->redirectToRoute('crm_object_list', ['objectName' => $objectName]);
-        }
-        $url = $this->generateUrl('crm_object_edit', ['objectName' => $objectName, 'objectId' => $objectId]);
-        $form = [
-            'url' => $url,
-            'fields' => [],
-        ];
-        $this->logger->info('Building form for the object');
+        $formData = $request->request->get('field');
 
         /** @var EntityField $field */
         foreach ($entity->getFields() as $field) {
-            $this->logger->info('Building form for the field', [$field->getName()]);
-            $fieldNameCamelCase = StringUtility::toCamelCase($field->getName());
-            $form['fields'][$fieldNameCamelCase] = [
-                'title' => $field->getName(),
-                'html' => $this->entityFieldRegistry->find($field->getType())->getFormControlHTML($field, $object->{'get' . $fieldNameCamelCase}()),
-            ];
-        }
-        $templateName = sprintf('crm/%s.edit.html.twig', $objectName);
+            $fieldNameSnakeCase = StringUtility::toSnakeCase($field->getName());
 
-        if (!$this->get('twig')->getLoader()->exists($templateName)) {
-            $templateName = '@A2CRM/object/object.edit.html.twig';
+            if (isset($formData[$fieldNameSnakeCase])) {
+                $this->entityFieldRegistry
+                    ->find($field->getType())
+                    ->setValueToObject($object, $field, $formData[$fieldNameSnakeCase]);
+            }
         }
 
-        return $this->render($templateName, [
-            'entity' => $entity,
-            'object' => $object,
-            'form' => $form,
-            'isCreating' => $isCreating,
-            'isEditing' => !$isCreating,
-        ]);
+        if ($isCreating) {
+            $this->entityManager->persist($object);
+        }
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('crm_object_list', ['objectName' => $objectName]);
     }
 }
