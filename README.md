@@ -35,7 +35,7 @@ Create new file `config/routes/crm.yaml`
 and import crm routes by adding following lines to this file:
 
 ```yaml
-#config/routes/crm.yaml
+# config/routes/crm.yaml
 
 _crm:
     resource: '@A2CRMBundle/Resources/config/routes.yaml'
