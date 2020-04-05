@@ -4,9 +4,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
     <title>Manager homepage</title>
-    <link rel="stylesheet" href="/crm/adminlte.css">
+    <link rel="stylesheet" href="{{ asset('bundles/a2crm/a2crm/adminlte.css') }}">
 
     <style>
         .content-wrapper {
@@ -325,7 +324,6 @@
                 <li><a href="{{ path('crm_personality') }}">Personality</a></li>
                 <li class="header">CRM</li>
                 <li><a href="{{ path('crm_admin_entity_list') }}">Entities</a></li>
-
             </ul>
         </section>
     </aside>
