@@ -1,3 +1,5 @@
+EntityField - to FieldType
+
 Migrations
 Dependencies
 Users

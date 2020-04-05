@@ -46,6 +46,7 @@ class DateField extends AbstractField
     public function setValueToObject($object, EntityField $field, $value)
     {
         $setter = 'set' . StringUtility::toPascalCase($field->getName());
+        $value = str_replace('/', '-', $value);
 
         return $object->{$setter}(new DateTime($value));
     }
