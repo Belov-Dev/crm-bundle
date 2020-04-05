@@ -1,9 +1,6 @@
 {% extends '@A2CRM/layout.html.twig' %}
 
 {% block content %}
-    <a href="{{ path('crm_object_edit', {'objectName': objectName}) }}" class="btn btn-success">Add new record</a>
-    <br>
-    <br>
     <div class="box">
         <div class="box-body table-responsive no-padding">
             {{ datasheet(datasheet) }}

@@ -48,7 +48,7 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
                     $menuItem->getTitle()
                 );
             } else {
-                $items[] = sprintf('<li class="header">%s</li>', $menuItem->getTitle());
+                $items[] = sprintf('<li class="header">%s</li>', mb_strtoupper($menuItem->getTitle()));
             }
         }
 

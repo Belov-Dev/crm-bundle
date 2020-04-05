@@ -1,0 +1,12 @@
+{% extends '@A2CRM/layout.html.twig' %}
+
+{% block page_title %}
+    CRM Admin dashboard
+{% endblock %}
+
+{% block menu %}
+    <li><a href="{{ path('crm_dashboard') }}">&larr; Back to CRM</a></li>
+    <li class="header">CRM Admin</li>
+    <li><a href="{{ path('crm_admin') }}">Dashboard</a></li>
+    <li><a href="{{ path('crm_admin_entity_list') }}">Entities</a></li>
+{% endblock %}

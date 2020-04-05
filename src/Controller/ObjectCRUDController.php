@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\Datasheet\ObjectDatasheet;
+use A2Global\CRMBundle\Datasheet\ObjectsDatasheet;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
@@ -26,12 +27,15 @@ class ObjectCRUDController extends AbstractController
 
     private $logger;
 
+    private $objectsDatasheet;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityFieldRegistry $entityFieldRegistry,
         ObjectDatasheet $objectDatasheet,
         Environment $twig,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ObjectsDatasheet $objectsDatasheet
     )
     {
         $this->entityManager = $entityManager;
@@ -39,11 +43,17 @@ class ObjectCRUDController extends AbstractController
         $this->objectDatasheet = $objectDatasheet;
         $this->twig = $twig;
         $this->logger = $logger;
+        $this->objectsDatasheet = $objectsDatasheet;
     }
 
-    /** @Route("/{objectName}/list", name="list") */
-    public function objectList(Request $request, $objectName)
+    /** @Route("/list/{objectName?}", name="list") */
+    public function objectList(Request $request, $objectName = null)
     {
+        if(!$objectName){
+            return $this->render('@A2CRM/object/objects.list.html.twig', [
+                'datasheet' => $this->objectsDatasheet
+            ]);
+        }
         $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($objectName);
 
         return $this->render('@A2CRM/object/object.list.html.twig', [
@@ -52,7 +62,7 @@ class ObjectCRUDController extends AbstractController
         ]);
     }
 
-    /** @Route("/{objectName}/edit/{objectId?}", name="edit") */
+    /** @Route("/edit/{objectName}/{objectId?}", name="edit") */
     public function objectEdit(Request $request, $objectName, $objectId = null)
     {
         $isCreating = is_null($objectId);

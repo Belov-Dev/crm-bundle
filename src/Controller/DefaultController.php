@@ -59,4 +59,12 @@ class DefaultController extends AbstractController
             'cacheDir' => $this->cacheDir,
         ]);
     }
+
+    /**
+     * @Route("crm", name="admin")
+     */
+    public function crmDashboard()
+    {
+        return $this->render('@A2CRM/layout.admin.html.twig');
+    }
 }

@@ -45,9 +45,9 @@ class DatasheetBuilder
             $datasheet->applyFilters($filters);
             $datasheet->buildItemsTotal();
             $datasheet->applyPagination($startFrom, $perPage);
-            $hasActions = !empty($datasheet->getActionsTemplate());
-            $hasAction = !empty($datasheet->getActionTemplate());
         }
+        $hasActions = !empty($datasheet->getActionsTemplate());
+        $hasAction = !empty($datasheet->getActionTemplate());
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
