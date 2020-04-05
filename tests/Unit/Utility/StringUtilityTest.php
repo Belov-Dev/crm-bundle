@@ -26,4 +26,42 @@ class StringUtilityTest extends TestCase
     {
         $this->assertEquals('SampleBookClass', StringUtility::toPascalCase('!@#sample!@#BOOK!@#class!@#'));
     }
+
+    public function testPluralize()
+    {
+        $rules = [
+            ['sample book', 'sample books'],
+            ['ability', 'abilities'],
+            ['abuse', 'abuses'],
+            ['acceptancecriterion', 'acceptancecriteria'],
+            ['basis', 'bases'],
+            ['bison', 'bison'],
+            ['borghese', 'borghese'],
+            ['box', 'boxes'],
+            ['bream', 'bream'],
+        ];
+
+        foreach($rules as $rule){
+            $this->assertEquals($rule[1], StringUtility::pluralize($rule[0]));
+        }
+    }
+
+    public function testSingularize()
+    {
+        $rules = [
+            ['sample book', 'sample books'],
+            ['ability', 'abilities'],
+            ['abuse', 'abuses'],
+            ['acceptancecriterion', 'acceptancecriteria'],
+            ['basis', 'bases'],
+            ['bison', 'bison'],
+            ['borghese', 'borghese'],
+            ['box', 'boxes'],
+            ['bream', 'bream'],
+        ];
+
+        foreach($rules as $rule){
+            $this->assertEquals($rule[0], StringUtility::singularize($rule[1]));
+        }
+    }
 }
