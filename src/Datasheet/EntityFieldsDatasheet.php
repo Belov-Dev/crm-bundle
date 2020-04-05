@@ -13,6 +13,8 @@ class EntityFieldsDatasheet extends ArrayDatasheet
 
     protected $entityManager;
 
+    protected $itemsPerPage = 50;
+
     /** @var Entity */
     protected $entity;
 

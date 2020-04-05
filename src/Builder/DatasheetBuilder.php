@@ -27,7 +27,7 @@ class DatasheetBuilder
     {
         $queryString = $this->requestStack->getMasterRequest()->query->all();
         $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
-        $perPage = $queryString['per_page'] ?? self::DEFAULT_PER_PAGE;
+        $perPage = $queryString['per_page'] ?? $datasheet->getItemsPerPage();
         $startFrom = ($currentPage - 1) * $perPage;
         $filters = $queryString['filters'] ?? [];
         unset($queryString['filters']);

@@ -10,6 +10,8 @@ class EntitiesDatasheet extends ArrayDatasheet
 {
     protected $actionTemplate = '@A2CRM/entity/entity.list.action.html.twig';
 
+    protected $itemsPerPage = 30;
+
     private $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)

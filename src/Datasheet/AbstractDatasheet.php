@@ -14,6 +14,8 @@ abstract class AbstractDatasheet implements DatasheetInterface
 
     protected $actionsTemplate = null;
 
+    protected $itemsPerPage = 15;
+
     public function setFields($fields)
     {
         $this->fields = $fields;
@@ -52,5 +54,10 @@ abstract class AbstractDatasheet implements DatasheetInterface
     public function getActionsTemplate()
     {
         return $this->actionsTemplate;
+    }
+
+    public function getItemsPerPage()
+    {
+        return $this->itemsPerPage;
     }
 }

@@ -13,4 +13,6 @@ interface DatasheetInterface
     public function getItemsTotal();
 
     public function getActionsTemplate();
+
+    public function getItemsPerPage();
 }
