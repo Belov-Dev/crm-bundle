@@ -14,9 +14,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-            ->booleanNode('i_am_familiar_with_symfony')->info('Whether you familiar or not with symfony')->defaultTrue()->end()
-            ->integerNode('my_age')->defaultValue(3)->info('Your actual age (Don`t forget to update it every year)')->end()
-            ->scalarNode('manage_url')->defaultValue('/manage')->info('Desired url to CRM homepage')->end()
+            ->scalarNode('url')->defaultValue('admin')->info('Url to the CRM homepage')->end()
             ->end();
 
         return $treeBuilder;

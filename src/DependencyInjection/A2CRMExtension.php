@@ -15,8 +15,8 @@ class A2CRMExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-//        $configuration = $this->getConfiguration($configs, $container);
-//        $configs = $this->processConfiguration($configuration, $configs);
+        $configuration = $this->getConfiguration($configs, $container);
+        $configs = $this->processConfiguration($configuration, $configs);
 
 //        $container->addCompilerPass(new TwigCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 50);
 //
