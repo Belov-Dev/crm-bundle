@@ -21,6 +21,4 @@ interface EntityFieldInterface
     public function getDoctrineClassMethodsCode(EntityField $object): array;
 
     public function setValueToObject($object, EntityField $field, $value);
-
-    public function getFixtureValue($field);
 }

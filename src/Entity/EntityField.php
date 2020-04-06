@@ -50,6 +50,16 @@ class EntityField
     private $showInDatasheet;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $fixtureType;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $fixtureOptions;
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
     private $configuration;
@@ -127,6 +137,30 @@ class EntityField
     public function setShowInDatasheet($showInDatasheet): self
     {
         $this->showInDatasheet = $showInDatasheet;
+
+        return $this;
+    }
+
+    public function getFixtureType()
+    {
+        return $this->fixtureType;
+    }
+
+    public function setFixtureType($fixtureType): self
+    {
+        $this->fixtureType = $fixtureType;
+
+        return $this;
+    }
+
+    public function getFixtureOptions()
+    {
+        return $this->fixtureOptions;
+    }
+
+    public function setFixtureOptions($fixtureOptions)
+    {
+        $this->fixtureOptions = $fixtureOptions;
 
         return $this;
     }

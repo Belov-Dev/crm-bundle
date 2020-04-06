@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block content %}
+
+    <a href="{{ path('crm_admin_entity_load_fixtures') }}" class="btn btn-danger">Load fixtures</a>
+<br><br>
     <div class="row">
         <div class="col-xs-2">
             <div class="box">
@@ -70,6 +73,23 @@
                                 </select>
                             </div>
                             <div id="field-configuration"></div>
+                            <div class="form-group">
+                                <label>Fixture type:</label>
+                                <select class="form-control" name="entityFieldForm[fixtureType]">
+                                    {% for fixtureType in fixtureDataTypes %}
+                                        <option
+                                                value="{{ fixtureType }}"
+                                                {{ entityField is defined and (fixtureType == entityField.fixtureType) ? 'selected' : '' }}
+                                        >{{ fixtureType|normalize }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Fixture details:</label>
+                                <input type="text" class="form-control" name="entityFieldForm[fixtureOptions]"
+                                       value="{{ entityField.fixtureOptions ?? '' }}" autocomplete="off">
+                            </div>
+
                             <div class="form-group">
                                 <input type="submit" class="btn btn-primary btn-block"
                                        value="{{ entityField.name is defined ? 'Update field' : 'Add new field' }}">

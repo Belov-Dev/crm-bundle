@@ -72,6 +72,28 @@ class EntityCRUDController extends AbstractController
                 'entities' => $this->entitiesDatasheet,
             ],
             'entityFieldTypes' => $this->entityFieldRegistry->getFormFieldChoices(),
+            'fixtureDataTypes' => [
+                'preset',
+                'city',
+                'address',
+                'streetAddress',
+                'phoneNumber',
+                'email',
+                'username',
+                'password',
+                'name',
+                'firstName',
+                'lastName',
+                'word',
+                'text',
+                'randomDigitNotNull',
+                'year',
+                'month',
+                'futureDate',
+                'pastDate',
+                'company',
+                'bankAccountNumber',
+            ],
         ];
 
         if ($entityName) {
@@ -133,6 +155,9 @@ class EntityCRUDController extends AbstractController
             ->setEntity($entity)
             ->setName(StringUtility::normalize($request->request->get('entityFieldForm')['name']))
             ->setType($request->request->get('entityFieldForm')['type'])
+            ->setFixtureType($request->request->get('entityFieldForm')['fixtureType'])
+            ->setFixtureOptions($request->request->get('entityFieldForm')['fixtureOptions'])
+            ->setType($request->request->get('entityFieldForm')['type'])
             ->setConfiguration($request->request->get('entityFieldForm')['configuration'] ?? []);
 
         if ($isCreating) {
@@ -180,6 +205,6 @@ class EntityCRUDController extends AbstractController
     {
         $this->fixtureBuilder->build();
 
-        return $this->redirectToRoute('crm_admin');
+        return $this->redirectToRoute('crm_admin_entity_list');
     }
 }

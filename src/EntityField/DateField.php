@@ -50,9 +50,4 @@ class DateField extends AbstractField
 
         return $object->{$setter}(new DateTime($value));
     }
-
-    public function getFixtureValue($field)
-    {
-        return new DateTime(rand(-30, 30) . 'days');
-    }
 }

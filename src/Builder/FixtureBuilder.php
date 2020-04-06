@@ -6,16 +6,20 @@ use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Faker\Factory;
 
 class FixtureBuilder
 {
-    private $entityManager;
+    protected $entityManager;
 
-    private $fieldTypeRegistry;
+    protected $fieldTypeRegistry;
 
     protected $processed = [];
+
+    protected $faker;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -24,6 +28,7 @@ class FixtureBuilder
     {
         $this->entityManager = $entityManager;
         $this->fieldTypeRegistry = $fieldTypeRegistry;
+        $this->faker = Factory::create('cs_CZ');
     }
 
     public function build()
@@ -82,13 +87,44 @@ class FixtureBuilder
 
                     continue;
                 }
-                $fieldType = $this->fieldTypeRegistry->find($field->getType());
-                $object->{$setter}($fieldType->getFixtureValue($field));
+                $object->{$setter}($this->getFixtureValue($field));
             }
             $this->entityManager->persist($object);
             $this->entityManager->flush();
             $this->processed[StringUtility::toCamelCase($entity->getName())][] = $object;
         }
+    }
+
+    protected function getFixtureValue(EntityField $field)
+    {
+        $fieldType = $this->fieldTypeRegistry->find($field->getType());
+
+        if(method_exists($fieldType, 'getFixtureValue')){
+            return $fieldType->getFixtureValue($field);
+        }
+
+        if($field->getFixtureType()){
+            if($field->getFixtureType() == 'preset'){
+                return $field->getFixtureOptions();
+            }
+            if($field->getFixtureType() == 'futureDate'){
+                return new DateTime('+'.rand(1,30).' days');
+            }
+            if($field->getFixtureType() == 'pastDate'){
+                return new DateTime('-'.rand(1,30).' days');
+            }
+            $type = $field->getFixtureType();
+
+            return $this->faker->$type;
+        }
+
+        if($fieldType->getName() == 'Date'){
+            return new DateTime();
+        }
+
+
+
+        return $this->faker->word;
     }
 
     protected function buildDependencyMap()

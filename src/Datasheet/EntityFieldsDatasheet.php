@@ -46,6 +46,7 @@ class EntityFieldsDatasheet extends ArrayDatasheet
                 'title' => $field->getName(),
                 'type' => $field->getType(),
                 'show' => $field->getShowInDatasheet(),
+                'fixture' => StringUtility::normalize($field->getFixtureType()),
                 'entityName' => StringUtility::toSnakeCase($this->entity->getName()),
             ];
             $items[] = $item;
@@ -65,6 +66,9 @@ class EntityFieldsDatasheet extends ArrayDatasheet
             ],
             'show' => [
                 'title' => 'Show',
+            ],
+            'fixture' => [
+                'title' => 'Fixture',
             ],
         ];
     }
