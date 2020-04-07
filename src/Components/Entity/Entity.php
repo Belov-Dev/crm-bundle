@@ -1,8 +1,8 @@
 <?php
 
-namespace A2Global\CRMBundle\Entity;
+namespace A2Global\CRMBundle\Components\Entity;
 
-use A2Global\CRMBundle\FieldType\FieldTypeInterface;
+use A2Global\CRMBundle\Components\Field\FieldInterface;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Exception;
 
@@ -10,25 +10,22 @@ class Entity
 {
     protected $name;
 
-    /** @var FieldTypeInterface[] */
+    /** @var FieldInterface[] */
     protected $fields = [];
-
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
 
     public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName($name)
+    public function setName($name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
-    public function addField(FieldTypeInterface $field): self
+    public function addField(FieldInterface $field): self
     {
         $this->fields[StringUtility::toCamelCase($field->getName())] = $field;
 
@@ -43,7 +40,7 @@ class Entity
         return $this->fields;
     }
 
-    public function getField($name): FieldTypeInterface
+    public function getField($name): FieldInterface
     {
         return $this->fields[StringUtility::toCamelCase($name)];
     }

@@ -1,10 +1,10 @@
 <?php
 
-namespace A2Global\CRMBundle\FieldType;
+namespace A2Global\CRMBundle\Components\Field;
 
 use A2Global\CRMBundle\Utility\StringUtility;
 
-class StringFieldType extends AbstractFieldType implements FieldTypeInterface
+class StringField extends AbstractField implements FieldInterface
 {
     public function getEntityClassProperty(): array
     {

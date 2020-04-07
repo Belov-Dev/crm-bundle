@@ -1,11 +1,9 @@
 <?php
 
-namespace A2Global\CRMBundle\FieldType;
+namespace A2Global\CRMBundle\Components\Field;
 
-class IDFieldType extends AbstractFieldType implements FieldTypeInterface
+class IdField extends AbstractField implements FieldInterface
 {
-    protected $name = 'ID';
-
     public function getEntityClassProperty(): array
     {
         return [

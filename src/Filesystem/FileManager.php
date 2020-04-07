@@ -1,6 +1,6 @@
 <?php
 
-namespace A2Global\CRMBundle\Modifier;
+namespace A2Global\CRMBundle\Filesystem;
 
 class FileManager
 {

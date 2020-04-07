@@ -1,10 +1,10 @@
 <?php
 
-namespace A2Global\CRMBundle\FieldType;
+namespace A2Global\CRMBundle\Components\Field;
 
 use A2Global\CRMBundle\Utility\StringUtility;
 
-abstract class AbstractFieldType implements FieldTypeInterface
+class AbstractField implements FieldInterface
 {
     const INDENT = "\t";
 
@@ -15,11 +15,14 @@ abstract class AbstractFieldType implements FieldTypeInterface
         return $this->name;
     }
 
-    public function setName($name): self
+    public function setName($name): FieldInterface
     {
         $this->name = $name;
+    }
 
-        return $this;
+    public function getType(): string
+    {
+        return strtolower(StringUtility::getShortClassName($this, 'Field'));
     }
 
     public function getEntityClassProperty(): array
@@ -43,10 +46,5 @@ abstract class AbstractFieldType implements FieldTypeInterface
             self::INDENT . 'return $this;',
             '}',
         ];
-    }
-
-    public function getType(): string
-    {
-        return strtolower(StringUtility::getShortClassName($this, 'FieldType'));
     }
 }

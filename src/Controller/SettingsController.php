@@ -3,14 +3,11 @@
 namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\Builder\EntityBuilder;
-use A2Global\CRMBundle\Entity\Entity;
-use A2Global\CRMBundle\Exception\NotImplementedYetException;
+use A2Global\CRMBundle\Components\Field\Entity;
 use A2Global\CRMBundle\FieldType\IDFieldType;
-use A2Global\CRMBundle\FieldType\StringFieldType;
-use A2Global\CRMBundle\Modifier\FileManager;
+use A2Global\CRMBundle\Filesystem\FileManager;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
-use A2Global\CRMBundle\Registry\EntityFieldTypeRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -18,7 +15,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Choice;
 
 /** @Route("/crm/settings/", name="crm_settings_") */
 class SettingsController extends AbstractController
@@ -44,10 +40,10 @@ class SettingsController extends AbstractController
         $this->entityFieldRegistry = $entityFieldRegistry;
     }
 
-    /** @Route("", name="dashboard") */
+    /** @Route("") */
     public function dashboard()
     {
-        return $this->entityList();
+        return $this->redirectToRoute('crm_settings_entity_list');
     }
 
     /** @Route("entity/list", name="entity_list") */
