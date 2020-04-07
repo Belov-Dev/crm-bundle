@@ -19,22 +19,9 @@ class A2CRMExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $configs = $this->processConfiguration($configuration, $configs);
 
-//        $container->addCompilerPass(new TwigCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 50);
-//
-//        $twigEnvironment = $container->findDefinition('Twig\Environment');
          $container
             ->registerForAutoconfiguration(FieldTypeInterface::class)
             ->addTag('a2crm.entity_field_type');
-
-//         $container
-//            ->registerForAutoconfiguration(FieldTypeInterface::class)
-//            ->addTag('a2crm.entity_field_type');
-
-//        $container->registerForAutoconfiguration(DataGridInterface::class)->addTag('a2crm.datagrid');
-
-//        $container
-//            ->registerForAutoconfiguration(DataGridInterface::class)
-//            ->addMethodCall('setTwigEnvironment', [$twigEnvironment]);
     }
 
     public function getAlias()
