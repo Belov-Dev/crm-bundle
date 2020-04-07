@@ -6,6 +6,7 @@ use A2Global\CRMBundle\Builder\EntityBuilder;
 use A2Global\CRMBundle\Entity\Entity;
 use A2Global\CRMBundle\Exception\NotImplementedYetException;
 use A2Global\CRMBundle\FieldType\IDFieldType;
+use A2Global\CRMBundle\FieldType\StringFieldType;
 use A2Global\CRMBundle\Modifier\FileManager;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
@@ -61,24 +62,28 @@ class SettingsController extends AbstractController
     public function entityEdit(Request $request, string $entityName = null)
     {
         $isCreating = is_null($entityName);
-        $form = $this->createFormBuilder()
+
+        if (!$isCreating) {
+            $entity = $this->entityInfoProvider->getEntity(StringUtility::normalize($entityName));
+            $entityBefore = clone $entity;
+        }
+        $form = $this->createFormBuilder($entity ?? null)
             ->add('name', TextType::class)
             ->add('submit', SubmitType::class)
             ->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $formData = $form->getData();
-            $entityName = StringUtility::normalize($formData['name']);
 
             if ($isCreating) {
-
+                $formData = $form->getData();
+                $entityName = StringUtility::normalize($formData['name']);
                 $entity = (new Entity($entityName))
                     ->addField(new IDFieldType());
                 $this->updateEntityFile($entity);
-
             } else {
-                throw new NotImplementedYetException();
+                $this->removeEntityFile($entityBefore);
+                $this->updateEntityFile($form->getData());
             }
             $request->getSession()->getFlashBag()->add('success', $isCreating ? 'Entity created' : 'Entity updated');
 
@@ -99,11 +104,16 @@ class SettingsController extends AbstractController
     }
 
     /** @Route("entity/{entityName}/field/edit/{fieldName?}", name="entity_field_edit") */
-    public function entityFieldEdit(Request $request, string $entityName, $fieldName = null)
+    public function entityFieldEdit(Request $request, string $entityName, string $fieldName = null)
     {
         $isCreating = is_null($fieldName);
         $entity = $this->entityInfoProvider->getEntity($entityName);
-        $form = $this->createFormBuilder()
+        $field = $isCreating ? null : $entity->getField(StringUtility::toCamelCase($fieldName));
+        $formData = [
+            'name' => $isCreating ? '' : $field->getName(),
+            'type' => $isCreating ? 'string' : $field->getType(),
+        ];
+        $form = $this->createFormBuilder($formData)
             ->add('name', TextType::class)
             ->add('type', ChoiceType::class, [
                 'choices' => $this->entityFieldRegistry->getFormFieldChoices(),
@@ -115,15 +125,14 @@ class SettingsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
 
-            if ($isCreating) {
-                $field = $this->entityFieldRegistry
-                    ->find($formData['type'])
-                    ->setName(StringUtility::normalize($formData['name']));
-                $entity->addField($field);
-                $this->updateEntityFile($entity);
-            } else {
-                throw new NotImplementedYetException();
+            if (!$isCreating) {
+                $entity->removeField($fieldName);
             }
+            $field = $this->entityFieldRegistry
+                ->find($formData['type'])
+                ->setName(StringUtility::normalize($formData['name']));
+            $entity->addField($field);
+            $this->updateEntityFile($entity);
             $request->getSession()->getFlashBag()->add('success', $isCreating ? 'Entity field added' : 'Entity field updated');
 
             return $this->redirectToRoute('crm_settings_entity_field_list', ['entityName' => $entityName]);
@@ -133,6 +142,25 @@ class SettingsController extends AbstractController
             'entity' => $this->entityInfoProvider->getEntity($entityName),
             'form' => $form->createView(),
         ]);
+    }
+
+    /** @Route("entity/{entityName}/field/remove/{fieldName}", name="entity_field_remove") */
+    public function entityFieldRemove(Request $request, string $entityName, string $fieldName)
+    {
+        $entity = $this->entityInfoProvider->getEntity($entityName);
+        $entity->removeField(StringUtility::toCamelCase($fieldName));
+        $this->updateEntityFile($entity);
+        $request->getSession()->getFlashBag()->add('warning', 'Entity field removed');
+
+        return $this->redirectToRoute('crm_settings_entity_field_list', ['entityName' => $entityName]);
+    }
+
+    protected function removeEntityFile(Entity $entity)
+    {
+        $this->fileManager->remove(
+            FileManager::CLASS_TYPE_ENTITY,
+            StringUtility::toPascalCase($entity->getName())
+        );
     }
 
     protected function updateEntityFile(Entity $entity)

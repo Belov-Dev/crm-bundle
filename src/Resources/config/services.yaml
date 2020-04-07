@@ -6,7 +6,6 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $projectDir: '%kernel.project_dir%'
-            $cacheDir: '%kernel.cache_dir%'
 
     A2Global\CRMBundle\:
         resource: '../../*'
@@ -16,22 +15,5 @@ services:
         resource: '../../../src/Controller'
         tags: ['controller.service_arguments']
 
-    A2Global\CRMBundle\EventListener\KernelRequestEventListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.request }
-
-#    A2Global\CRMBundle\EventListener\DoctrineEventListener:
-#        tags:
-#            - { name: doctrine.event_listener, event: 'prePersist' }
-#
     A2Global\CRMBundle\Registry\EntityFieldRegistry:
         arguments: [!tagged { tag: 'a2crm.entity_field_type' }]
-#
-#    A2Global\CRMBundle\Registry\EntityFieldTypeRegistry:
-#        arguments: [!tagged { tag: 'a2crm.entity_field_type' }]
-
-    a2crm.modifier.database_schema:
-        class: A2Global\CRMBundle\Modifier\SchemaModifier
-        public: true
-
-    A2Global\CRMBundle\Modifier\SchemaModifier: '@a2crm.modifier.database_schema'

@@ -1,3 +1,0 @@
-heartbeat:
-    path: /heartbeat
-    controller: A2Global\CRMBundle\Controller\DefaultController::heartbeat

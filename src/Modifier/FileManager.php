@@ -28,4 +28,10 @@ class FileManager
         file_put_contents($filepath, $content);
         @chmod($filepath, 0664);
     }
+
+    public function remove(int $classType, string $fileName, string $extension = 'php')
+    {
+        $filepath = sprintf('%s/%s.%s', $this->getPath($classType), $fileName, $extension);
+        unlink($filepath);
+    }
 }

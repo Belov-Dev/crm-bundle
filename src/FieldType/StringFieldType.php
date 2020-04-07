@@ -6,8 +6,6 @@ use A2Global\CRMBundle\Utility\StringUtility;
 
 class StringFieldType extends AbstractFieldType implements FieldTypeInterface
 {
-    protected $name = 'string';
-
     public function getEntityClassProperty(): array
     {
         return [

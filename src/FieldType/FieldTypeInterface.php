@@ -9,4 +9,6 @@ interface FieldTypeInterface
     public function getEntityClassProperty(): array;
 
     public function getEntityClassMethods(): array;
+
+    public function getType(): string;
 }

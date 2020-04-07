@@ -44,4 +44,9 @@ abstract class AbstractFieldType implements FieldTypeInterface
             '}',
         ];
     }
+
+    public function getType(): string
+    {
+        return strtolower(StringUtility::getShortClassName($this, 'FieldType'));
+    }
 }

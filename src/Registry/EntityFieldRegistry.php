@@ -43,12 +43,12 @@ class EntityFieldRegistry
     {
         $choices = [];
 
-        /** @var EntityFieldInterface $fieldType */
+        /** @var FieldTypeInterface $fieldType */
         foreach ($this->fieldTypes as $fieldNameCamelCase => $fieldType) {
-            if ($fieldType->getName() == 'ID') {
+            if ($fieldType->getType() == 'id') {
                 continue;
             }
-            $choices[StringUtility::normalize($fieldType->getName())] = $fieldNameCamelCase;
+            $choices[$fieldType->getType()] = $fieldNameCamelCase;
         }
 
         return $choices;

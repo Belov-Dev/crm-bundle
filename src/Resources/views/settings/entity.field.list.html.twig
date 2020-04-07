@@ -14,17 +14,20 @@
                         {% else %}
                             <tr>
                                 <td>
-                                    {#                                <div class="btn-group btn-group-xs">#}
-                                    {#                                    <a href="{{ path('crm_settings_entity_edit', {'entityName': entity|urlize }) }}"#}
-                                    {#                                       class="btn btn-primary"#}
-                                    {#                                    ><i class="glyphicon glyphicon-pencil"></i>#}
-                                    {#                                    </a>#}
-                                    {#                                </div>#}
+                                    <div class="btn-group btn-group-xs">
+                                        <a href="{{ path('crm_settings_entity_field_remove', {'entityName': entity.name|urlize, 'fieldName': field.name|urlize}) }}"
+                                           onClick="if(!confirm('Are you sure?')){return false;}"
+                                           class="btn btn-danger">
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                        <a href="{{ path('crm_settings_entity_field_edit', {'entityName': entity.name|urlize, 'fieldName': field.name|urlize}) }}"
+                                           class="btn btn-primary">
+                                            <i class="glyphicon glyphicon-pencil"></i> Edit
+                                        </a>
+                                    </div>
                                 </td>
                                 <td>
-                                    <a href="{{ path('crm_settings_entity_field_edit', {'entityName': entity.name|urlize, 'fieldName': field.name|urlize}) }}">
-                                        <b>{{ field.name }}</b>
-                                    </a>
+                                    <b>{{ field.name }}</b>
                                 </td>
                             </tr>
                         {% endif %}
