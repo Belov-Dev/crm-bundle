@@ -29,7 +29,7 @@ class FormBuilder
 
     public function buildFor($objectName, $object = null, $returnUrl = null)
     {
-        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($objectName);
+        $entity = $this->entityManager->getRepository('EntityZ')->findByName($objectName);
 
         $url = $this->router->generate('crm_object_save', [
             'objectName' => $objectName,

@@ -68,6 +68,15 @@
         <section class="content">
             <div class="row">
                 <div class="col-md-12 col-lg-9">
+
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+
                     {% block content %}{% endblock %}
                 </div>
             </div>

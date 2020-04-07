@@ -5,7 +5,7 @@ namespace A2Global\CRMBundle\Controller;
 use A2Global\CRMBundle\Builder\FixtureBuilder;
 use A2Global\CRMBundle\Datasheet\EntitiesDatasheet;
 use A2Global\CRMBundle\Datasheet\EntityFieldsDatasheet;
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\EntityField\EntityFieldConfigurableInterface;
 use A2Global\CRMBundle\EntityField\EntityFieldInterface;
@@ -97,7 +97,7 @@ class EntityCRUDController extends AbstractController
         ];
 
         if ($entityName) {
-            $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($entityName);
+            $entity = $this->entityManager->getRepository('EntityZ')->findByName($entityName);
             $data['datasheet']['entityFields'] = $this->entityFieldsDatasheet->setEntity($entity);
             $data['entity'] = $entity;
         }
@@ -112,7 +112,7 @@ class EntityCRUDController extends AbstractController
     }
 
     /** @Route("update/{entity?}", name="update") */
-    public function entity(Request $request, Entity $entity = null)
+    public function entity(Request $request, EntityZ $entity = null)
     {
         if ($request->getMethod() != Request::METHOD_POST) {
             throw new \Exception('What are you doing here?');
@@ -120,7 +120,7 @@ class EntityCRUDController extends AbstractController
         $isCreating = is_null($entity);
 
         if ($isCreating) {
-            $entity = new Entity();
+            $entity = new EntityZ();
         } else {
             $entityNameBefore = $entity->getName();
         }
@@ -141,7 +141,7 @@ class EntityCRUDController extends AbstractController
     }
 
     /** @Route("field/{entity}/{field?}", name="field") */
-    public function field(Request $request, Entity $entity, $field = null)
+    public function field(Request $request, EntityZ $entity, $field = null)
     {
         $field = $field ? $this->entityManager->getRepository('A2CRMBundle:EntityField')->find($field) : null;
         $isCreating = is_null($field);
@@ -176,7 +176,7 @@ class EntityCRUDController extends AbstractController
     }
 
     /** @Route("field-configuration/{fieldType}/{entity}/{field?}", name="field_configuration") */
-    public function entityFieldEditConfiguration(Request $request, $fieldType, Entity $entity = null, EntityField $field = null)
+    public function entityFieldEditConfiguration(Request $request, $fieldType, EntityZ $entity = null, EntityField $field = null)
     {
         $hasConfiguration = false;
         /** @var EntityFieldInterface $fieldType */
@@ -193,7 +193,7 @@ class EntityCRUDController extends AbstractController
     }
 
     /** @Route("proxy/update/{entity}", name="update_proxy") */
-    public function updateProxy(Entity $entity)
+    public function updateProxy(EntityZ $entity)
     {
         $this->proxyEntityModifier->update($entity);
 

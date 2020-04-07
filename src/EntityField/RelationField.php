@@ -2,7 +2,7 @@
 
 namespace A2Global\CRMBundle\EntityField;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Utility\StringUtility;
@@ -121,11 +121,11 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
         return $object->{$setter}($value);
     }
 
-    public function getFormConfigurationControls(Entity $entity, $field)
+    public function getFormConfigurationControls(EntityZ $entity, $field)
     {
         $elements = [];
 
-        foreach ($this->entityManager->getRepository('A2CRMBundle:Entity')->findAll() as $relatedEntity) {
+        foreach ($this->entityManager->getRepository('EntityZ')->findAll() as $relatedEntity) {
             if ($entity->getId() == $relatedEntity->getId()) {
                 continue;
             }
@@ -142,7 +142,7 @@ class RelationField extends AbstractField implements EntityFieldConfigurableInte
 
     protected function getTargetEntity(EntityField $field)
     {
-        return $this->entityManager->getRepository('A2CRMBundle:Entity')->find($field->getConfiguration()['target_entity']);
+        return $this->entityManager->getRepository('EntityZ')->find($field->getConfiguration()['target_entity']);
     }
 
     protected function getExtendedFormHTML($elements)

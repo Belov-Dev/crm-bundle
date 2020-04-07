@@ -15,6 +15,6 @@ class KernelRequestEventListener
 
     public function onKernelRequest()
     {
-        $this->proxyClassesLoader->load();
+//        $this->proxyClassesLoader->load();
     }
 }

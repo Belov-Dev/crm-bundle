@@ -1,0 +1,22 @@
+{% extends '@A2CRM/settings/settings.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="box">
+                <table class="box-body table table-striped">
+                    {% for entity in entityList %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('crm_settings_entity_edit', {'entityName': entity }) }}"><b>{{ entity }}</b></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td><a href="{{ path('crm_settings_entity_edit') }}">Create new entity</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

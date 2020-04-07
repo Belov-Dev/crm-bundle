@@ -2,9 +2,9 @@
 
 namespace A2Global\CRMBundle\EntityField;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 
 interface EntityFieldConfigurableInterface
 {
-    public function getFormConfigurationControls(Entity $entity, $field);
+    public function getFormConfigurationControls(EntityZ $entity, $field);
 }

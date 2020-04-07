@@ -35,6 +35,11 @@ class StringUtility
         return ucfirst(self::toCamelCase($string));
     }
 
+    static public function urlize($string): string
+    {
+        return mb_strtolower(implode('-', explode(' ', self::normalize($string))));
+    }
+
     public static function pluralize($string): string
     {
         return Inflector::pluralize($string);

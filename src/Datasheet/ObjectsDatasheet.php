@@ -2,7 +2,7 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ObjectsDatasheet extends ArrayDatasheet
@@ -20,8 +20,8 @@ class ObjectsDatasheet extends ArrayDatasheet
     {
         $items = [];
 
-        /** @var Entity $entity */
-        foreach($this->entityManager->getRepository('A2CRMBundle:Entity')->findAll() as $entity){
+        /** @var EntityZ $entity */
+        foreach($this->entityManager->getRepository('EntityZ')->findAll() as $entity){
             $item = [
                 'title' => $entity->getName(),
             ];

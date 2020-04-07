@@ -29,7 +29,7 @@ class EntityField
 
     /**
      * @ORM\ManyToOne(
-     *     targetEntity="A2Global\CRMBundle\Entity\Entity"
+     *     targetEntity="EntityZ"
      * )
      * @ORM\JoinColumn(
      *     name="entity_id",
@@ -48,16 +48,6 @@ class EntityField
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $showInDatasheet;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private $fixtureType;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private $fixtureOptions;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -93,12 +83,12 @@ class EntityField
         return $this;
     }
 
-    public function getEntity(): Entity
+    public function getEntity(): EntityZ
     {
         return $this->entity;
     }
 
-    public function setEntity(Entity $entity): self
+    public function setEntity(EntityZ $entity): self
     {
         $this->entity = $entity;
 
@@ -137,30 +127,6 @@ class EntityField
     public function setShowInDatasheet($showInDatasheet): self
     {
         $this->showInDatasheet = $showInDatasheet;
-
-        return $this;
-    }
-
-    public function getFixtureType()
-    {
-        return $this->fixtureType;
-    }
-
-    public function setFixtureType($fixtureType): self
-    {
-        $this->fixtureType = $fixtureType;
-
-        return $this;
-    }
-
-    public function getFixtureOptions()
-    {
-        return $this->fixtureOptions;
-    }
-
-    public function setFixtureOptions($fixtureOptions)
-    {
-        $this->fixtureOptions = $fixtureOptions;
 
         return $this;
     }

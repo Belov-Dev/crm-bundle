@@ -2,7 +2,7 @@
 
 namespace A2Global\CRMBundle\EntityField;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Twig\Environment;
@@ -39,7 +39,7 @@ class ChoiceField extends StringField implements EntityFieldConfigurableInterfac
         return implode(PHP_EOL, $html);
     }
 
-    public function getFormConfigurationControls(Entity $entity, $field)
+    public function getFormConfigurationControls(EntityZ $entity, $field)
     {
         return $this->twig->render('@A2CRM/entity/entity_field.choice.configuration.html.twig', [
             'entity' => $entity,

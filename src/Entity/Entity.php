@@ -2,66 +2,37 @@
 
 namespace A2Global\CRMBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
+use A2Global\CRMBundle\FieldType\FieldTypeInterface;
 
-/**
- * @ORM\Entity(repositoryClass="A2Global\CRMBundle\Repository\EntityRepository")
- * @ORM\Table(name="crm_entities")
- */
 class Entity
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    protected $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $name;
+    /** @var FieldTypeInterface[] */
+    protected $fields = [];
 
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity="A2Global\CRMBundle\Entity\EntityField",
-     *     mappedBy="entity"
-     * )
-     */
-    private $fields;
-
-    public function __construct()
+    public function __construct(string $name)
     {
-        $this->fields = new ArrayCollection();
+        $this->name = $name;
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getName(): ?string
+    public function getName()
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function addField(FieldTypeInterface $field): self
     {
-        $this->name = $name;
+        $this->fields[] = $field;
 
         return $this;
     }
 
-    public function getFields()
+    /**
+     * @return FieldTypeInterface[]
+     */
+    public function getFields(): array
     {
         return $this->fields;
-    }
-
-    public function setFields($fields): self
-    {
-        $this->fields = $fields;
-
-        return $this;
     }
 }

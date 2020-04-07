@@ -2,12 +2,12 @@
 
 namespace A2Global\CRMBundle\Modifier;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 class EntityNamesModifier
 {
-    public function updateNames(Entity $entity): Entity
+    public function updateNames(EntityZ $entity): EntityZ
     {
         $names = StringUtility::variate($entity->getNameOriginal());
 

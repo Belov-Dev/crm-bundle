@@ -41,3 +41,12 @@ _crm:
     resource: '@A2CRMBundle/Resources/config/routes.yaml'
 
 ```
+
+### Additional information
+
+URL Rules:
+```
+    Web-site pages, available for everybody: /*
+    CRM (Protected area with CRM functionality): /crm/*
+    CRM Settings (Advanced configurations for admins and dev-env only): /crm/settings/*
+```

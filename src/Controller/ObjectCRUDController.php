@@ -59,7 +59,7 @@ class ObjectCRUDController extends AbstractController
                 'datasheet' => $this->objectsDatasheet
             ]);
         }
-        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($objectName);
+        $entity = $this->entityManager->getRepository('EntityZ')->findByName($objectName);
 
         return $this->render('@A2CRM/object/object.list.html.twig', [
             'datasheet' => $this->objectDatasheet->setEntity($entity),
@@ -75,7 +75,7 @@ class ObjectCRUDController extends AbstractController
             ->getRepository('App:' . StringUtility::toPascalCase($objectName))
             ->find($objectId);
         $entity = $this->entityManager
-            ->getRepository('A2CRMBundle:Entity')
+            ->getRepository('EntityZ')
             ->findByName($objectName);
         $form = $this->formBuilder->buildFor(
             $objectName,
@@ -96,7 +96,7 @@ class ObjectCRUDController extends AbstractController
     public function objectUpdate(Request $request, $objectName, $objectId = null)
     {
         $isCreating = is_null($objectId);
-        $entity = $this->entityManager->getRepository('A2CRMBundle:Entity')->findByName($objectName);
+        $entity = $this->entityManager->getRepository('EntityZ')->findByName($objectName);
 
         if ($isCreating) {
             $classname = 'App\\Entity\\' . StringUtility::toPascalCase($entity->getName());

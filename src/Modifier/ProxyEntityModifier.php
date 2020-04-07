@@ -3,7 +3,7 @@
 namespace A2Global\CRMBundle\Modifier;
 
 use A2Global\CRMBundle\Builder\ProxyEntityBuilder;
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Provider\CacheDirectoryProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 
@@ -19,7 +19,7 @@ class ProxyEntityModifier
         $this->cacheDirectoryProvider = $cacheDirectoryProvider;
     }
 
-    public function update(Entity $entity)
+    public function update(EntityZ $entity)
     {
         $cacheDirectory = $this->cacheDirectoryProvider->get();
         $filepath = $cacheDirectory . '/' . StringUtility::toPascalCase($entity->getName()) . '.php';

@@ -2,7 +2,7 @@
 
 namespace A2Global\CRMBundle\Builder;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
@@ -33,7 +33,7 @@ class ProxyEntityBuilder
         $this->entityFieldRegistry = $entityFieldRegistry;
     }
 
-    public function buildForEntity(Entity $entity)
+    public function buildForEntity(EntityZ $entity)
     {
         $elements = $this->getBaseElements($entity);
         $fieldElements = $this->getIdFieldElements();
@@ -56,7 +56,7 @@ class ProxyEntityBuilder
         return implode(PHP_EOL, $elements);
     }
 
-    protected function getBaseElements(Entity $entity): array
+    protected function getBaseElements(EntityZ $entity): array
     {
         $entityOptions = [];
         $repositoryClassName = sprintf('App\\Repository\\%sRepository', StringUtility::toPascalCase($entity->getName()));
@@ -78,7 +78,7 @@ class ProxyEntityBuilder
         ];
     }
 
-    protected function getFinalElements(Entity $entity)
+    protected function getFinalElements(EntityZ $entity)
     {
         $nameGetter = null;
 

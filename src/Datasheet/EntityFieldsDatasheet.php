@@ -2,7 +2,7 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,7 +15,7 @@ class EntityFieldsDatasheet extends ArrayDatasheet
 
     protected $itemsPerPage = 50;
 
-    /** @var Entity */
+    /** @var EntityZ */
     protected $entity;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -46,7 +46,6 @@ class EntityFieldsDatasheet extends ArrayDatasheet
                 'title' => $field->getName(),
                 'type' => $field->getType(),
                 'show' => $field->getShowInDatasheet(),
-                'fixture' => StringUtility::normalize($field->getFixtureType()),
                 'entityName' => StringUtility::toSnakeCase($this->entity->getName()),
             ];
             $items[] = $item;
@@ -66,9 +65,6 @@ class EntityFieldsDatasheet extends ArrayDatasheet
             ],
             'show' => [
                 'title' => 'Show',
-            ],
-            'fixture' => [
-                'title' => 'Fixture',
             ],
         ];
     }

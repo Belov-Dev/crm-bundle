@@ -2,7 +2,7 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
@@ -15,7 +15,7 @@ class ObjectDatasheet extends AbstractDatasheet
 
     protected $entityManager;
 
-    /** @var Entity */
+    /** @var EntityZ */
     protected $entity;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -23,7 +23,7 @@ class ObjectDatasheet extends AbstractDatasheet
         $this->entityManager = $entityManager;
     }
 
-    public function setEntity(Entity $entity): self
+    public function setEntity(EntityZ $entity): self
     {
         $this->entity = $entity;
 

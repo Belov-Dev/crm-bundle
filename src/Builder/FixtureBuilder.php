@@ -2,7 +2,7 @@
 
 namespace A2Global\CRMBundle\Builder;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityZ;
 use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
@@ -46,7 +46,7 @@ class FixtureBuilder
 
         foreach ($requiredFirst as $entity) {
             $entity = $this->entityManager
-                ->getRepository('A2CRMBundle:Entity')
+                ->getRepository('EntityZ')
                 ->findByName(StringUtility::normalize($entity));
             $this->loadFixtures($entity);
         }
@@ -56,13 +56,13 @@ class FixtureBuilder
                 continue;
             }
             $entity = $this->entityManager
-                ->getRepository('A2CRMBundle:Entity')
+                ->getRepository('EntityZ')
                 ->findByName(StringUtility::normalize($entityName));
             $this->loadFixtures($entity);
         }
     }
 
-    protected function loadFixtures(Entity $entity)
+    protected function loadFixtures(EntityZ $entity)
     {
         $classname = 'App\\Entity\\' . StringUtility::toPascalCase($entity->getName());
 
@@ -131,7 +131,7 @@ class FixtureBuilder
     {
         $entities = [];
 
-        foreach ($this->entityManager->getRepository('A2CRMBundle:Entity')->findAll() as $entity) {
+        foreach ($this->entityManager->getRepository('EntityZ')->findAll() as $entity) {
             $entities[StringUtility::toCamelCase($entity->getName())] = [];
 
             /** @var EntityField $field */

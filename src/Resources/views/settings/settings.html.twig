@@ -1,0 +1,11 @@
+{% extends '@A2CRM/layout.html.twig' %}
+
+{% block page_title %}
+Settings
+{% endblock %}
+
+{% block menu %}
+    {{ crm_menu() }}
+    <li><a href="/">Back</a></li>
+    <li><a href="{{ path('crm_settings_entity_list') }}">Entities</a></li>
+{% endblock %}
