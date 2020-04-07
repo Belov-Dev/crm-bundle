@@ -13,6 +13,7 @@ class AppExtension extends AbstractExtension {
     public function getFilters() {
         return [
             new TwigFilter('normalize', [$this, 'normalize']),
+            new TwigFilter('urlize', [$this, 'urlize']),
             new TwigFilter('toCamelCase', [$this, 'toCamelCase']),
             new TwigFilter('toSnakeCase', [$this, 'toSnakeCase']),
             new TwigFilter('toPascalCase', [$this, 'toPascalCase']),
@@ -31,6 +32,10 @@ class AppExtension extends AbstractExtension {
 
     public function normalize($input) {
         return StringUtility::normalize($input);
+    }
+
+    public function urlize($input) {
+        return StringUtility::urlize($input);
     }
 
     public function toCamelCase($input) {

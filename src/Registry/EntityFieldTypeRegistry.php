@@ -3,10 +3,9 @@
 namespace A2Global\CRMBundle\Registry;
 
 use A2Global\CRMBundle\EntityField\EntityFieldInterface;
-use A2Global\CRMBundle\FieldType\FieldTypeInterface;
 use A2Global\CRMBundle\Utility\StringUtility;
 
-class EntityFieldRegistry
+class EntityFieldTypeRegistry
 {
     protected $fieldTypes;
 
@@ -15,7 +14,7 @@ class EntityFieldRegistry
         $this->normalize($fieldTypes);
     }
 
-    public function find($name): FieldTypeInterface
+    public function find($name): EntityFieldInterface
     {
         if (!array_key_exists($name, $this->fieldTypes)) {
             throw new \Exception('Failed to find entity field by name: ' . $name);
@@ -45,10 +44,7 @@ class EntityFieldRegistry
 
         /** @var EntityFieldInterface $fieldType */
         foreach ($this->fieldTypes as $fieldNameCamelCase => $fieldType) {
-            if ($fieldType->getName() == 'ID') {
-                continue;
-            }
-            $choices[StringUtility::normalize($fieldType->getName())] = $fieldNameCamelCase;
+            $choices[$fieldNameCamelCase] = $fieldType->getFriendlyName();
         }
 
         return $choices;
@@ -58,8 +54,7 @@ class EntityFieldRegistry
     {
         /** @var EntityFieldInterface $fieldType */
         foreach ($fieldTypes as $fieldType) {
-            $fieldTypeName = StringUtility::getShortClassName(get_class($fieldType), 'FieldType');
-            $this->fieldTypes[StringUtility::toCamelCase($fieldTypeName)] = $fieldType;
+            $this->fieldTypes[StringUtility::toCamelCase($fieldType->getName())] = $fieldType;
         }
     }
 }

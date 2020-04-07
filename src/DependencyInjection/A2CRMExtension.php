@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\DependencyInjection;
 
 use A2Global\CRMBundle\EntityField\EntityFieldInterface;
+use A2Global\CRMBundle\FieldType\FieldTypeInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -22,8 +23,12 @@ class A2CRMExtension extends Extension
 //
 //        $twigEnvironment = $container->findDefinition('Twig\Environment');
          $container
-            ->registerForAutoconfiguration(EntityFieldInterface::class)
+            ->registerForAutoconfiguration(FieldTypeInterface::class)
             ->addTag('a2crm.entity_field_type');
+
+//         $container
+//            ->registerForAutoconfiguration(FieldTypeInterface::class)
+//            ->addTag('a2crm.entity_field_type');
 
 //        $container->registerForAutoconfiguration(DataGridInterface::class)->addTag('a2crm.datagrid');
 

@@ -1,0 +1,43 @@
+{% extends '@A2CRM/settings/settings.html.twig' %}
+
+{% block page_title %}
+    Entity «{{ entity.name }}» fields:
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="box">
+                <table class="box-body table table-striped">
+                    {% for field in entity.fields %}
+                        {% if loop.first %}
+                        {% else %}
+                            <tr>
+                                <td>
+                                    {#                                <div class="btn-group btn-group-xs">#}
+                                    {#                                    <a href="{{ path('crm_settings_entity_edit', {'entityName': entity|urlize }) }}"#}
+                                    {#                                       class="btn btn-primary"#}
+                                    {#                                    ><i class="glyphicon glyphicon-pencil"></i>#}
+                                    {#                                    </a>#}
+                                    {#                                </div>#}
+                                </td>
+                                <td>
+                                    <a href="{{ path('crm_settings_entity_field_edit', {'entityName': entity.name|urlize, 'fieldName': field.name|urlize}) }}">
+                                        <b>{{ field.name }}</b>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>
+                            <a href="{{ path('crm_settings_entity_field_edit', {'entityName': entity.name|urlize}) }}"
+                               class="btn btn-success btn-xs"
+                            >Add new field</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

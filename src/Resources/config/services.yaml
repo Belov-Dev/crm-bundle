@@ -23,9 +23,12 @@ services:
 #    A2Global\CRMBundle\EventListener\DoctrineEventListener:
 #        tags:
 #            - { name: doctrine.event_listener, event: 'prePersist' }
-
+#
     A2Global\CRMBundle\Registry\EntityFieldRegistry:
         arguments: [!tagged { tag: 'a2crm.entity_field_type' }]
+#
+#    A2Global\CRMBundle\Registry\EntityFieldTypeRegistry:
+#        arguments: [!tagged { tag: 'a2crm.entity_field_type' }]
 
     a2crm.modifier.database_schema:
         class: A2Global\CRMBundle\Modifier\SchemaModifier

@@ -8,12 +8,26 @@
                     {% for entity in entityList %}
                         <tr>
                             <td>
-                                <a href="{{ path('crm_settings_entity_edit', {'entityName': entity }) }}"><b>{{ entity }}</b></a>
+                                <div class="btn-group btn-group-xs">
+                                    <a href="{{ path('crm_settings_entity_edit', {'entityName': entity|urlize }) }}"
+                                       class="btn btn-primary"
+                                    ><i class="glyphicon glyphicon-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ path('crm_settings_entity_field_list', {'entityName': entity|urlize}) }}">
+                                    <b>{{ entity }}</b>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}
                     <tr>
-                        <td><a href="{{ path('crm_settings_entity_edit') }}">Create new entity</a></td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <a href="{{ path('crm_settings_entity_edit') }}"
+                               class="btn btn-success btn-xs"
+                            >Create new entity</a></td>
                     </tr>
                 </table>
             </div>

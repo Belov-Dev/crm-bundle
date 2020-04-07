@@ -46,6 +46,7 @@ class EntityBuilder
     public function getFileContent(): string
     {
         $this->build();
+//        dd($this->elements);
 
         return implode(PHP_EOL, $this->elements);
     }
@@ -67,9 +68,12 @@ class EntityBuilder
 //        }
 
         return [
-            '<?php' . PHP_EOL,
-            'namespace App\Entity;' . PHP_EOL,
-            'use Doctrine\ORM\Mapping as ORM;' . PHP_EOL,
+            '<?php',
+            '',
+            'namespace App\Entity;',
+            '',
+            'use Doctrine\ORM\Mapping as ORM;',
+            '',
             '/**',
             sprintf(' * @ORM\Entity(%s)', implode(',', $entityOptions)),
             ' * @ORM\Table(name="' . SchemaModifier::toTableName($this->getEntity()->getName()) . '")',

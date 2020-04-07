@@ -62,7 +62,7 @@ class StringUtility
         ];
     }
 
-    public static function getShortClassName($fullyQualifiedClassNameOrObject): string
+    public static function getShortClassName($fullyQualifiedClassNameOrObject, string $trimRight = null): string
     {
         // using second best variant. not creating ReflectionClass, not eating more memory.
         // https://stackoverflow.com/a/41264231
@@ -70,7 +70,12 @@ class StringUtility
         if (is_object($fullyQualifiedClassNameOrObject)) {
             $fullyQualifiedClassNameOrObject = get_class($fullyQualifiedClassNameOrObject);
         }
+        $result = substr($fullyQualifiedClassNameOrObject, strrpos($fullyQualifiedClassNameOrObject, '\\') + 1);
 
-        return substr($fullyQualifiedClassNameOrObject, strrpos($fullyQualifiedClassNameOrObject, '\\') + 1);
+        if($trimRight){
+            $result = substr($result, 0, -1 * strlen($trimRight));
+        }
+
+        return $result;
     }
 }
