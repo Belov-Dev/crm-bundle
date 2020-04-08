@@ -16,4 +16,4 @@ services:
         tags: ['controller.service_arguments']
 
     A2Global\CRMBundle\Registry\EntityFieldRegistry:
-        arguments: [!tagged { tag: 'a2crm.entity_field_type' }]
+        arguments: [!tagged { tag: 'a2crm.entity_field' }]

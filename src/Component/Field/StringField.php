@@ -1,6 +1,6 @@
 <?php
 
-namespace A2Global\CRMBundle\Components\Field;
+namespace A2Global\CRMBundle\Component\Field;
 
 use A2Global\CRMBundle\Utility\StringUtility;
 

@@ -72,10 +72,15 @@ class StringUtility
         }
         $result = substr($fullyQualifiedClassNameOrObject, strrpos($fullyQualifiedClassNameOrObject, '\\') + 1);
 
-        if($trimRight){
+        if ($trimRight) {
             $result = substr($result, 0, -1 * strlen($trimRight));
         }
 
         return $result;
+    }
+
+    public static function toMySQLTableName($string): string
+    {
+        return self::pluralize(self::toSnakeCase($string));
     }
 }

@@ -2,8 +2,7 @@
 
 namespace A2Global\CRMBundle\Builder;
 
-use A2Global\CRMBundle\Entity\Entity;
-use A2Global\CRMBundle\Modifier\SchemaModifier;
+use A2Global\CRMBundle\Component\Entity\Entity;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 class EntityBuilder
@@ -76,7 +75,7 @@ class EntityBuilder
             '',
             '/**',
             sprintf(' * @ORM\Entity(%s)', implode(',', $entityOptions)),
-            ' * @ORM\Table(name="' . SchemaModifier::toTableName($this->getEntity()->getName()) . '")',
+            ' * @ORM\Table(name="' . StringUtility::toMySQLTableName($this->getEntity()->getName()) . '")',
             ' */',
             sprintf('class %s', StringUtility::toPascalCase($this->getEntity()->getName())),
             '{',

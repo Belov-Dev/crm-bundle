@@ -1,10 +1,10 @@
 <?php
 
-namespace A2Global\CRMBundle\Components\Field;
+namespace A2Global\CRMBundle\Component\Field;
 
 use A2Global\CRMBundle\Utility\StringUtility;
 
-class AbstractField implements FieldInterface
+abstract class AbstractField implements FieldInterface
 {
     const INDENT = "\t";
 
@@ -18,6 +18,8 @@ class AbstractField implements FieldInterface
     public function setName($name): FieldInterface
     {
         $this->name = $name;
+
+        return $this;
     }
 
     public function getType(): string

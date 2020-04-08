@@ -2,8 +2,7 @@
 
 namespace A2Global\CRMBundle\DependencyInjection;
 
-use A2Global\CRMBundle\EntityField\EntityFieldInterface;
-use A2Global\CRMBundle\FieldType\FieldTypeInterface;
+use A2Global\CRMBundle\Component\Field\FieldInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -20,8 +19,8 @@ class A2CRMExtension extends Extension
         $configs = $this->processConfiguration($configuration, $configs);
 
          $container
-            ->registerForAutoconfiguration(FieldTypeInterface::class)
-            ->addTag('a2crm.entity_field_type');
+            ->registerForAutoconfiguration(FieldInterface::class)
+            ->addTag('a2crm.entity_field');
     }
 
     public function getAlias()

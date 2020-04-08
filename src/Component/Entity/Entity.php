@@ -1,8 +1,8 @@
 <?php
 
-namespace A2Global\CRMBundle\Components\Entity;
+namespace A2Global\CRMBundle\Component\Entity;
 
-use A2Global\CRMBundle\Components\Field\FieldInterface;
+use A2Global\CRMBundle\Component\Field\FieldInterface;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Exception;
 
@@ -12,6 +12,11 @@ class Entity
 
     /** @var FieldInterface[] */
     protected $fields = [];
+
+    public function __construct(string $name = null)
+    {
+        $this->name = $name;
+    }
 
     public function getName(): string
     {

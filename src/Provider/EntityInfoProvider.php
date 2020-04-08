@@ -2,11 +2,11 @@
 
 namespace A2Global\CRMBundle\Provider;
 
-use A2Global\CRMBundle\Entity\Entity;
+use A2Global\CRMBundle\Component\Entity\Entity;
+use A2Global\CRMBundle\Component\Field\FieldInterface;
+use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Exception\NotImplementedYetException;
-use A2Global\CRMBundle\FieldType\FieldTypeInterface;
-use A2Global\CRMBundle\FieldType\IDFieldType;
-use A2Global\CRMBundle\Modifier\FileManager;
+use A2Global\CRMBundle\Filesystem\FileManager;
 use A2Global\CRMBundle\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionProperty;
@@ -64,17 +64,17 @@ class EntityInfoProvider
         return $items;
     }
 
-    protected function getFieldByProperty(ReflectionProperty $property): FieldTypeInterface
+    protected function getFieldByProperty(ReflectionProperty $property): FieldInterface
     {
         $annotations = $this->parseAnnotations($property->getDocComment());
 
         if (isset($annotations['ORM']['Id'])) {
-            return new IDFieldType();
+            return new IdField();
         }
 
         if (isset($annotations['ORM']['Column']['type'])) {
             if (in_array($annotations['ORM']['Column']['type'], ['string'])) {
-                $classname = 'A2Global\\CRMBundle\\FieldType\\' . StringUtility::toPascalCase($annotations['ORM']['Column']['type']) . 'FieldType';
+                $classname = 'A2Global\\CRMBundle\\Component\\Field\\' . StringUtility::toPascalCase($annotations['ORM']['Column']['type']) . 'Field';
 
                 return (new $classname())->setName(StringUtility::normalize($property->getName()));
             }

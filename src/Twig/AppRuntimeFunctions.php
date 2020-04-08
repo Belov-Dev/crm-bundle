@@ -38,6 +38,7 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
 
     public function getMenu()
     {
+        return '';
         $items = [];
 
         foreach ($this->entityManager->getRepository('A2CRMBundle:Menu')->findAll() as $menuItem) {

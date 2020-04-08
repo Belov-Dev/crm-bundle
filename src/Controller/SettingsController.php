@@ -3,8 +3,8 @@
 namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\Builder\EntityBuilder;
-use A2Global\CRMBundle\Components\Field\Entity;
-use A2Global\CRMBundle\FieldType\IDFieldType;
+use A2Global\CRMBundle\Component\Entity\Entity;
+use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Filesystem\FileManager;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
@@ -40,7 +40,7 @@ class SettingsController extends AbstractController
         $this->entityFieldRegistry = $entityFieldRegistry;
     }
 
-    /** @Route("") */
+    /** @Route("", name="homepage") */
     public function dashboard()
     {
         return $this->redirectToRoute('crm_settings_entity_list');
@@ -75,7 +75,7 @@ class SettingsController extends AbstractController
                 $formData = $form->getData();
                 $entityName = StringUtility::normalize($formData['name']);
                 $entity = (new Entity($entityName))
-                    ->addField(new IDFieldType());
+                    ->addField(new IdField());
                 $this->updateEntityFile($entity);
             } else {
                 $this->removeEntityFile($entityBefore);

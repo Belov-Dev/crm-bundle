@@ -2,8 +2,8 @@
 
 namespace A2Global\CRMBundle\Registry;
 
+use A2Global\CRMBundle\Component\Field\FieldInterface;
 use A2Global\CRMBundle\EntityField\EntityFieldInterface;
-use A2Global\CRMBundle\FieldType\FieldTypeInterface;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 class EntityFieldRegistry
@@ -15,7 +15,7 @@ class EntityFieldRegistry
         $this->normalize($fieldTypes);
     }
 
-    public function find($name): FieldTypeInterface
+    public function find($name): FieldInterface
     {
         if (!array_key_exists($name, $this->fieldTypes)) {
             throw new \Exception('Failed to find entity field by name: ' . $name);
@@ -43,7 +43,7 @@ class EntityFieldRegistry
     {
         $choices = [];
 
-        /** @var FieldTypeInterface $fieldType */
+        /** @var FieldInterface $fieldType */
         foreach ($this->fieldTypes as $fieldNameCamelCase => $fieldType) {
             if ($fieldType->getType() == 'id') {
                 continue;
