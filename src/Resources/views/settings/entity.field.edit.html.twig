@@ -2,12 +2,63 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-6">
             <div class="box">
                 <div class="box-body">
-                    {{ form(form) }}
+
+                    {{ form_start(form) }}
+                    {{ form_row(form.name) }}
+                    {{ form_row(form.type) }}
+
+                    <div class="form-group row" id="field-configuration-container" hidden>
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-8" id="field-configuration"></div>
+                    </div>
+
+                    {{ form_row(form.submit) }}
+                    {{ form_end(form) }}
+
                 </div>
             </div>
         </div>
     </div>
+
+{% endblock %}
+
+{% block javascript %}
+{{ parent() }}
+
+<script>
+    $(function(){
+
+        let fieldTypeSelector = $('[name="form[type]"]');
+
+        fieldTypeSelector.change(function(){
+            loadConfiguration();
+        }).change();
+
+        function loadConfiguration(){
+
+            let url = '{{ path('crm_settings_entity_field_configuration', {'entityName': entity.name|urlize}) }}';
+            url += '/' + fieldTypeSelector.val();
+
+            {% if field %}
+                url += '/{{ field.name|urlize }}';
+            {% endif %}
+
+            $.get(url, function(result){
+                if(result.hasConfiguration){
+                    $('#field-configuration').html(result.html);
+                    $('#field-configuration-container').slideDown();
+                }else{
+                    $('#field-configuration-container:visible').slideUp(function(){
+                        $('#field-configuration').html('');
+                    });
+                }
+            })
+        }
+
+    })
+</script>
+
 {% endblock %}

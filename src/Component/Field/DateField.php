@@ -4,13 +4,13 @@ namespace A2Global\CRMBundle\Component\Field;
 
 use A2Global\CRMBundle\Utility\StringUtility;
 
-class StringField extends AbstractField implements FieldInterface
+class DateField extends AbstractField implements FieldInterface
 {
     public function getEntityClassProperty(): array
     {
         return [
             '/**',
-            ' * @ORM\Column(type="string", length=255, nullable=true)',
+            ' * @ORM\Column(type="date", nullable=true)',
             ' */',
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];

@@ -73,13 +73,13 @@ class EntityInfoProvider
         }
 
         if (isset($annotations['ORM']['Column']['type'])) {
-            if (in_array($annotations['ORM']['Column']['type'], ['string'])) {
+            if (in_array($annotations['ORM']['Column']['type'], ['string', 'boolean', 'date'])) {
                 $classname = 'A2Global\\CRMBundle\\Component\\Field\\' . StringUtility::toPascalCase($annotations['ORM']['Column']['type']) . 'Field';
 
                 return (new $classname())->setName(StringUtility::normalize($property->getName()));
             }
         }
 
-        throw new NotImplementedYetException();
+        throw new NotImplementedYetException('589-547-256');
     }
 }

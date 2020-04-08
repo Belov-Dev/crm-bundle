@@ -21,7 +21,6 @@ class IdField extends AbstractField implements FieldInterface
     public function getEntityClassMethods(): array
     {
         return [
-            '',
             'public function getId()',
             '{',
             self::INDENT . 'return $this->id;',

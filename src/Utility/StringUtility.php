@@ -83,4 +83,9 @@ class StringUtility
     {
         return self::pluralize(self::toSnakeCase($string));
     }
+
+    public static function toConstantName($string): string
+    {
+        return strtoupper(self::toSnakeCase($string));
+    }
 }

@@ -4,6 +4,7 @@ namespace A2Global\CRMBundle\Controller;
 
 use A2Global\CRMBundle\Builder\EntityBuilder;
 use A2Global\CRMBundle\Component\Entity\Entity;
+use A2Global\CRMBundle\Component\Field\ConfigurableFieldInterface;
 use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Filesystem\FileManager;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
@@ -14,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -64,7 +66,7 @@ class SettingsController extends AbstractController
             $entity = $this->entityInfoProvider->getEntity(StringUtility::normalize($entityName));
             $entityBefore = clone $entity;
         }
-        $form = $this->createFormBuilder($entity ?? null, ['attr'=>['autocomplete' => 'off']])
+        $form = $this->createFormBuilder($entity ?? null, ['attr' => ['autocomplete' => 'off']])
             ->add('name', TextType::class)
             ->add('submit', SubmitType::class)
             ->getForm();
@@ -110,7 +112,7 @@ class SettingsController extends AbstractController
             'name' => $isCreating ? '' : $field->getName(),
             'type' => $isCreating ? 'string' : $field->getType(),
         ];
-        $form = $this->createFormBuilder($formData, ['attr'=>['autocomplete' => 'off']])
+        $form = $this->createFormBuilder($formData, ['attr' => ['autocomplete' => 'off']])
             ->add('name', TextType::class)
             ->add('type', ChoiceType::class, [
                 'choices' => $this->entityFieldRegistry->getFormFieldChoices(),
@@ -125,9 +127,9 @@ class SettingsController extends AbstractController
                 ->find($formData['type'])
                 ->setName(StringUtility::normalize($formData['name']));
 
-            if($isCreating){
+            if ($isCreating) {
                 $entity->addField($field);
-            }else{
+            } else {
                 $fieldNameBefore = StringUtility::toCamelCase($fieldName);
                 $entity->updateField($fieldNameBefore, $field);
             }
@@ -139,6 +141,7 @@ class SettingsController extends AbstractController
 
         return $this->render('@A2CRM/settings/entity.field.edit.html.twig', [
             'entity' => $this->entityInfoProvider->getEntity($entityName),
+            'field' => $field,
             'form' => $form->createView(),
         ]);
     }
@@ -152,6 +155,30 @@ class SettingsController extends AbstractController
         $request->getSession()->getFlashBag()->add('warning', 'Entity field removed');
 
         return $this->redirectToRoute('crm_settings_entity_field_list', ['entityName' => $entityName]);
+    }
+
+    /** @Route("entity/{entityName}/field/configuration/{fieldType?}/{fieldName?}", name="entity_field_configuration") */
+    public function entityFieldConfiguration(Request $request, string $entityName, string $fieldType, string $fieldName = null)
+    {
+        $field = $this->entityFieldRegistry->find($fieldType);
+        $hasConfiguration = $field instanceof ConfigurableFieldInterface;
+
+        return new JsonResponse([
+            'hasConfiguration' => $hasConfiguration,
+            'html' => $hasConfiguration ? $field->getConfigurationsFormControls() : '',
+        ]);
+        dd($field);
+
+
+        $isCreating = is_null($fieldName);
+        $entity = $this->entityInfoProvider->getEntity($entityName);
+        $field = $isCreating ? null : $entity->getField(StringUtility::toCamelCase($fieldName));
+
+
+        return $this->render('@A2CRM/settings/entity.field.edit.html.twig', [
+//            'entity' => $this->entityInfoProvider->getEntity($entityName),
+//            'form' => $form->createView(),
+        ]);
     }
 
     protected function removeEntityFile(Entity $entity)

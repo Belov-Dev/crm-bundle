@@ -31,8 +31,8 @@ class EntityBuilder
         $methods = [];
 
         foreach ($this->getEntity()->getFields() as $field) {
-            $properties = array_merge($properties, $this->indentElements($field->getEntityClassProperty()));
-            $methods = array_merge($methods, $this->indentElements($field->getEntityClassMethods()));
+            $properties = array_merge($properties, $this->indentElements($field->getEntityClassProperty()), ['']);
+            $methods = array_merge($methods, $this->indentElements($field->getEntityClassMethods()), ['']);
         }
 
         return $this
@@ -84,9 +84,16 @@ class EntityBuilder
 
     protected function getFinalElements()
     {
-        return [
+        $elements = [
+            'public function __toString()',
+            '{',
+            self::IDENT.'return sprintf(\'%s #%s\', \''.StringUtility::normalize($this->entity->getName()).'\', $this->getId());',
             '}',
         ];
+        $elements = $this->indentElements($elements);
+        $elements[] = '}';
+
+        return $elements;
     }
 
     protected function getIdFieldElements(): array

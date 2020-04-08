@@ -58,7 +58,7 @@ class EntityFieldRegistry
     {
         /** @var EntityFieldInterface $fieldType */
         foreach ($fieldTypes as $fieldType) {
-            $fieldTypeName = StringUtility::getShortClassName(get_class($fieldType), 'FieldType');
+            $fieldTypeName = StringUtility::getShortClassName(get_class($fieldType), 'Field');
             $this->fieldTypes[StringUtility::toCamelCase($fieldTypeName)] = $fieldType;
         }
     }

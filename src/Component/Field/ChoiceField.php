@@ -4,8 +4,15 @@ namespace A2Global\CRMBundle\Component\Field;
 
 use A2Global\CRMBundle\Utility\StringUtility;
 
-class StringField extends AbstractField implements FieldInterface
+class ChoiceField extends AbstractField implements FieldInterface, ConfigurableFieldInterface
 {
+    protected $options = [];
+
+    public function addOption()
+    {
+
+    }
+
     public function getEntityClassProperty(): array
     {
         return [
@@ -14,5 +21,10 @@ class StringField extends AbstractField implements FieldInterface
             ' */',
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
+    }
+
+    public function getConfigurationsFormControls(): string
+    {
+        return $this->render('@A2CRM/entity/field.choice.configuration.html.twig');
     }
 }
