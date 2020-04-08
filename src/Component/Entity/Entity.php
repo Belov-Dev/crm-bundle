@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Component\Entity;
 
 use A2Global\CRMBundle\Component\Field\FieldInterface;
+use A2Global\CRMBundle\Utility\ArrayUtility;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Exception;
 
@@ -56,5 +57,14 @@ class Entity
             throw new Exception(sprintf('Field %s in entity %s not found', $name, $this->getName()));
         }
         unset($this->fields[$name]);
+    }
+
+    public function updateField($fieldName, FieldInterface $field): self
+    {
+        $newFieldName = StringUtility::toCamelCase($field->getName());
+        $this->fields = ArrayUtility::renameKey($this->fields, $fieldName, $newFieldName);
+        $this->fields[$newFieldName] = $field;
+
+        return $this;
     }
 }

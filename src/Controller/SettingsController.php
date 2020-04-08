@@ -8,6 +8,7 @@ use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Filesystem\FileManager;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
+use A2Global\CRMBundle\Utility\ArrayUtility;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -63,7 +64,7 @@ class SettingsController extends AbstractController
             $entity = $this->entityInfoProvider->getEntity(StringUtility::normalize($entityName));
             $entityBefore = clone $entity;
         }
-        $form = $this->createFormBuilder($entity ?? null)
+        $form = $this->createFormBuilder($entity ?? null, ['attr'=>['autocomplete' => 'off']])
             ->add('name', TextType::class)
             ->add('submit', SubmitType::class)
             ->getForm();
@@ -109,7 +110,7 @@ class SettingsController extends AbstractController
             'name' => $isCreating ? '' : $field->getName(),
             'type' => $isCreating ? 'string' : $field->getType(),
         ];
-        $form = $this->createFormBuilder($formData)
+        $form = $this->createFormBuilder($formData, ['attr'=>['autocomplete' => 'off']])
             ->add('name', TextType::class)
             ->add('type', ChoiceType::class, [
                 'choices' => $this->entityFieldRegistry->getFormFieldChoices(),
@@ -120,14 +121,16 @@ class SettingsController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
-
-            if (!$isCreating) {
-                $entity->removeField($fieldName);
-            }
             $field = $this->entityFieldRegistry
                 ->find($formData['type'])
                 ->setName(StringUtility::normalize($formData['name']));
-            $entity->addField($field);
+
+            if($isCreating){
+                $entity->addField($field);
+            }else{
+                $fieldNameBefore = StringUtility::toCamelCase($fieldName);
+                $entity->updateField($fieldNameBefore, $field);
+            }
             $this->updateEntityFile($entity);
             $request->getSession()->getFlashBag()->add('success', $isCreating ? 'Entity field added' : 'Entity field updated');
 
