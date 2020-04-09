@@ -13,6 +13,7 @@ use A2Global\CRMBundle\Utility\ArrayUtility;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -112,7 +113,10 @@ class SettingsController extends AbstractController
             'name' => $isCreating ? '' : $field->getName(),
             'type' => $isCreating ? 'string' : $field->getType(),
         ];
-        $form = $this->createFormBuilder($formData, ['attr' => ['autocomplete' => 'off']])
+        $form = $this->createFormBuilder($formData, [
+            'attr' => ['autocomplete' => 'off'],
+            'allow_extra_fields' => true,
+        ])
             ->add('name', TextType::class)
             ->add('type', ChoiceType::class, [
                 'choices' => $this->entityFieldRegistry->getFormFieldChoices(),
@@ -126,6 +130,10 @@ class SettingsController extends AbstractController
             $field = $this->entityFieldRegistry
                 ->find($formData['type'])
                 ->setName(StringUtility::normalize($formData['name']));
+
+            if($field instanceof ConfigurableFieldInterface){
+                $field->setConfigurationFromTheForm($form->getExtraData()['configuration']);
+            }
 
             if ($isCreating) {
                 $entity->addField($field);
@@ -166,18 +174,6 @@ class SettingsController extends AbstractController
         return new JsonResponse([
             'hasConfiguration' => $hasConfiguration,
             'html' => $hasConfiguration ? $field->getConfigurationsFormControls() : '',
-        ]);
-        dd($field);
-
-
-        $isCreating = is_null($fieldName);
-        $entity = $this->entityInfoProvider->getEntity($entityName);
-        $field = $isCreating ? null : $entity->getField(StringUtility::toCamelCase($fieldName));
-
-
-        return $this->render('@A2CRM/settings/entity.field.edit.html.twig', [
-//            'entity' => $this->entityInfoProvider->getEntity($entityName),
-//            'form' => $form->createView(),
         ]);
     }
 

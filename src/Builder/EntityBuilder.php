@@ -31,8 +31,8 @@ class EntityBuilder
         $methods = [];
 
         foreach ($this->getEntity()->getFields() as $field) {
-            $properties = array_merge($properties, $this->indentElements($field->getEntityClassProperty()), ['']);
-            $methods = array_merge($methods, $this->indentElements($field->getEntityClassMethods()), ['']);
+            $properties = array_merge($properties, self::indentElements($field->getEntityClassProperty()), ['']);
+            $methods = array_merge($methods, self::indentElements($field->getEntityClassMethods()), ['']);
         }
 
         return $this
@@ -90,7 +90,7 @@ class EntityBuilder
             self::IDENT.'return sprintf(\'%s #%s\', \''.StringUtility::normalize($this->entity->getName()).'\', $this->getId());',
             '}',
         ];
-        $elements = $this->indentElements($elements);
+        $elements = self::indentElements($elements);
         $elements[] = '}';
 
         return $elements;
@@ -116,16 +116,9 @@ class EntityBuilder
         ];
 
         return [
-            $this->indentElements($property),
-            $this->indentElements($methods),
+            self::indentElements($property),
+            self::indentElements($methods),
         ];
-    }
-
-    protected function indentElements(array $elements): array
-    {
-        return array_map(function ($value) {
-            return self::IDENT . $value;
-        }, $elements);
     }
 
     protected function buildParameters(array $parameters)
@@ -135,5 +128,12 @@ class EntityBuilder
         }, array_keys($parameters), $parameters);
 
         return implode(', ', $parameters);
+    }
+
+    public static function indentElements(array $elements): array
+    {
+        return array_map(function ($value) {
+            return self::IDENT . $value;
+        }, $elements);
     }
 }

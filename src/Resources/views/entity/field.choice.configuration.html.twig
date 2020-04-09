@@ -39,14 +39,21 @@
         $('#choice-option-adder').click(function () {
             addOption();
         })
-        $('[data-remove-option]').click(function () {
-            $(this).parents('[data-option-container]').remove();
-        })
+
+        initRemovers();
+
+        function initRemovers(){
+            $('[data-remove-option]').off('click').on('click', function () {
+                $(this).parents('[data-option-container]').remove();
+            })
+        }
+
         function addOption(value = '') {
             let newItem = $(pattern.html());
             // adding name attribute here, not saving it in pattern to avoid blank extra option
-            newItem.find('input').attr('name', 'entityFieldForm[configuration][choices][]').val(value);
+            newItem.find('input').attr('name', 'form[configuration][choices][]').val(value);
             $('#choice-options').append(newItem);
+            initRemovers();
         }
     })
 </script>
