@@ -1,0 +1,5 @@
+<select name="form[configuration][targetEntity]" class="form-control">
+    {% for entity in entities %}
+        <option value="{{ entity|toCamelCase }}" {{ entity == entity|toCamelCase ? 'selected' : '' }}>{{ entity|normalize }}</option>
+    {% endfor %}
+</select>

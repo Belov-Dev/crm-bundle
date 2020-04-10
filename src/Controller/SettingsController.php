@@ -6,14 +6,13 @@ use A2Global\CRMBundle\Builder\EntityBuilder;
 use A2Global\CRMBundle\Component\Entity\Entity;
 use A2Global\CRMBundle\Component\Field\ConfigurableFieldInterface;
 use A2Global\CRMBundle\Component\Field\IdField;
+use A2Global\CRMBundle\Factory\EntityFieldFactory;
 use A2Global\CRMBundle\Filesystem\FileManager;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;
-use A2Global\CRMBundle\Utility\ArrayUtility;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,18 +28,22 @@ class SettingsController extends AbstractController
 
     protected $fileManager;
 
+    protected $entityFieldFactory;
+
     protected $entityFieldRegistry;
 
     public function __construct(
         EntityInfoProvider $entityInfoProvider,
         EntityBuilder $entityBuilder,
         FileManager $fileManager,
+        EntityFieldFactory $entityFieldFactory,
         EntityFieldRegistry $entityFieldRegistry
     )
     {
         $this->entityInfoProvider = $entityInfoProvider;
         $this->entityBuilder = $entityBuilder;
         $this->fileManager = $fileManager;
+        $this->entityFieldFactory = $entityFieldFactory;
         $this->entityFieldRegistry = $entityFieldRegistry;
     }
 
@@ -127,8 +130,8 @@ class SettingsController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
-            $field = $this->entityFieldRegistry
-                ->find($formData['type'])
+            $field = $this->entityFieldFactory
+                ->get($formData['type'])
                 ->setName(StringUtility::normalize($formData['name']));
 
             if($field instanceof ConfigurableFieldInterface){
@@ -168,12 +171,23 @@ class SettingsController extends AbstractController
     /** @Route("entity/{entityName}/field/configuration/{fieldType?}/{fieldName?}", name="entity_field_configuration") */
     public function entityFieldConfiguration(Request $request, string $entityName, string $fieldType, string $fieldName = null)
     {
-        $field = $this->entityFieldRegistry->find($fieldType);
+        $isCreating = is_null($fieldName);
+        $entity = $this->entityInfoProvider->getEntity($entityName);
+
+        if($isCreating) {
+            $field = $this->entityFieldFactory->get($fieldType);
+        }else{
+            $field = $entity->getField($fieldName);
+
+            if($field->getType() != StringUtility::toCamelCase($fieldType)){
+                $field = $this->entityFieldFactory->get($fieldType);
+            }
+        }
         $hasConfiguration = $field instanceof ConfigurableFieldInterface;
 
         return new JsonResponse([
             'hasConfiguration' => $hasConfiguration,
-            'html' => $hasConfiguration ? $field->getConfigurationsFormControls() : '',
+            'html' => $hasConfiguration ? $field->getConfigurationsFormControls($entity) : '',
         ]);
     }
 

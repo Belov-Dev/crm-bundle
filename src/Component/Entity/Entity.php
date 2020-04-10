@@ -39,7 +39,7 @@ class Entity
     }
 
     /**
-     * @return FieldTypeInterface[]
+     * @return FieldInterface[]
      */
     public function getFields(): array
     {

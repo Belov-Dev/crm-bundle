@@ -2,8 +2,8 @@
 
 namespace A2Global\CRMBundle\Component\Field;
 
+use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
-use Doctrine\Common\Annotations\Annotation\Required;
 use Twig\Environment;
 
 abstract class AbstractField implements FieldInterface
@@ -15,12 +15,21 @@ abstract class AbstractField implements FieldInterface
     /** @var Environment */
     protected $twig;
 
-    /**
-     * @Required
-     */
-    public function setTwig(Environment $twig)
+    /** @var EntityInfoProvider */
+    protected $entityInfoProvider;
+
+    public function setEntityInfoProvider(EntityInfoProvider $entityInfoProvider): FieldInterface
+    {
+        $this->entityInfoProvider = $entityInfoProvider;
+
+        return $this;
+    }
+
+    public function setTwig(Environment $twig): FieldInterface
     {
         $this->twig = $twig;
+
+        return $this;
     }
 
     public function render($template, $data = []): string
@@ -43,6 +52,11 @@ abstract class AbstractField implements FieldInterface
     public function getType(): string
     {
         return strtolower(StringUtility::getShortClassName($this, 'Field'));
+    }
+
+    public function getEntityClassConstant(): array
+    {
+        return [];
     }
 
     public function getEntityClassProperty(): array

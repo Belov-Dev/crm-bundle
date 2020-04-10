@@ -48,7 +48,7 @@ class EntityFieldRegistry
             if ($fieldType->getType() == 'id') {
                 continue;
             }
-            $choices[$fieldType->getType()] = $fieldNameCamelCase;
+            $choices[StringUtility::normalize($fieldType->getType())] = $fieldNameCamelCase;
         }
 
         return $choices;

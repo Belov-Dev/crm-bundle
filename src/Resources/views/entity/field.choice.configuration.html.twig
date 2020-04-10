@@ -27,8 +27,8 @@
 <script>
     $(function () {
         let pattern = $('#choice-option-sample');
-        {% if field.configuration.choices is defined %}
-        {% for choice in field.configuration.choices %}
+        {% if choices|length > 0 %}
+        {% for choice in choices %}
         addOption('{{ choice }}');
         {% endfor %}
         {% else %}

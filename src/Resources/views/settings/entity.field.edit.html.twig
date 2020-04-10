@@ -41,6 +41,8 @@
 
         function loadConfiguration(){
 
+            console.log(fieldTypeSelector);
+
             let url = '{{ path('crm_settings_entity_field_configuration', {'entityName': entity.name|urlize}) }}';
             url += '/' + fieldTypeSelector.val();
 

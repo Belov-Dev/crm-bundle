@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Builder;
 
 use A2Global\CRMBundle\Component\Entity\Entity;
+use A2Global\CRMBundle\Component\Field\FieldInterface;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 class EntityBuilder
@@ -27,16 +28,24 @@ class EntityBuilder
 
     public function build(): self
     {
+        $constants = [];
         $properties = [];
         $methods = [];
 
+        /** @var FieldInterface $field */
         foreach ($this->getEntity()->getFields() as $field) {
             $properties = array_merge($properties, self::indentElements($field->getEntityClassProperty()), ['']);
             $methods = array_merge($methods, self::indentElements($field->getEntityClassMethods()), ['']);
+            $constant = $field->getEntityClassConstant();
+
+            if($constant){
+                $constants = array_merge($constants, self::indentElements($constant), ['']);
+            }
         }
 
         return $this
             ->addElements($this->getBaseElements())
+            ->addElements($constants)
             ->addElements($properties)
             ->addElements($methods)
             ->addElements($this->getFinalElements());
