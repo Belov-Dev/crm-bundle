@@ -49,44 +49,17 @@ class RelationField extends AbstractField implements FieldInterface, Configurabl
 
     public function setConfigurationFromTheForm($configuration)
     {
-        dd(1);
-        $choices = array_map(function ($item) {
-            return StringUtility::normalize($item);
-        }, $configuration['choices']);
-
-        $this->setChoices($choices);
-    }
-
-    public function getEntityClassConstant(): array
-    {
-        dd(123);
-        $elements = [
-            'const ' . StringUtility::toConstantName($this->name) . '_CHOICES = [',
-        ];
-
-        foreach ($this->choices as $choice) {
-            $elements[] = self::INDENT . '\'' . $choice . '\',';
-        }
-
-        $elements[] = '];';
-
-        return $elements;
+        $this->setTargetEntity($configuration['targetEntity']);
     }
 
     public function getEntityClassProperty(): array
     {
-        dd(123);
-
         return [
             '/**',
-            ' * @ORM\Column(type="string", length=255, nullable=true)',
+            ' * @ORM\ManyToOne(targetEntity="'.StringUtility::toPascalCase($this->getTargetEntity()).'")',
+            ' * @ORM\JoinColumn(name="'.StringUtility::toSnakeCase($this->getTargetEntity()).'_id", referencedColumnName="id")',
             ' */',
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
-    }
-
-    public function getEntityClassMethods(): array
-    {
-        dd(123);
     }
 }
