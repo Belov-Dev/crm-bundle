@@ -95,6 +95,17 @@ abstract class AbstractField implements FieldInterface
 
     public function getFormControl($value = null)
     {
-        return '<input type="text" class="form-control" value="' . $value . '">';
+        return sprintf(
+            '<input type="text" name="data[%s]" class="form-control" value="%s">',
+            StringUtility::toCamelCase($this->getName()),
+            $value
+        );
+    }
+
+    public function setValueToObject($value, $object): FieldInterface
+    {
+        $object->{'set' . StringUtility::toPascalCase($this->getName())}($value);
+
+        return $this;
     }
 }

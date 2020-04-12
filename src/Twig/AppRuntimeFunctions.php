@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace A2Global\CRMBundle\Twig;
 
 use A2Global\CRMBundle\Builder\DatasheetBuilder;
-use A2Global\CRMBundle\Datasheet\DataSheetInterface;
+use A2Global\CRMBundle\Datasheet\Datasheet;
+use A2Global\CRMBundle\Datasheet\DatasheetInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Routing\RouterInterface;
@@ -58,7 +59,7 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
 
     public function getDatasheet($datasheet)
     {
-        if (!$datasheet instanceof DataSheetInterface) {
+        if (!$datasheet instanceof Datasheet) {
             throw new Exception(sprintf('Invalid class `%s`, please provide object of DataSheetInterface to build the datasheet', get_class($datasheet)));
         }
 

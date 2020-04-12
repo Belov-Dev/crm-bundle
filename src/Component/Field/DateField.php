@@ -2,8 +2,8 @@
 
 namespace A2Global\CRMBundle\Component\Field;
 
-use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Utility\StringUtility;
+use DateTime;
 
 class DateField extends AbstractField implements FieldInterface
 {
@@ -21,9 +21,16 @@ class DateField extends AbstractField implements FieldInterface
     {
         return sprintf(
             '<div class="input-group"><div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-            <input type="text" name="field[%s]" class="form-control" value="%s" data-date-mask="" placeholder="dd/mm/yyyy" maxlength="10"></div>',
+            <input type="text" name="data[%s]" class="form-control" value="%s" data-date-mask="" placeholder="dd/mm/yyyy" maxlength="10"></div>',
             StringUtility::toSnakeCase($this->getName()),
             $value ? htmlspecialchars($value->format('d/m/Y')) : null
         );
+    }
+
+    public function setValueToObject($value, $object): FieldInterface
+    {
+        $value = new DateTime(str_replace('/', '-', $value));
+
+        return parent::setValueToObject($value, $object);
     }
 }

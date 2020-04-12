@@ -58,7 +58,7 @@ class RelationField extends AbstractField implements FieldInterface, Configurabl
     public function getFormControl($value = null): string
     {
         $optionsRepository = $this->entityManager->getRepository('App:' . StringUtility::toPascalCase($this->getTargetEntity()));
-        $html = [sprintf('<select class="form-control" name="field[%s]">', StringUtility::toSnakeCase($this->getName()))];
+        $html = [sprintf('<select class="form-control" name="data[%s]">', StringUtility::toSnakeCase($this->getName()))];
 
         foreach ($optionsRepository->findAll() as $item) {
             $isSelected = $value && ($value->getId() == $item->getId());

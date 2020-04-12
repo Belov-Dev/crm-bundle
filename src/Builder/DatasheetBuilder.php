@@ -2,8 +2,8 @@
 
 namespace A2Global\CRMBundle\Builder;
 
-use A2Global\CRMBundle\Datasheet\ArrayDatasheet;
-use A2Global\CRMBundle\Datasheet\DataSheetInterface;
+use A2Global\CRMBundle\Datasheet\Datasheet;
+use A2Global\CRMBundle\Datasheet\DatasheetInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
@@ -23,7 +23,7 @@ class DatasheetBuilder
         $this->requestStack = $requestStack;
     }
 
-    public function getTable(DataSheetInterface $datasheet)
+    public function getTable(Datasheet $datasheet)
     {
         $queryString = $this->requestStack->getMasterRequest()->query->all();
         $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
@@ -34,18 +34,18 @@ class DatasheetBuilder
         $filterFormUrl = http_build_query($queryString);
         $filterFormHiddenFields = $queryString;
         unset($filterFormHiddenFields['page']);
-        $datasheet->build($startFrom, $perPage, null, $filters);
+//        $datasheet->build($startFrom, $perPage, null, $filters);
 
         if (!count($datasheet->getItems())) {
             return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig');
         }
 
-        if ($datasheet instanceof ArrayDatasheet) {
-            $datasheet->buildFields();
-            $datasheet->applyFilters($filters);
-            $datasheet->buildItemsTotal();
-            $datasheet->applyPagination($startFrom, $perPage);
-        }
+//        if ($datasheet instanceof ArrayDatasheet) {
+//            $datasheet->buildFields();
+//            $datasheet->applyFilters($filters);
+//            $datasheet->buildItemsTotal();
+//            $datasheet->applyPagination($startFrom, $perPage);
+//        }
         $hasActions = !empty($datasheet->getActionsTemplate());
         $hasAction = !empty($datasheet->getActionTemplate());
 

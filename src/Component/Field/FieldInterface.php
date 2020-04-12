@@ -27,4 +27,6 @@ interface FieldInterface
     public function setTwig(Environment $twig): self;
 
     public function getFormControl($value);
+
+    public function setValueToObject($value, $object): self;
 }

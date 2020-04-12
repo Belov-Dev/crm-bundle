@@ -48,8 +48,11 @@ class EntityInfoProvider
         }, glob($directory . '/*.php'));
     }
 
-    public function getEntity(string $entityName): Entity
+    public function getEntity($entityName): Entity
     {
+        if(is_object($entityName)){
+            $entityName = StringUtility::getShortClassName($entityName);
+        }
         $entity = new Entity(StringUtility::normalize($entityName));
         $class = 'App\\Entity\\' . StringUtility::toPascalCase($entityName);
         $reflection = new ReflectionClass($class);

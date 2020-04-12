@@ -2,7 +2,6 @@
 
 namespace A2Global\CRMBundle\Component\Field;
 
-use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 class BooleanField extends AbstractField implements FieldInterface
@@ -22,14 +21,14 @@ class BooleanField extends AbstractField implements FieldInterface
         $html = [];
         $html[] = '<label class="radio-inline">';
         $html[] = sprintf(
-            '<input type="radio" name="field[%s]" value="1" %s> Yes',
+            '<input type="radio" name="data[%s]" value="1" %s> Yes',
             StringUtility::toSnakeCase($this->getName()),
             (is_null($value) || (bool)$value) ? 'checked' : ''
         );
         $html[] = '</label>';
         $html[] = '<label class="radio-inline">';
         $html[] = sprintf(
-            '<input type="radio" name="field[%s]" value="0" %s> Nope',
+            '<input type="radio" name="data[%s]" value="0" %s> Nope',
             StringUtility::toSnakeCase($this->getName()),
             (bool)$value ? '' : 'checked'
         );
@@ -38,4 +37,10 @@ class BooleanField extends AbstractField implements FieldInterface
         return implode(PHP_EOL, $html);
     }
 
+    public function setValueToObject($value, $object): FieldInterface
+    {
+        $value = (bool)$value;
+
+        return parent::setValueToObject($value, $object);
+    }
 }
