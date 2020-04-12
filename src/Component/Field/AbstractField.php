@@ -2,8 +2,10 @@
 
 namespace A2Global\CRMBundle\Component\Field;
 
+use A2Global\CRMBundle\Component\Entity\Entity;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
+use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 
 abstract class AbstractField implements FieldInterface
@@ -18,6 +20,16 @@ abstract class AbstractField implements FieldInterface
     /** @var EntityInfoProvider */
     protected $entityInfoProvider;
 
+    /** @var EntityManagerInterface */
+    protected $entityManager;
+
+    public function setTwig(Environment $twig): FieldInterface
+    {
+        $this->twig = $twig;
+
+        return $this;
+    }
+
     public function setEntityInfoProvider(EntityInfoProvider $entityInfoProvider): FieldInterface
     {
         $this->entityInfoProvider = $entityInfoProvider;
@@ -25,9 +37,9 @@ abstract class AbstractField implements FieldInterface
         return $this;
     }
 
-    public function setTwig(Environment $twig): FieldInterface
+    public function setEntityManager(EntityManagerInterface $entityManager): FieldInterface
     {
-        $this->twig = $twig;
+        $this->entityManager = $entityManager;
 
         return $this;
     }
@@ -79,5 +91,10 @@ abstract class AbstractField implements FieldInterface
             self::INDENT . 'return $this;',
             '}',
         ];
+    }
+
+    public function getFormControl($value = null)
+    {
+        return '<input type="text" class="form-control" value="' . $value . '">';
     }
 }

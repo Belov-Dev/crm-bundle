@@ -3,7 +3,6 @@
 namespace A2Global\CRMBundle\EntityField;
 
 use A2Global\CRMBundle\Entity\EntityField;
-use A2Global\CRMBundle\Modifier\SchemaModifier;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 class BooleanField extends AbstractField

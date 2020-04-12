@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\Component\Field;
 
 use A2Global\CRMBundle\Component\Entity\Entity;
+use A2Global\CRMBundle\Entity\EntityField;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 class ChoiceField extends AbstractField implements FieldInterface, ConfigurableFieldInterface
@@ -67,5 +68,19 @@ class ChoiceField extends AbstractField implements FieldInterface, ConfigurableF
             ' */',
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
+    }
+
+    public function getFormControl($value = null): string
+    {
+        $html = [];
+        $html[] = sprintf('<select class="form-control" name="field[%s]">', StringUtility::toSnakeCase($this->getName()));
+
+        foreach ($this->getChoices() as $option) {
+            $isSelected = $value && ($value == $option);
+            $html[] = sprintf('<option value="%s" %s>%s', $option, ($isSelected ? 'selected' : ''), $option);
+        }
+        $html[] = '</select>';
+
+        return implode(PHP_EOL, $html);
     }
 }

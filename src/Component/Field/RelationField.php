@@ -13,14 +13,6 @@ class RelationField extends AbstractField implements FieldInterface, Configurabl
     /** @var EntityInfoProvider $entityInfoProvider */
     protected $entityInfoProvider;
 
-    /**
-     * @Required
-     */
-    public function setEntityManager(EntityInfoProvider $entityInfoProvider)
-    {
-        $this->entityInfoProvider = $entityInfoProvider;
-    }
-
     public function getTargetEntity()
     {
         return $this->targetEntity;
@@ -61,5 +53,19 @@ class RelationField extends AbstractField implements FieldInterface, Configurabl
             ' */',
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
+    }
+
+    public function getFormControl($value = null): string
+    {
+        $optionsRepository = $this->entityManager->getRepository('App:' . StringUtility::toPascalCase($this->getTargetEntity()));
+        $html = [sprintf('<select class="form-control" name="field[%s]">', StringUtility::toSnakeCase($this->getName()))];
+
+        foreach ($optionsRepository->findAll() as $item) {
+            $isSelected = $value && ($value->getId() == $item->getId());
+            $html[] = sprintf('<option value="%s" %s>%s', $item->getId(), ($isSelected ? 'selected' : ''), (string)$item);
+        }
+        $html[] = '</select>';
+
+        return implode(PHP_EOL, $html);
     }
 }

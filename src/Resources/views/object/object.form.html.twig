@@ -1,0 +1,17 @@
+<form action="{{ form.url }}" method="POST" class="form-horizontal">
+
+    {% for fieldName, field in form.fields %}
+        <div class="form-group">
+            <label class="col-sm-4 control-label">{{ form.fields[fieldName].title }}</label>
+            <div class="col-sm-8">
+                {{ form_field(form.fields[fieldName]) }}
+            </div>
+        </div>
+    {% endfor %}
+    <div class="form-group">
+        <label class="col-sm-4">&nbsp;</label>
+        <div class="col-sm-8">
+            <input type="submit" class="btn btn-primary">
+        </div>
+    </div>
+</form>
