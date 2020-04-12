@@ -12,9 +12,11 @@ class Datasheet
 
     protected $items = [];
 
-    protected $itemsPerPage = 10;
+    protected $page = 0;
 
-    private $entityInfoProvider;
+    protected $itemsPerPage = 20;
+
+    protected $entityInfoProvider;
 
     public function __construct(
         EntityInfoProvider $entityInfoProvider
@@ -25,7 +27,7 @@ class Datasheet
 
     public function setData($dataFunction): self
     {
-        $items = $dataFunction();
+        $items = $dataFunction($this->itemsPerPage, $this->page * $this->itemsPerPage);
 
         if (!count($items)) {
             $this->items = [];
@@ -76,6 +78,23 @@ class Datasheet
         return $this->fields;
     }
 
+    public function addField($name, $title): self
+    {
+        $this->fields[$name] = [
+            'title' => $title,
+            'hasFiltering' => false, //in_array($key, $this->hasFilter),
+        ];
+
+        return $this;
+    }
+
+    public function removeFields(): self
+    {
+        $this->fields = [];
+
+        return $this;
+    }
+
     public function removeField($name): self
     {
         unset($this->fields[StringUtility::toCamelCase($name)]);
@@ -96,8 +115,6 @@ class Datasheet
                 ];
             }
         } else {
-            $item = reset($this->items);
-
             foreach ($item as $key => $value) {
                 $this->fields[$key] = [
                     'title' => StringUtility::normalize($key),
