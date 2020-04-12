@@ -16,7 +16,11 @@ class Datasheet
 
     protected $itemsPerPage = 20;
 
+    protected $fieldActions;
+
     protected $entityInfoProvider;
+
+    protected $itemsSourceCallable;
 
     public function __construct(
         EntityInfoProvider $entityInfoProvider
@@ -25,9 +29,17 @@ class Datasheet
         $this->entityInfoProvider = $entityInfoProvider;
     }
 
-    public function setData($dataFunction): self
+    public function setData($callable): self
     {
-        $items = $dataFunction($this->itemsPerPage, $this->page * $this->itemsPerPage);
+        $this->itemsSourceCallable = $callable;
+
+        return $this;
+    }
+
+    public function build()
+    {
+        $callable = $this->itemsSourceCallable;
+        $items = $callable($this->itemsPerPage, $this->page * $this->itemsPerPage);
 
         if (!count($items)) {
             $this->items = [];
@@ -41,12 +53,17 @@ class Datasheet
 
             foreach ($this->fields as $fieldName => $field) {
                 $value = is_object($itemOriginal) ? $itemOriginal->{'get' . $fieldName}() : $itemOriginal[$fieldName];
-                $item[$fieldName] = $this->handleValue($value);
+                $value = $this->handleValue($value);
+
+                // todo remove camelcasing
+                if(isset($this->fieldActions[StringUtility::toCamelCase($fieldName)])){
+                    $callable = $this->fieldActions[StringUtility::toCamelCase($fieldName)];
+                    $value = sprintf('<a href="%s"><b>%s</b></a>', $callable($itemOriginal), $value);
+                }
+                $item[$fieldName] = $value;
             }
             $this->items[] = $item;
         }
-
-        return $this;
     }
 
     public function getItemsPerPage()
@@ -78,10 +95,10 @@ class Datasheet
         return $this->fields;
     }
 
-    public function addField($name, $title): self
+    public function addField($name, $title = null): self
     {
         $this->fields[$name] = [
-            'title' => $title,
+            'title' => $title ?: StringUtility::normalize($name),
             'hasFiltering' => false, //in_array($key, $this->hasFilter),
         ];
 
@@ -98,6 +115,13 @@ class Datasheet
     public function removeField($name): self
     {
         unset($this->fields[StringUtility::toCamelCase($name)]);
+
+        return $this;
+    }
+
+    public function addFieldAction($field, $callable): self
+    {
+        $this->fieldActions[$field] = $callable;
 
         return $this;
     }

@@ -34,6 +34,9 @@ class DatasheetBuilder
         $filterFormUrl = http_build_query($queryString);
         $filterFormHiddenFields = $queryString;
         unset($filterFormHiddenFields['page']);
+        $datasheet->build();
+
+
 //        $datasheet->build($startFrom, $perPage, null, $filters);
 
         if (!count($datasheet->getItems())) {
