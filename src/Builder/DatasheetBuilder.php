@@ -3,7 +3,7 @@
 namespace A2Global\CRMBundle\Builder;
 
 use A2Global\CRMBundle\Datasheet\ArrayDatasheet;
-use A2Global\CRMBundle\DataSheet\DataSheetInterface;
+use A2Global\CRMBundle\Datasheet\DataSheetInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 

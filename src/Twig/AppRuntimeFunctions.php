@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace A2Global\CRMBundle\Twig;
 
 use A2Global\CRMBundle\Builder\DatasheetBuilder;
-use A2Global\CRMBundle\DataSheet\DataSheetInterface;
+use A2Global\CRMBundle\Datasheet\DataSheetInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Routing\RouterInterface;
