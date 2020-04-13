@@ -2,7 +2,6 @@
 
 namespace A2Global\CRMBundle\Factory;
 
-use A2Global\CRMBundle\Component\Entity\Entity;
 use A2Global\CRMBundle\Component\Field\FieldInterface;
 use A2Global\CRMBundle\Component\Form\Form;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;

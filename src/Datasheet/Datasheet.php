@@ -16,7 +16,7 @@ class Datasheet
 
     protected $itemsPerPage = 20;
 
-    protected $fieldActions;
+    protected $fieldHandlers;
 
     protected $entityInfoProvider;
 
@@ -56,9 +56,9 @@ class Datasheet
                 $value = $this->handleValue($value);
 
                 // todo remove camelcasing
-                if(isset($this->fieldActions[StringUtility::toCamelCase($fieldName)])){
-                    $callable = $this->fieldActions[StringUtility::toCamelCase($fieldName)];
-                    $value = sprintf('<a href="%s"><b>%s</b></a>', $callable($itemOriginal), $value);
+                if(isset($this->fieldHandlers[StringUtility::toCamelCase($fieldName)])){
+                    $callable = $this->fieldHandlers[StringUtility::toCamelCase($fieldName)];
+                    $value = $callable($itemOriginal);
                 }
                 $item[$fieldName] = $value;
             }
@@ -119,9 +119,9 @@ class Datasheet
         return $this;
     }
 
-    public function addFieldAction($field, $callable): self
+    public function addFieldHandler($field, $callable): self
     {
-        $this->fieldActions[$field] = $callable;
+        $this->fieldHandlers[$field] = $callable;
 
         return $this;
     }
@@ -160,7 +160,7 @@ class Datasheet
         }
 
         if ($value instanceof DateTimeInterface) {
-            return $value->format('j/m/Y');
+            return $value->format('d-m-Y');
         }
 
         if (is_object($value)) {

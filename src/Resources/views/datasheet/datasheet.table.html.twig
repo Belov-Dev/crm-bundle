@@ -43,7 +43,7 @@
             <th>&nbsp;</th>
         {% endif %}
         {% for field in fields %}
-            <th>{{ field.title }}</th>
+            <th>{{ field.title|trans }}</th>
         {% endfor %}
     </tr>
     </thead>

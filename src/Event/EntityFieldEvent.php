@@ -6,7 +6,7 @@ use A2Global\CRMBundle\Component\Field\FieldInterface;
 
 class EntityFieldEvent
 {
-    public const NAME = 'order.placed';
+    public const NAME = 'a2crm.entity_field.fabricated';
 
     protected $field;
 
