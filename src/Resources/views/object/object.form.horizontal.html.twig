@@ -2,7 +2,7 @@
 
     {% for fieldName, field in form.fields %}
         <div class="form-group">
-            <label class="col-sm-4 control-label">{{ form.fields[fieldName].title }}</label>
+            <label class="col-sm-4 control-label">{{ form.fields[fieldName].title|trans }}</label>
             <div class="col-sm-8">
                 {{ form_field(form.fields[fieldName]) }}
             </div>
