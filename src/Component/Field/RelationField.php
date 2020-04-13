@@ -48,8 +48,8 @@ class RelationField extends AbstractField implements FieldInterface, Configurabl
     {
         return [
             '/**',
-            ' * @ORM\ManyToOne(targetEntity="'.StringUtility::toPascalCase($this->getTargetEntity()).'")',
-            ' * @ORM\JoinColumn(name="'.StringUtility::toSnakeCase($this->getTargetEntity()).'_id", referencedColumnName="id")',
+            ' * @ORM\ManyToOne(targetEntity="' . StringUtility::toPascalCase($this->getTargetEntity()) . '")',
+            ' * @ORM\JoinColumn(name="' . StringUtility::toSnakeCase($this->getTargetEntity()) . '_id", referencedColumnName="id")',
             ' */',
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
@@ -67,5 +67,14 @@ class RelationField extends AbstractField implements FieldInterface, Configurabl
         $html[] = '</select>';
 
         return implode(PHP_EOL, $html);
+    }
+
+    public function setValueToObject($value, $object): FieldInterface
+    {
+        $value = $this->entityManager
+            ->getRepository('App:' . StringUtility::toPascalCase($this->getTargetEntity()))
+            ->find($value);
+
+        return parent::setValueToObject($value, $object);
     }
 }
