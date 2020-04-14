@@ -35,27 +35,38 @@ class SamplesController extends AbstractController
     public function index()
     {
         $dir = $this->projectDir . '/vendor/a2global/crm-bundle';
+        $entityManager = $this->entityManager;
+
         $arrayDatasheet = $this->datasheetFactory->get()
-            ->setData([
-                ['id' => 1, 'name' => 'Alpha'],
-                ['id' => 2, 'name' => 'Bravo'],
-                ['id' => 3, 'name' => 'Charlie'],
-            ])
-            ->setData(function () use ($dir) {
-                $i = 0;
-                $items = [];
-
-                foreach (glob($dir . '/{,*/*,*/*/*,*/*/*/*}', GLOB_BRACE) as $file) {
-                    ++$i;
-                    $items[] = [
-                        'id' => $i,
-                        'name' => basename($file),
-                        'path' => $file,
-                        'size' => filesize($file),
-                    ];
-                }
-
-                return $items;
+//            ->setData([
+//                ['id' => 1, 'name' => 'Alpha'],
+//                ['id' => 2, 'name' => 'Bravo'],
+//                ['id' => 3, 'name' => 'Charlie'],
+//            ])
+//            ->setData(function () use ($dir) {
+//                $i = 0;
+//                $items = [];
+//
+//                foreach (glob($dir . '/{,*/*,*/*/*,*/*/*/*}', GLOB_BRACE) as $file) {
+//                    ++$i;
+//                    $items[] = [
+//                        'id' => $i,
+//                        'name' => basename($file),
+//                        'path' => $file,
+//                        'size' => filesize($file),
+//                    ];
+//                }
+//
+//                return $items;
+//            })
+        ->setData(function($limit, $offset) use ($entityManager){
+            return $entityManager->getRepository('App:Worker')->findBy([], [], $limit, $offset);
+            })
+            ->setItemsTotal(function() use ($entityManager){
+                return $entityManager->getRepository('App:Worker')->createQueryBuilder('e')
+                    ->select('count(e)')
+                    ->getQuery()
+                    ->getSingleScalarResult();
             })
 //            ->removeFields()
 //            ->addField('id')
