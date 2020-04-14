@@ -1,0 +1,21 @@
+{% extends '@A2CRM/layout.html.twig' %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="box">
+                <div class="box-header">
+                    Array datasheet111
+                </div>
+                <div class="box-body">
+                    {{ datasheet(arrayDatasheet) }}
+                </div>
+                <div class="box-footer">
+                    {{ pagination(arrayDatasheet) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

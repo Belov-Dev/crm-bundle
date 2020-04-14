@@ -2,52 +2,45 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
-use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
 
 class Datasheet
 {
-    protected $fields = [];
+    use DatasheetDependencyInjectionTrait;
+
+    use DatasheetFieldsTrait;
+
+    use DatasheetGettersSettersTrait;
 
     protected $items = [];
 
-    protected $page = 0;
-
-    protected $itemsPerPage = 20;
-
-    protected $fieldHandlers;
-
-    protected $entityInfoProvider;
-
-    protected $itemsSourceCallable;
-
-    public function __construct(
-        EntityInfoProvider $entityInfoProvider
-    )
-    {
-        $this->entityInfoProvider = $entityInfoProvider;
-    }
-
-    public function setData($callable): self
-    {
-        $this->itemsSourceCallable = $callable;
-
-        return $this;
-    }
-
+    /**
+     * Build executes when datasheet is rendered, when all parameters already defined.
+     * That's is because we need to pass $limit, $perpage when executing callable getData()
+     * These options are defined before build()
+     */
     public function build()
     {
-        $callable = $this->itemsSourceCallable;
-        $items = $callable($this->itemsPerPage, $this->page * $this->itemsPerPage);
-
-        if (!count($items)) {
-            $this->items = [];
+        if (is_callable($this->data)) {
+            $callable = $this->data;
+            $this->data = $callable($this->itemsPerPage, $this->page * $this->itemsPerPage);
         }
 
-        foreach ($items as $itemOriginal) {
-            if (!$this->fields) {
+        if (is_null($this->itemsTotal)) {
+            $this->setItemsTotal(count($this->data));
+        }
+
+        if(count($this->data) > $this->getItemsPerPage()){
+            $this->data = array_splice($this->data, $this->getPage() * $this->getItemsPerPage(), $this->getItemsPerPage());
+        }
+        $fieldsBuilt = false;
+        $items = [];
+
+        foreach ($this->data as $itemOriginal) {
+            if (!$fieldsBuilt) {
                 $this->buildFields($itemOriginal);
+                $fieldsBuilt = true;
             }
             $item = [];
 
@@ -55,98 +48,15 @@ class Datasheet
                 $value = is_object($itemOriginal) ? $itemOriginal->{'get' . $fieldName}() : $itemOriginal[$fieldName];
                 $value = $this->handleValue($value);
 
-                // todo remove camelcasing
-                if(isset($this->fieldHandlers[StringUtility::toCamelCase($fieldName)])){
-                    $callable = $this->fieldHandlers[StringUtility::toCamelCase($fieldName)];
+                if (isset($this->fieldHandlers[$fieldName])) {
+                    $callable = $this->fieldHandlers[$fieldName];
                     $value = $callable($itemOriginal);
                 }
                 $item[$fieldName] = $value;
             }
-            $this->items[] = $item;
+            $items[] = $item;
         }
-    }
-
-    public function getItemsPerPage()
-    {
-        return $this->itemsPerPage;
-    }
-
-    public function getItems()
-    {
-        return $this->items;
-    }
-
-    public function getActionsTemplate()
-    {
-        return '';
-    }
-
-    public function getActionTemplate()
-    {
-        return '';
-    }
-
-    public function getFields()
-    {
-        if (!$this->fields) {
-            $this->buildFields();
-        }
-
-        return $this->fields;
-    }
-
-    public function addField($name, $title = null): self
-    {
-        $this->fields[$name] = [
-            'title' => $title ?: StringUtility::normalize($name),
-            'hasFiltering' => false, //in_array($key, $this->hasFilter),
-        ];
-
-        return $this;
-    }
-
-    public function removeFields(): self
-    {
-        $this->fields = [];
-
-        return $this;
-    }
-
-    public function removeField($name): self
-    {
-        unset($this->fields[StringUtility::toCamelCase($name)]);
-
-        return $this;
-    }
-
-    public function addFieldHandler($field, $callable): self
-    {
-        $this->fieldHandlers[$field] = $callable;
-
-        return $this;
-    }
-
-    protected function buildFields($item)
-    {
-        if (is_object($item)) {
-            $entity = $this->entityInfoProvider->getEntity($item);
-
-            foreach ($entity->getFields() as $field) {
-                $this->fields[StringUtility::toCamelCase($field->getName())] = [
-                    'title' => $field->getName(),
-                    'hasFiltering' => false, //in_array($key, $this->hasFilter),
-                    // todo !
-                ];
-            }
-        } else {
-            foreach ($item as $key => $value) {
-                $this->fields[$key] = [
-                    'title' => StringUtility::normalize($key),
-                    'hasFiltering' => false, //in_array($key, $this->hasFilter),
-                    // todo !
-                ];
-            }
-        }
+        $this->items = $items;
     }
 
     protected function handleValue($value)

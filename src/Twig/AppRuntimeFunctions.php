@@ -17,17 +17,17 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
 
     private $router;
 
-    private $dataSheetBuilder;
+    private $datasheetBuilder;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         RouterInterface $router,
-        DatasheetBuilder $dataSheetBuilder
+        DatasheetBuilder $datasheetBuilder
     )
     {
         $this->entityManager = $entityManager;
         $this->router = $router;
-        $this->dataSheetBuilder = $dataSheetBuilder;
+        $this->datasheetBuilder = $datasheetBuilder;
     }
 
     // TODO PERFORMANCE extract this method to separate files
@@ -63,15 +63,15 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
             throw new Exception(sprintf('Invalid class `%s`, please provide object of DataSheetInterface to build the datasheet', get_class($datasheet)));
         }
 
-        return $this->dataSheetBuilder->getTable($datasheet);
+        return $this->datasheetBuilder->getTable($datasheet);
     }
 
     public function getPagination($datasheet)
     {
-        if (!$datasheet instanceof DataSheetInterface) {
-            throw new Exception(sprintf('Invalid class `%s`, please provide object of DataSheetInterface to build the datasheet', get_class($datasheet)));
+        if (!$datasheet instanceof Datasheet) {
+            throw new Exception(sprintf('Invalid class `%s`, please provide object of Datasheet', get_class($datasheet)));
         }
 
-        return $this->dataSheetBuilder->getPagination($datasheet);
+        return $this->datasheetBuilder->getPagination($datasheet);
     }
 }

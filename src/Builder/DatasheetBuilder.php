@@ -3,14 +3,11 @@
 namespace A2Global\CRMBundle\Builder;
 
 use A2Global\CRMBundle\Datasheet\Datasheet;
-use A2Global\CRMBundle\Datasheet\DatasheetInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
 class DatasheetBuilder
 {
-    const DEFAULT_PAGE = 1;
-    const DEFAULT_PER_PAGE = 15;
     const MAX_PAGES_IN_PAGINATOR = 5;
 
     private $twig;
@@ -26,31 +23,20 @@ class DatasheetBuilder
     public function getTable(Datasheet $datasheet)
     {
         $queryString = $this->requestStack->getMasterRequest()->query->all();
-        $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
-        $perPage = $queryString['per_page'] ?? $datasheet->getItemsPerPage();
-        $startFrom = ($currentPage - 1) * $perPage;
+        $currentPage = isset($queryString['page']) && ((int) $queryString['page'] > 0) ? (((int) $queryString['page']) - 1) : 0;
+        $datasheet->setPage($currentPage);
         $filters = $queryString['filters'] ?? [];
         unset($queryString['filters']);
         $filterFormUrl = http_build_query($queryString);
         $filterFormHiddenFields = $queryString;
         unset($filterFormHiddenFields['page']);
         $datasheet->build();
-
-
-//        $datasheet->build($startFrom, $perPage, null, $filters);
+        $hasActions = !empty($datasheet->getActionsTemplate());
+        $hasAction = !empty($datasheet->getActionTemplate());
 
         if (!count($datasheet->getItems())) {
             return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig');
         }
-
-//        if ($datasheet instanceof ArrayDatasheet) {
-//            $datasheet->buildFields();
-//            $datasheet->applyFilters($filters);
-//            $datasheet->buildItemsTotal();
-//            $datasheet->applyPagination($startFrom, $perPage);
-//        }
-        $hasActions = !empty($datasheet->getActionsTemplate());
-        $hasAction = !empty($datasheet->getActionTemplate());
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
@@ -67,13 +53,11 @@ class DatasheetBuilder
         ]);
     }
 
-    public function getPagination(DataSheetInterface $datasheet)
+    public function getPagination(Datasheet $datasheet)
     {
-        $queryString = $this->requestStack->getMasterRequest()->query->all();
-        $currentPage = $queryString['page'] ?? self::DEFAULT_PAGE;
-        $perPage = $queryString['per_page'] ?? self::DEFAULT_PER_PAGE;
+        $currentPage = $datasheet->getPage();
         $itemsTotal = $datasheet->getItemsTotal();
-        $pagesTotal = (int)ceil($itemsTotal / $perPage);
+        $pagesTotal = (int)ceil($itemsTotal / $datasheet->getItemsPerPage());
 
         if (!$pagesTotal) {
             return null;
@@ -82,7 +66,7 @@ class DatasheetBuilder
         $maxPagesHalf = (int)ceil($maxPages / 2);
 
         // Creating query string pattern
-        $queryString['per_page'] = $perPage;
+        $queryString['per_page'] = $datasheet->getItemsPerPage();
         unset($queryString['page']);
 
         if ($currentPage <= $maxPagesHalf) {
@@ -100,15 +84,15 @@ class DatasheetBuilder
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.pagination.html.twig', [
             'pagination' => [
-                'currentPage' => $currentPage,
-                'perPage' => $perPage,
+                'currentPage' => $currentPage + 1,
+                'perPage' => $datasheet->getItemsPerPage(),
                 'totalPages' => $pagesTotal,
                 'pagesFrom' => $pagesFrom,
                 'pagesTo' => $pagesTo,
-                'hasPreviousPage' => $currentPage > 1,
-                'previousPage' => $currentPage - 1,
-                'hasNextPage' => $currentPage < $pagesTotal,
-                'nextPage' => $currentPage + 1,
+                'hasPreviousPage' => $currentPage > 0,
+                'previousPage' => $currentPage,
+                'hasNextPage' => $currentPage < $pagesTotal - 1,
+                'nextPage' => $currentPage + 2,
                 'showFirstPage' => $pagesFrom > 1,
                 'showLastPage' => $currentPage + $maxPagesHalf <= $pagesTotal,
                 'queryString' => http_build_query($queryString),
