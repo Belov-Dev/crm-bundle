@@ -60,11 +60,11 @@ trait DatasheetFieldsTrait
         }
 
         foreach ($this->fieldsToRemove as $name) {
-            unset($this->fields[StringUtility::toCamelCase($name)]);
+            unset($this->fields[$name]);
         }
 
         foreach ($this->fieldsToAdd as $field) {
-            $this->fields[StringUtility::toCamelCase($field[0])] = [
+            $this->fields[$field[0]] = [
                 'title' => StringUtility::normalize($field[1] ?: $field[0]),
                 'hasFiltering' => false,
             ];
@@ -87,7 +87,7 @@ trait DatasheetFieldsTrait
     protected function buildFieldsFromArrayItem($item)
     {
         foreach (array_keys($item) as $name) {
-            $this->fields[StringUtility::toCamelCase($name)] = [
+            $this->fields[$name] = [
                 'title' => StringUtility::normalize($name),
                 'hasFiltering' => false, //in_array($key, $this->hasFilter),
                 // todo !

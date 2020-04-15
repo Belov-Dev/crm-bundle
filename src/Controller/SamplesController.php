@@ -16,6 +16,7 @@ class SamplesController extends AbstractController
     private $formFactory;
 
     private $datasheetFactory;
+
     private $projectDir;
 
     public function __construct(
@@ -59,14 +60,17 @@ class SamplesController extends AbstractController
 //
 //                return $items;
 //            })
-        ->setData(function($limit, $offset) use ($entityManager){
-            return $entityManager->getRepository('App:Worker')->findBy([], [], $limit, $offset);
+            ->setData(function ($limit, $offset) use ($entityManager) {
+                return $entityManager->getRepository('App:Worker')->findBy([], [], $limit, $offset);
             })
-            ->setItemsTotal(function() use ($entityManager){
+            ->setItemsTotal(function () use ($entityManager) {
                 return $entityManager->getRepository('App:Worker')->createQueryBuilder('e')
                     ->select('count(e)')
                     ->getQuery()
                     ->getSingleScalarResult();
+            })
+            ->addFieldHandler('firstName', function(){
+                return 'aaaa';
             })
 //            ->removeFields()
 //            ->addField('id')

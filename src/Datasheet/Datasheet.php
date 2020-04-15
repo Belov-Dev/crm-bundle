@@ -2,8 +2,10 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
+use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
+use Throwable;
 
 class Datasheet
 {
@@ -31,7 +33,7 @@ class Datasheet
             $this->setItemsTotal(count($this->data));
         }
 
-        if(count($this->data) > $this->getItemsPerPage()){
+        if (count($this->data) > $this->getItemsPerPage()) {
             $this->data = array_splice($this->data, $this->getPage() * $this->getItemsPerPage(), $this->getItemsPerPage());
         }
         $fieldsBuilt = false;
@@ -50,7 +52,12 @@ class Datasheet
 
                 if (isset($this->fieldHandlers[$fieldName])) {
                     $callable = $this->fieldHandlers[$fieldName];
-                    $value = $callable($itemOriginal);
+
+                    try {
+                        $value = $callable($itemOriginal);
+                    } catch (Throwable $e) {
+                        throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
+                    }
                 }
                 $item[$fieldName] = $value;
             }
