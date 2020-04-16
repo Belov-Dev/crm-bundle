@@ -58,7 +58,11 @@ class EntityInfoProvider
         $reflection = new ReflectionClass($class);
 
         foreach ($reflection->getProperties() as $property) {
-            $entity->addField($this->getField($property, $reflection));
+            $field = $this->getField($property, $reflection);
+
+            if($field){
+                $entity->addField($field);
+            }
         }
 
         return $entity;
@@ -86,7 +90,7 @@ class EntityInfoProvider
         return $items;
     }
 
-    protected function getField(ReflectionProperty $property, ReflectionClass $reflection): FieldInterface
+    protected function getField(ReflectionProperty $property, ReflectionClass $reflection): ?FieldInterface
     {
         $annotations = $this->parseAnnotations($property->getDocComment());
         $fieldName = $property->getName();
@@ -125,6 +129,6 @@ class EntityInfoProvider
                 ->setTargetEntity($annotations[0]->targetEntity);
         }
 
-        throw new NotImplementedYetException('589-547-256');
+        return null;
     }
 }
