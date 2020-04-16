@@ -5,6 +5,8 @@ namespace A2Global\CRMBundle\Datasheet;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
+use Doctrine\ORM\Query\Expr\From;
+use Doctrine\ORM\QueryBuilder;
 use Throwable;
 
 class Datasheet
@@ -24,17 +26,10 @@ class Datasheet
      */
     public function build()
     {
-        if (is_callable($this->data)) {
-            $callable = $this->data;
-            $this->data = $callable($this->itemsPerPage, $this->page * $this->itemsPerPage);
-        }
-
-        if (is_null($this->itemsTotal)) {
-            $this->setItemsTotal(count($this->data));
-        }
-
-        if (count($this->data) > $this->getItemsPerPage()) {
-            $this->data = array_splice($this->data, $this->getPage() * $this->getItemsPerPage(), $this->getItemsPerPage());
+        if ($this->queryBuilder) {
+            $this->buildDataFromQb();
+        }else {
+            $this->buildDataFromArray();
         }
         $fieldsBuilt = false;
         $items = [];
@@ -64,6 +59,43 @@ class Datasheet
             $items[] = $item;
         }
         $this->items = $items;
+    }
+
+    protected function buildDataFromArray()
+    {
+        if (is_callable($this->data)) {
+            $callable = $this->data;
+            $this->data = $callable($this->itemsPerPage, $this->page * $this->itemsPerPage);
+        }
+
+        if (is_null($this->itemsTotal)) {
+            $this->setItemsTotal(count($this->data));
+        }
+
+        if (count($this->data) > $this->getItemsPerPage()) {
+            $this->data = array_splice($this->data, $this->getPage() * $this->getItemsPerPage(), $this->getItemsPerPage());
+        }
+    }
+
+    protected function buildDataFromQb()
+    {
+        $qbFunction = $this->queryBuilder;
+        /** @var QueryBuilder $qb */
+        $qb = $qbFunction();
+        /** @var From $firstFrom */
+        $firstFrom = $qb->getDQLPart('from')[0];
+        $mainAlias = $firstFrom->getAlias();
+        $total = (clone $qb)
+            ->select('count(' . $mainAlias . ')')
+            ->getQuery()
+            ->getSingleScalarResult();
+        $this->setItemsTotal($total);
+        $offset = ($this->page) * $this->itemsPerPage;
+        $this->data = $qb
+            ->setFirstResult($offset)
+            ->setMaxResults($this->itemsPerPage)
+            ->getQuery()
+            ->getResult();
     }
 
     protected function handleValue($value)

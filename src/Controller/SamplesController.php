@@ -5,6 +5,7 @@ namespace A2Global\CRMBundle\Controller;
 use A2Global\CRMBundle\Factory\DatasheetFactory;
 use A2Global\CRMBundle\Factory\FormFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -37,45 +38,16 @@ class SamplesController extends AbstractController
     {
         $dir = $this->projectDir . '/vendor/a2global/crm-bundle';
         $entityManager = $this->entityManager;
+        /** @var EntityRepository $workerRepository */
+        $workerRepository = $this->entityManager->getRepository('App:Worker');
 
         $arrayDatasheet = $this->datasheetFactory->get()
-//            ->setData([
-//                ['id' => 1, 'name' => 'Alpha'],
-//                ['id' => 2, 'name' => 'Bravo'],
-//                ['id' => 3, 'name' => 'Charlie'],
-//            ])
-//            ->setData(function () use ($dir) {
-//                $i = 0;
-//                $items = [];
-//
-//                foreach (glob($dir . '/{,*/*,*/*/*,*/*/*/*}', GLOB_BRACE) as $file) {
-//                    ++$i;
-//                    $items[] = [
-//                        'id' => $i,
-//                        'name' => basename($file),
-//                        'path' => $file,
-//                        'size' => filesize($file),
-//                    ];
-//                }
-//
-//                return $items;
-//            })
-            ->setData(function ($limit, $offset) use ($entityManager) {
-                return $entityManager->getRepository('App:Worker')->findBy([], [], $limit, $offset);
+            ->setQueryBuilder(function() use ($workerRepository){
+                return $workerRepository->createQueryBuilder('w')
+                    ->andWhere('w.birthday < :date')
+                    ->setParameter('date', '1980-01-01');
             })
-            ->setItemsTotal(function () use ($entityManager) {
-                return $entityManager->getRepository('App:Worker')->createQueryBuilder('e')
-                    ->select('count(e)')
-                    ->getQuery()
-                    ->getSingleScalarResult();
-            })
-            ->addFieldHandler('firstName', function(){
-                return 'aaaa';
-            })
-//            ->removeFields()
-//            ->addField('id')
-//            ->addField('name', 'File name')
-        ;
+            ->setFields('id', 'gender', 'firstName', 'lastName');
 
         return $this->render('@A2CRM/samples/homepage.html.twig', [
             'arrayDatasheet' => $arrayDatasheet,

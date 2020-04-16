@@ -12,9 +12,18 @@ trait DatasheetGettersSettersTrait
 
     protected $itemsTotal;
 
+    protected $queryBuilder;
+
     public function getItems()
     {
         return $this->items;
+    }
+
+    public function setQueryBuilder($queryBuilder): self
+    {
+        $this->queryBuilder = $queryBuilder;
+
+        return $this;
     }
 
     public function setData($data): self

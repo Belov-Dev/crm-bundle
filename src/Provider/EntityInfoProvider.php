@@ -5,7 +5,6 @@ namespace A2Global\CRMBundle\Provider;
 use A2Global\CRMBundle\Component\Entity\Entity;
 use A2Global\CRMBundle\Component\Field\ChoiceField;
 use A2Global\CRMBundle\Component\Field\FieldInterface;
-use A2Global\CRMBundle\Exception\NotImplementedYetException;
 use A2Global\CRMBundle\Factory\EntityFieldFactory;
 use A2Global\CRMBundle\Filesystem\FileManager;
 use A2Global\CRMBundle\Registry\EntityFieldRegistry;

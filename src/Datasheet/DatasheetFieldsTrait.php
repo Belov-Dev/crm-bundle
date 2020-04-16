@@ -16,6 +16,18 @@ trait DatasheetFieldsTrait
 
     protected $removeFields = false;
 
+    public function setFields($fields): self
+    {
+        $this->removeFields();
+        $fields = func_get_args();
+
+        foreach ($fields as $field) {
+            $this->setField($field);
+        }
+
+        return $this;
+    }
+
     public function setField($name, $title = null): self
     {
         $this->fieldsToAdd[] = [$name, $title];
@@ -23,14 +35,17 @@ trait DatasheetFieldsTrait
         return $this;
     }
 
-    public function addField($name, $title = null): self
-    {
-        return $this->setField($name, $title);
-    }
-
     public function removeFields(): self
     {
-        $this->removeFields = true;
+        $fields = func_get_args();
+
+        if ($fields) {
+            foreach ($fields as $field) {
+                $this->fieldsToRemove[] = $field;
+            }
+        } else {
+            $this->removeFields = true;
+        }
 
         return $this;
     }
@@ -66,7 +81,6 @@ trait DatasheetFieldsTrait
         foreach ($this->fieldsToAdd as $field) {
             $this->fields[$field[0]] = [
                 'title' => StringUtility::normalize($field[1] ?: $field[0]),
-                'hasFiltering' => false,
             ];
         }
     }
