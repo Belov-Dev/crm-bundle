@@ -16,6 +16,11 @@ class DatasheetFactory
 
     public function get()
     {
+        return $this->createNew();
+    }
+
+    public function createNew()
+    {
         return new Datasheet($this->entityInfoProvider);
     }
 }

@@ -1,73 +1,49 @@
-<table class="table table-hover table-bordered table-stiped table-sm table-striped table-condensed">
+<table class="table table-hover table-bordered table-stiped table-sm table-striped table-condensed"
+       data-datasheet-id="{{ datasheet.uniqueId }}">
     <thead>
-    {% if hasFiltering %}
-        <form action="?" method="GET" data-datasheet-form>
-            {% for name, value in filterFormHiddenFields %}
-                <input type="hidden" name="{{ name }}" value="{{ value }}">
-            {% endfor %}
+    <tr>
+        {% if datasheet.enableFiltering %}
+            <th>&nbsp;</th>
+        {% endif %}
+        {% for field in datasheet.fields %}
+            <th>{{ field.title|trans }}</th>
+        {% endfor %}
+    </tr>
+    {% if datasheet.enableFiltering %}
+        <form action="?" method="GET">
             <tr>
-                <th>
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="glyphicon glyphicon-search"></i>
-                    </button>
-                </th>
-                {% for fieldName, field in fields %}
-                    <th>
-                        {% if field.hasFiltering is defined and field.hasFiltering %}
-                            <div class="input-group" style="max-width:200px;">
-                                <input type="text" name="filters[{{ fieldName }}]"
-                                       class="form-control"
-                                        {{ fieldName == 'id' ? 'size=3' : '' }}
-                                       placeholder="{{ fieldName == 'id' ? '#' : 'Filter…' }}"
-                                       value="{{ filters[fieldName] ?? '' }}"
-                                       autocomplete="off"
-                                >
-                                {% if filters[fieldName] is defined and filters[fieldName] %}
-                                    <span class="input-group-btn">
-                                    <a class="btn btn-default" data-datasheet-filter-reset>
-                                        <i class="glyphicon glyphicon-remove"></i>
-                                    </a>
-                                </span>
-                                {% endif %}
-                            </div>
-                        {% else %}
-                            &nbsp;
-                        {% endif %}
-                    </th>
+                <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
+                {% for fieldName, field in datasheet.fields %}
+                    <th style="position:relative;"><input type="text" class="form-control-sm" style="width:100%" data-datasheet-filter="{{ fieldName }}"></th>
                 {% endfor %}
             </tr>
         </form>
     {% endif %}
-    <tr>
-        {% if hasActions or hasFiltering %}
-            <th>&nbsp;</th>
-        {% endif %}
-        {% for field in fields %}
-            <th>{{ field.title|trans }}</th>
-        {% endfor %}
-    </tr>
     </thead>
     <tbody>
-    {% for item in items %}
+    {% for item in datasheet.items %}
         <tr>
-            {% if hasActions %}
-                <td>
-                    {% include actionsTemplate with {'item': item, 'datasheet': datasheet} %}
-                </td>
-            {% elseif hasFiltering %}
+            {% if datasheet.enableFiltering %}
                 <td>&nbsp;</td>
             {% endif %}
-
-            {% for fieldName, field in fields %}
+            {% for fieldName, field in datasheet.fields %}
                 <td>
-                    {% if loop.first and hasAction %}
-                        {% include actionTemplate with {'item': item} %}
-                    {% else %}
-                        {{ item[fieldName]|raw }}
-                    {% endif %}
+                    {{ item[fieldName]|raw }}
                 </td>
             {% endfor %}
         </tr>
     {% endfor %}
     </tbody>
 </table>
+
+{% if datasheet.enableFiltering %}
+    <script>
+
+        {% for fieldName, options in datasheet.filterOptions %}
+
+        let datasheet{{ datasheet.uniqueId }}{{ fieldName }}FilterOptions = {{ options|json_encode|raw }};
+
+        {% endfor %}
+
+    </script>
+{% endif %}

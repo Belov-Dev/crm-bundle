@@ -36,18 +36,16 @@ class SamplesController extends AbstractController
     /** @Route("", name="homepage") */
     public function index()
     {
-        $dir = $this->projectDir . '/vendor/a2global/crm-bundle';
-        $entityManager = $this->entityManager;
-        /** @var EntityRepository $workerRepository */
-        $workerRepository = $this->entityManager->getRepository('App:Worker');
+        $qb = $this->entityManager
+            ->getRepository('App:Worker')
+            ->createQueryBuilder('w')
+            ->andWhere('w.birthday < :date')
+            ->setParameter('date', '1960-01-01');
 
-        $arrayDatasheet = $this->datasheetFactory->get()
-            ->setQueryBuilder(function() use ($workerRepository){
-                return $workerRepository->createQueryBuilder('w')
-                    ->andWhere('w.birthday < :date')
-                    ->setParameter('date', '1980-01-01');
-            })
-            ->setFields('id', 'gender', 'firstName', 'lastName');
+        $arrayDatasheet = $this->datasheetFactory
+            ->createNew()
+            ->setQueryBuilder($qb)
+            ->setFields('id', 'gender', 'firstName', 'lastName', 'birthday');
 
         return $this->render('@A2CRM/samples/homepage.html.twig', [
             'arrayDatasheet' => $arrayDatasheet,

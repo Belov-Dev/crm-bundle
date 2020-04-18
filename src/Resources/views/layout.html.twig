@@ -92,6 +92,38 @@
 
 </div>
 
+<div id="datasheet-filter-options">Options</div>
+<style>
+    #datasheet-filter-options{
+        position:absolute;
+        left:0;
+        top:100%;
+        right:0;
+        z-index:9;
+        background:#fffaee;
+        border:1px #eeeeee solid;
+        border-top:0;
+        min-height:40px;
+        max-height:200px;
+        overflow-y:scroll;
+    }
+    #datasheet-filter-options *{
+        height:30px;
+        line-height:30px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        border-bottom:1px #eeeeee solid;
+        padding:0 10px;
+    }
+    #datasheet-filter-options *:hover{
+        background:#0d6aad;
+        color:#ffffff;
+    }
+    #datasheet-filter-options *:last-child{
+        border:0;
+    }
+</style>
 {% block javascript %}
 {% include '@A2CRM/etc/javascripts.html.twig' %}
 {% endblock %}

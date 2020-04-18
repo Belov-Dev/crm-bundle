@@ -14,6 +14,10 @@ trait DatasheetGettersSettersTrait
 
     protected $queryBuilder;
 
+    protected $filters;
+
+    protected $enableFiltering = false;
+
     public function getItems()
     {
         return $this->items;
@@ -80,6 +84,30 @@ trait DatasheetGettersSettersTrait
     public function setItemsTotal($itemsTotal): self
     {
         $this->itemsTotal = is_callable($itemsTotal) ? $itemsTotal() : $itemsTotal;
+
+        return $this;
+    }
+
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
+    public function setFilters($filters): self
+    {
+        $this->filters = $filters;
+
+        return $this;
+    }
+
+    public function isEnableFiltering(): bool
+    {
+        return $this->enableFiltering;
+    }
+
+    public function setEnableFiltering(bool $enableFiltering): self
+    {
+        $this->enableFiltering = $enableFiltering;
 
         return $this;
     }

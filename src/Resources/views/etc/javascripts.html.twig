@@ -15,12 +15,39 @@
             }
         }));
 
-        // TODO MAJOR support many forms on the single web page
+        let datasheetFilterOptions = $('#datasheet-filter-options');
 
-        $('[data-datasheet-filter-reset]').on('click', function(){
-            $(this).parents('.input-group').find('input').val('');
-            $('[data-datasheet-form]').submit();
+        $('[data-datasheet-filter]').off('focus').on('focus', function(){
+            datasheetFilterShowOptions($(this));
+        }).on('blur', function(){
+            // datasheetFilterHideOptions($(this));
+        }).on('keyup', function(){
+            console.log('changed');
         })
 
+        function datasheetFilterShowOptions(filterInput){
+            console.log('show filter options');
+            datasheetFilterOptions.html('').show().appendTo(filterInput.parent());
+            let datasheetId = filterInput.parents('table').data('datasheet-id');
+            let fieldName = filterInput.data('datasheet-filter');
+            let varName = 'datasheet' + datasheetId + fieldName + 'FilterOptions';
+            let options = eval(varName);
+
+            $.each(options, function(kee, value){
+                datasheetFilterOptions.append('<div>' + value + '</div>');
+            })
+        }
+
+        function datasheetFilterHideOptions(){
+            console.log('hide filter options');
+            datasheetFilterOptions.html('').hide();
+        }
+
+        datasheetFilterOptions.on('click', function(event){
+            console.log('filter option clicked');
+            let value = $(event.target).text();
+            $(this).prev().val(value);
+            datasheetFilterHideOptions();
+        })
     })
 </script>

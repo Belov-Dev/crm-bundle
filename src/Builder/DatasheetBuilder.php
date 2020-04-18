@@ -22,17 +22,21 @@ class DatasheetBuilder
 
     public function getTable(Datasheet $datasheet)
     {
+        // Get all query string params
         $queryString = $this->requestStack->getMasterRequest()->query->all();
+
+        // Set pages
         $currentPage = isset($queryString['page']) && ((int) $queryString['page'] > 0) ? (((int) $queryString['page']) - 1) : 0;
         $datasheet->setPage($currentPage);
+
+        // Set filters
         $filters = $queryString['filters'] ?? [];
-        unset($queryString['filters']);
-        $filterFormUrl = http_build_query($queryString);
-        $filterFormHiddenFields = $queryString;
-        unset($filterFormHiddenFields['page']);
+        $datasheet->setFilters($filters);
+
+        // Build datasheet
         $datasheet->build();
-        $hasActions = !empty($datasheet->getActionsTemplate());
-        $hasAction = !empty($datasheet->getActionTemplate());
+//        $hasActions = !empty($datasheet->getActionsTemplate());
+//        $hasAction = !empty($datasheet->getActionTemplate());
 
         if (!count($datasheet->getItems())) {
             return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig');
@@ -40,16 +44,14 @@ class DatasheetBuilder
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
-            'fields' => $datasheet->getFields(),
-            'items' => $datasheet->getItems(),
-            'hasActions' => $hasActions,
-            'actionsTemplate' => $hasActions ? $datasheet->getActionsTemplate() : null,
-            'hasAction' => $hasAction,
-            'actionTemplate' => $hasAction ? $datasheet->getActionTemplate() : null,
-            'hasFiltering' => $this->hasFiltering($datasheet->getFields()),
-            'filterFormUrl' => $filterFormUrl,
-            'filterFormHiddenFields' => $filterFormHiddenFields,
             'filters' => $filters,
+//            'hasActions' => false,//$hasActions,
+//            'actionsTemplate' => null,//$hasActions ? $datasheet->getActionsTemplate() : null,
+//            'hasAction' => false,//$hasAction,
+//            'actionTemplate' => null,//$hasAction ? $datasheet->getActionTemplate() : null,
+//            'hasFiltering' => false, $this->hasFiltering($datasheet->getFields()),
+//            'filterFormUrl' => null, //$filterFormUrl,
+//            'filterFormHiddenFields' => null,//$filterFormHiddenFields,
         ]);
     }
 

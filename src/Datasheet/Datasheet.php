@@ -27,8 +27,9 @@ class Datasheet
     public function build()
     {
         if ($this->queryBuilder) {
-            $this->buildDataFromQb();
-        }else {
+            $this->buildDataFromQueryBuilder();
+            $this->setEnableFiltering(true);
+        } else {
             $this->buildDataFromArray();
         }
         $fieldsBuilt = false;
@@ -61,6 +62,40 @@ class Datasheet
         $this->items = $items;
     }
 
+    public function getFilterOptions()
+    {
+        if (!$this->queryBuilder) {
+            return null;
+        }
+        $filterOptions = [];
+
+        foreach ($this->fields as $fieldName => $field) {
+            if (StringUtility::toCamelCase($fieldName) == 'id') {
+                continue;
+            }
+            $filterOptions[$fieldName] = $this->getFieldFilterOptions($fieldName);
+        }
+
+        return $filterOptions;
+    }
+
+    public function getUniqueId()
+    {
+        return spl_object_id($this);
+    }
+
+    protected function getFieldFilterOptions($field)
+    {
+        $result = $this->cloneQueryBuilder()
+            ->select(sprintf('DISTINCT(%s.%s)', $this->getQueryBuilderMainAlias(), $field))
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(function ($item) {
+            return reset($item);
+        }, $result);
+    }
+
     protected function buildDataFromArray()
     {
         if (is_callable($this->data)) {
@@ -77,25 +112,38 @@ class Datasheet
         }
     }
 
-    protected function buildDataFromQb()
+    protected function buildDataFromQueryBuilder()
     {
-        $qbFunction = $this->queryBuilder;
-        /** @var QueryBuilder $qb */
-        $qb = $qbFunction();
-        /** @var From $firstFrom */
-        $firstFrom = $qb->getDQLPart('from')[0];
-        $mainAlias = $firstFrom->getAlias();
-        $total = (clone $qb)
-            ->select('count(' . $mainAlias . ')')
+        // Initialize main query builder
+        if (is_callable($this->queryBuilder)) {
+            $qbFunction = $this->queryBuilder;
+            $this->queryBuilder = $qbFunction();
+        }
+
+        // Get & set total items count
+        $total = $this->cloneQueryBuilder()
+            ->select(sprintf('count(%s)', $this->getQueryBuilderMainAlias()))
             ->getQuery()
             ->getSingleScalarResult();
         $this->setItemsTotal($total);
+
+        // Get items
         $offset = ($this->page) * $this->itemsPerPage;
-        $this->data = $qb
+        $this->data = $this->cloneQueryBuilder()
             ->setFirstResult($offset)
             ->setMaxResults($this->itemsPerPage)
             ->getQuery()
             ->getResult();
+    }
+
+    protected function cloneQueryBuilder(): QueryBuilder
+    {
+        return clone $this->queryBuilder;
+    }
+
+    protected function getQueryBuilderMainAlias(): string
+    {
+        return $this->queryBuilder->getDQLPart('from')[0]->getAlias();
     }
 
     protected function handleValue($value)
