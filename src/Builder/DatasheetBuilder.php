@@ -66,8 +66,10 @@ class DatasheetBuilder
         $maxPagesHalf = (int)ceil($maxPages / 2);
 
         // Creating query string pattern
+        $queryString = $this->requestStack->getMasterRequest()->query->all();
         $queryString['per_page'] = $datasheet->getItemsPerPage();
         unset($queryString['page']);
+        unset($queryString['per_page']);
 
         if ($currentPage <= $maxPagesHalf) {
             $pagesFrom = 1;
