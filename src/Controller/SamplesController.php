@@ -40,7 +40,7 @@ class SamplesController extends AbstractController
             ->getRepository('App:Worker')
             ->createQueryBuilder('w')
             ->andWhere('w.birthday < :date')
-            ->setParameter('date', '1960-01-01');
+            ->setParameter('date', '2020-01-01');
 
         $arrayDatasheet = $this->datasheetFactory
             ->createNew()

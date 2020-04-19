@@ -14,7 +14,14 @@
             <tr>
                 <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
                 {% for fieldName, field in datasheet.fields %}
-                    <th style="position:relative;"><input type="text" class="form-control-sm" style="width:100%" data-datasheet-filter="{{ fieldName }}"></th>
+                    <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
+                        {% if fieldName == 'id' %}
+                            <input type="text" class="form-control-sm" size="3">
+                        {% else %}
+                            <input type="text" class="form-control-sm" style="width:100%"
+                                   data-datasheet-filter="{{ fieldName }}">
+                        {% endif %}
+                    </th>
                 {% endfor %}
             </tr>
         </form>
