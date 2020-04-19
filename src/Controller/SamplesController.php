@@ -5,7 +5,6 @@ namespace A2Global\CRMBundle\Controller;
 use A2Global\CRMBundle\Factory\DatasheetFactory;
 use A2Global\CRMBundle\Factory\FormFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -42,8 +41,7 @@ class SamplesController extends AbstractController
             ->andWhere('w.birthday < :date')
             ->setParameter('date', '2020-01-01');
 
-        $arrayDatasheet = $this->datasheetFactory
-            ->createNew()
+        $arrayDatasheet = $this->datasheetFactory->createNew()
             ->setQueryBuilder($qb)
             ->setFields('id', 'gender', 'firstName', 'lastName', 'birthday');
 

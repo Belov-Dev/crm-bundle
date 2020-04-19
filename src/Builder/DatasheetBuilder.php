@@ -30,13 +30,17 @@ class DatasheetBuilder
         $datasheet->setPage($currentPage);
 
         // Set filters
-        $filters = $queryString['filters'] ?? [];
-        $datasheet->setFilters($filters);
+        $datasheet->setFilters($queryString['filter'] ?? []);
 
         // Build datasheet
         $datasheet->build();
-//        $hasActions = !empty($datasheet->getActionsTemplate());
-//        $hasAction = !empty($datasheet->getActionTemplate());
+
+        // Filter form url (reset filters, page. leaving per_page)
+        if($datasheet->isEnableFiltering()){
+            unset($queryString['page']);
+            unset($queryString['filter']);
+            $filterFormUrl = http_build_query($queryString);
+        }
 
         if (!count($datasheet->getItems())) {
             return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig');
@@ -44,14 +48,7 @@ class DatasheetBuilder
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
-            'filters' => $filters,
-//            'hasActions' => false,//$hasActions,
-//            'actionsTemplate' => null,//$hasActions ? $datasheet->getActionsTemplate() : null,
-//            'hasAction' => false,//$hasAction,
-//            'actionTemplate' => null,//$hasAction ? $datasheet->getActionTemplate() : null,
-//            'hasFiltering' => false, $this->hasFiltering($datasheet->getFields()),
-//            'filterFormUrl' => null, //$filterFormUrl,
-//            'filterFormHiddenFields' => null,//$filterFormHiddenFields,
+            'filterFormUrl' => $filterFormUrl ?? null,
         ]);
     }
 

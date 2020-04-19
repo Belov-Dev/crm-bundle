@@ -2,6 +2,8 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
+use Doctrine\ORM\QueryBuilder;
+
 trait DatasheetGettersSettersTrait
 {
     protected $data = [];
@@ -10,13 +12,16 @@ trait DatasheetGettersSettersTrait
 
     protected $itemsPerPage = 15;
 
-    protected $itemsTotal;
+    protected $itemsTotal = 0;
 
-    protected $queryBuilder;
+    /** @var QueryBuilder */
+    protected $queryBuilder = null;
 
-    protected $filters;
+    protected $filters = [];
 
     protected $enableFiltering = false;
+
+    protected $debug = [];
 
     public function getItems()
     {
@@ -108,6 +113,18 @@ trait DatasheetGettersSettersTrait
     public function setEnableFiltering(bool $enableFiltering): self
     {
         $this->enableFiltering = $enableFiltering;
+
+        return $this;
+    }
+
+    public function getDebug(): array
+    {
+        return $this->debug;
+    }
+
+    public function setDebug(array $debug): self
+    {
+        $this->debug = $debug;
 
         return $this;
     }

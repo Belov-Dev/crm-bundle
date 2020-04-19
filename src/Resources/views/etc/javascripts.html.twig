@@ -30,9 +30,7 @@
 
         // Hide options if clicked outside
         $('body').click(function (event) {
-            if ($(event.target).parents('[data-datasheet-filter-container]').length > 0) {
-                event.stopPropagation();
-            } else {
+            if ($(event.target).parents('[data-datasheet-filter-container]').length < 1) {
                 datasheetFilterHideOptions();
             }
         })
@@ -85,7 +83,7 @@
 
             $.each(filteredOptions, function (kee, value) {
                 datasheetFilterOptions.append('<div>' + value + '</div>');
-            })
+            });
 
             if(filteredOptions.length == 1){
                 datasheetFilterOptions.children().addClass('active');
@@ -127,7 +125,7 @@
         }
 
         function datasheetFilterShowOptions(filterInput) {
-            datasheetFilterOptions.html('').show().appendTo(filterInput.parent());
+            datasheetFilterOptions.html('').show().appendTo(filterInput.parents('[data-datasheet-filter-container]'));
             datasheetFilterSearchOptions(filterInput);
         }
 
@@ -137,8 +135,14 @@
 
         datasheetFilterOptions.on('click', function (event) {
             let value = $(event.target).text();
-            $(this).prev().val(value);
+            $(this).parent().find('[data-datasheet-filter]').val(value);
             datasheetFilterHideOptions();
+        })
+
+        $('[data-datasheet-filter-clear]').click(function(){
+            $(this).hide();
+            let fieldName = $(this).data('datasheet-filter-clear');
+            $('[data-datasheet-filter="' + fieldName + '"]').val('').parents('form').submit();
         })
     })
 </script>

@@ -3,9 +3,9 @@
 namespace A2Global\CRMBundle\Datasheet;
 
 use A2Global\CRMBundle\Exception\DatasheetException;
+use A2Global\CRMBundle\Exception\NotImplementedYetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
-use Doctrine\ORM\Query\Expr\From;
 use Doctrine\ORM\QueryBuilder;
 use Throwable;
 
@@ -27,9 +27,12 @@ class Datasheet
     public function build()
     {
         if ($this->queryBuilder) {
-            $this->buildDataFromQueryBuilder();
             $this->setEnableFiltering(true);
+            $this->buildDataFromQueryBuilder();
         } else {
+            if ($this->getFilters()) {
+                throw new NotImplementedYetException('Search doesnt work for array datasheets');
+            }
             $this->buildDataFromArray();
         }
         $fieldsBuilt = false;
@@ -84,18 +87,6 @@ class Datasheet
         return spl_object_id($this);
     }
 
-    protected function getFieldFilterOptions($field)
-    {
-        $result = $this->cloneQueryBuilder()
-            ->select(sprintf('DISTINCT(%s.%s)', $this->getQueryBuilderMainAlias(), $field))
-            ->getQuery()
-            ->getArrayResult();
-
-        return array_map(function ($item) {
-            return reset($item);
-        }, $result);
-    }
-
     protected function buildDataFromArray()
     {
         if (is_callable($this->data)) {
@@ -121,7 +112,7 @@ class Datasheet
         }
 
         // Get & set total items count
-        $total = $this->cloneQueryBuilder()
+        $total = $this->cloneQueryBuilder(true)
             ->select(sprintf('count(%s)', $this->getQueryBuilderMainAlias()))
             ->getQuery()
             ->getSingleScalarResult();
@@ -129,16 +120,49 @@ class Datasheet
 
         // Get items
         $offset = ($this->page) * $this->itemsPerPage;
-        $this->data = $this->cloneQueryBuilder()
+        $this->data = $this->cloneQueryBuilder(true)
             ->setFirstResult($offset)
             ->setMaxResults($this->itemsPerPage)
             ->getQuery()
             ->getResult();
+
+        // SQL query for debug
+        $this->debug['sql'] = $this->cloneQueryBuilder(true)
+            ->setFirstResult($offset)
+            ->setMaxResults($this->itemsPerPage)
+            ->getQuery()
+            ->getSQL();
     }
 
-    protected function cloneQueryBuilder(): QueryBuilder
+    protected function getFieldFilterOptions($field)
     {
-        return clone $this->queryBuilder;
+        $result = $this->cloneQueryBuilder()
+            ->select(sprintf('DISTINCT(%s.%s)', $this->getQueryBuilderMainAlias(), $field))
+            ->orderBy(sprintf('%s.%s', $this->getQueryBuilderMainAlias(), $field), 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(function ($item) {
+            return reset($item);
+        }, $result);
+    }
+
+    protected function cloneQueryBuilder($considerFilters = false): QueryBuilder
+    {
+        $queryBuilder = clone $this->queryBuilder;
+
+        if ($considerFilters) {
+            foreach ($this->getFilters() as $fieldName => $value) {
+                if (!trim($value)) {
+                    continue;
+                }
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s = :%sFilter', $this->getQueryBuilderMainAlias(), $fieldName, $fieldName))
+                    ->setParameter($fieldName . 'Filter', $value);
+            }
+        }
+
+        return $queryBuilder;
     }
 
     protected function getQueryBuilderMainAlias(): string
