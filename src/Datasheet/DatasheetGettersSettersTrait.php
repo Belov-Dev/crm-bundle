@@ -23,6 +23,8 @@ trait DatasheetGettersSettersTrait
 
     protected $debug = [];
 
+    protected $showDebug = false;
+
     public function getItems()
     {
         return $this->items;
@@ -125,6 +127,18 @@ trait DatasheetGettersSettersTrait
     public function setDebug(array $debug): self
     {
         $this->debug = $debug;
+
+        return $this;
+    }
+
+    public function isShowDebug(): bool
+    {
+        return $this->showDebug;
+    }
+
+    public function setShowDebug(bool $showDebug): self
+    {
+        $this->showDebug = $showDebug;
 
         return $this;
     }

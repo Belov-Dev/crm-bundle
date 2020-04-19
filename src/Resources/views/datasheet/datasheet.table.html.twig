@@ -1,4 +1,6 @@
-{#{{ dump(datasheet.debug) }}#}
+{% if datasheet.showDebug %}
+    {{ dump(datasheet.debug) }}
+{% endif %}
 
 <form action="{{ filterFormUrl }}" method="GET">
 

@@ -43,6 +43,7 @@ class SamplesController extends AbstractController
 
         $arrayDatasheet = $this->datasheetFactory->createNew()
             ->setQueryBuilder($qb)
+            ->setShowDebug(true)
             ->setFields('id', 'gender', 'firstName', 'lastName', 'birthday');
 
         return $this->render('@A2CRM/samples/homepage.html.twig', [
