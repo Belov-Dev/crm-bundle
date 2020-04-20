@@ -36,7 +36,7 @@ class SamplesController extends AbstractController
     public function index()
     {
         $qb = $this->entityManager
-            ->getRepository('App:Worker')
+            ->getRepository('Client')
             ->createQueryBuilder('w')
             ->andWhere('w.birthday < :date')
             ->setParameter('date', '2020-01-01');
