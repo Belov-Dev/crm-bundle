@@ -22,7 +22,7 @@ class DatetimeField extends AbstractField implements FieldInterface
         return sprintf(
             '<div class="input-group"><div class="input-group-addon"><i class="fa fa-calendar"></i></div>
             <input type="text" name="data[%s]" class="form-control" value="%s" data-date-mask="" placeholder="dd/mm/yyyy" maxlength="10"></div>',
-            StringUtility::toSnakeCase($this->getName()),
+            StringUtility::toCamelCase($this->getName()),
             $value ? htmlspecialchars($value->format('d/m/Y')) : null
         );
     }

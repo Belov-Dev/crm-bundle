@@ -22,7 +22,7 @@ class BooleanField extends AbstractField implements FieldInterface
         $html[] = '<label class="radio-inline">';
         $html[] = sprintf(
             '<input type="radio" name="data[%s]" value="1" %s> Yes',
-            StringUtility::toSnakeCase($this->getName()),
+            StringUtility::toCamelCase($this->getName()),
             (is_null($value) || (bool)$value) ? 'checked' : ''
         );
         $html[] = '</label>';

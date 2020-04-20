@@ -12,7 +12,7 @@ class StringField extends AbstractField implements FieldInterface
             '/**',
             ' * @ORM\Column(type="string", length=255, nullable=true)',
             ' */',
-            'private $' . StringUtility::toCamelCase($this->getName()) . ';',
+            'private $' . StringUtility::toSnakeCase($this->getName()) . ';',
         ];
     }
 }

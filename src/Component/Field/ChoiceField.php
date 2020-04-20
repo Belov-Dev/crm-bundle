@@ -73,7 +73,7 @@ class ChoiceField extends AbstractField implements FieldInterface, ConfigurableF
     public function getFormControl($value = null): string
     {
         $html = [];
-        $html[] = sprintf('<select class="form-control" name="data[%s]">', StringUtility::toSnakeCase($this->getName()));
+        $html[] = sprintf('<select class="form-control" name="data[%s]">', StringUtility::toCamelCase($this->getName()));
 
         foreach ($this->getChoices() as $option) {
             $isSelected = $value && ($value == $option);
