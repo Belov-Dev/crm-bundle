@@ -11,6 +11,8 @@ use Throwable;
 
 class Datasheet
 {
+    const NEST_SEPARATOR = "___";
+
     use DatasheetDependencyInjectionTrait;
 
     use DatasheetFieldsTrait;
@@ -27,7 +29,6 @@ class Datasheet
     public function build()
     {
         if ($this->queryBuilder) {
-            $this->setEnableFiltering(true);
             $this->buildDataFromQueryBuilder();
         } else {
             if ($this->getFilters()) {
@@ -133,7 +134,7 @@ class Datasheet
             ->getQuery()
             ->getSingleScalarResult();
         $this->setItemsTotal($total);
-
+//
         // Get items
         $offset = ($this->page) * $this->itemsPerPage;
         $this->data = $this->cloneQueryBuilder(true)
@@ -152,22 +153,38 @@ class Datasheet
 
     protected function getFieldFilterOptions($field)
     {
-        $result = $this->cloneQueryBuilder()
-            ->select(sprintf('DISTINCT(%s.%s)', $this->getQueryBuilderMainAlias(), $field))
-            ->orderBy(sprintf('%s.%s', $this->getQueryBuilderMainAlias(), $field), 'ASC')
-            ->getQuery()
-            ->getArrayResult();
+        if (strstr($field, self::NEST_SEPARATOR)) {
+            $queryBuilder = $this->cloneQueryBuilder();
+            $path = explode(self::NEST_SEPARATOR, $field);
+            $field = array_pop($path);
+            $parentAlias = $this->getQueryBuilderMainAlias();
 
+            foreach ($path as $relation) {
+                $queryBuilder->join(sprintf('%s.%s', $parentAlias, $relation), $relation);
+                $parentAlias = $relation;
+            }
+            $result = $queryBuilder
+                ->select(sprintf('DISTINCT(%s.%s)', $relation, $field))
+                ->orderBy(sprintf('%s.%s', $relation, $field), 'ASC')
+                ->getQuery()
+                ->getArrayResult();
+        } else {
+            $result = $this->cloneQueryBuilder()
+                ->select(sprintf('DISTINCT(%s.%s)', $this->getQueryBuilderMainAlias(), $field))
+                ->orderBy(sprintf('%s.%s', $this->getQueryBuilderMainAlias(), $field), 'ASC')
+                ->getQuery()
+                ->getArrayResult();
+        }
         return array_map(function ($item) {
             return reset($item);
         }, $result);
     }
 
-    protected function cloneQueryBuilder($considerFilters = false): QueryBuilder
+    protected function cloneQueryBuilder($useFilters = false): QueryBuilder
     {
         $queryBuilder = clone $this->queryBuilder;
 
-        if ($considerFilters) {
+        if ($useFilters) {
             foreach ($this->getFilters() as $fieldName => $value) {
                 if (!trim($value)) {
                     continue;

@@ -32,6 +32,7 @@ trait DatasheetGettersSettersTrait
 
     public function setQueryBuilder($queryBuilder): self
     {
+        $this->setEnableFiltering(true);
         $this->queryBuilder = $queryBuilder;
 
         return $this;
