@@ -49,7 +49,7 @@ class EntityInfoProvider
 
     public function getEntity($entityName): Entity
     {
-        if(is_object($entityName)){
+        if (is_object($entityName)) {
             $entityName = StringUtility::getShortClassName($entityName);
         }
         $entity = new Entity(StringUtility::normalize($entityName));
@@ -59,7 +59,7 @@ class EntityInfoProvider
         foreach ($reflection->getProperties() as $property) {
             $field = $this->getField($property, $reflection);
 
-            if($field){
+            if ($field) {
                 $entity->addField($field);
             }
         }
@@ -101,9 +101,9 @@ class EntityInfoProvider
         if (isset($annotations['ORM']['Column']['type'])) {
             $fieldType = $annotations['ORM']['Column']['type'];
 
-            if (in_array($fieldType, ['string', 'boolean', 'date'])) {
+            if (in_array($fieldType, ['string', 'integer', 'float', 'boolean', 'date', 'datetime'])) {
                 $constants = $reflection->getConstants();
-                $choiceConstName = StringUtility::toConstantName($fieldName . '_CHOICES');
+                $choiceConstName = StringUtility::toConstantName('CHOICES_' . $fieldName);
 
                 if (array_key_exists($choiceConstName, $constants)) {
                     $fieldType = 'choice';
@@ -111,7 +111,7 @@ class EntityInfoProvider
                 $field = $this->entityFieldFactory->get($fieldType);
                 $field->setName(StringUtility::normalize($fieldName));
 
-                if($field instanceof ChoiceField){
+                if ($field instanceof ChoiceField) {
                     $field->setChoices($constants[$choiceConstName]);
                 }
 
@@ -120,7 +120,7 @@ class EntityInfoProvider
         }
         $annotations = $this->reader->getPropertyAnnotations($property);
 
-        if($annotations[0] instanceof ManyToOne && $annotations[1] instanceof JoinColumn){
+        if ($annotations[0] instanceof ManyToOne && $annotations[1] instanceof JoinColumn) {
             $field = $this->entityFieldFactory->get('relation');
 
             return $field
