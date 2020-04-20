@@ -19,21 +19,23 @@
             <tr>
                 <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
                 {% for fieldName, field in datasheet.fields %}
-                    <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
-                        {% if fieldName == 'id' %}
-                            <input type="text" class="form-control-sm" size="3">
-                        {% else %}
-                            {% set value = datasheet.filters[fieldName] ?? '' %}
-                            <input type="text" autocomplete="off"
-                                   style="width:100%;"
-                                   name="filter[{{ fieldName }}]"
-                                   value="{{ datasheet.filters[fieldName] ?? '' }}"
-                                   data-datasheet-filter="{{ fieldName }}">
-                            {% if value %}
-                                <div data-datasheet-filter-clear="{{ fieldName }}">&times;</div>
+                    {% if field.hasFilter %}
+                        <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
+                            {% if fieldName == 'id' %}
+                                <input type="text" class="form-control-sm" size="3">
+                            {% else %}
+                                {% set value = datasheet.filters[fieldName] ?? '' %}
+                                <input type="text" autocomplete="off"
+                                       style="width:100%;"
+                                       name="filter[{{ fieldName }}]"
+                                       value="{{ datasheet.filters[fieldName] ?? '' }}"
+                                       data-datasheet-filter="{{ fieldName }}">
+                                {% if value %}
+                                    <div data-datasheet-filter-clear="{{ fieldName }}">&times;</div>
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    </th>
+                        </th>
+                    {% endif %}
                 {% endfor %}
             </tr>
         {% endif %}

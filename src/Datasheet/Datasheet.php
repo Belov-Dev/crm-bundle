@@ -46,7 +46,7 @@ class Datasheet
             $item = [];
 
             foreach ($this->fields as $fieldName => $field) {
-                $value = is_object($itemOriginal) ? $itemOriginal->{'get' . $fieldName}() : $itemOriginal[$fieldName];
+                $value = is_object($itemOriginal) ? $this->getObjectValue($itemOriginal, $fieldName) : $itemOriginal[$fieldName];
                 $value = $this->handleValue($value);
 
                 if (isset($this->fieldHandlers[$fieldName])) {
@@ -65,6 +65,19 @@ class Datasheet
         $this->items = $items;
     }
 
+    protected function getObjectValue($object, $path)
+    {
+        $path = explode('___', $path);
+        $subObject = $object->{'get' . $path[0]}();
+
+        if (count($path) == 1) {
+            return $subObject;
+        }
+        array_shift($path);
+
+        return $this->getObjectValue($subObject, implode('___', $path));
+    }
+
     public function getFilterOptions()
     {
         if (!$this->queryBuilder) {
@@ -73,6 +86,9 @@ class Datasheet
         $filterOptions = [];
 
         foreach ($this->fields as $fieldName => $field) {
+            if (!$field['hasFilter']) {
+                continue;
+            }
             if (StringUtility::toCamelCase($fieldName) == 'id') {
                 continue;
             }

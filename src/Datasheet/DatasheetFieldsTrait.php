@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
+use A2Global\CRMBundle\Component\Field\RelationField;
 use A2Global\CRMBundle\Utility\StringUtility;
 
 trait DatasheetFieldsTrait
@@ -28,9 +29,10 @@ trait DatasheetFieldsTrait
         return $this;
     }
 
-    public function setField($name, $title = null): self
+    public function setField($name, $title = null, $hasFilter = false): self
     {
-        $this->fieldsToAdd[] = [$name, $title];
+        $name = str_replace('.', '___', $name);
+        $this->fieldsToAdd[] = [$name, $title, $hasFilter];
 
         return $this;
     }
@@ -66,6 +68,7 @@ trait DatasheetFieldsTrait
 
     protected function buildFields($item)
     {
+        // Build fields from data
         if (!$this->removeFields) {
             if (is_object($item)) {
                 $this->buildFieldsFromObjectItem($item);
@@ -74,14 +77,24 @@ trait DatasheetFieldsTrait
             }
         }
 
+        // Remove specified fields
         foreach ($this->fieldsToRemove as $name) {
             unset($this->fields[$name]);
         }
 
+        // Add specified fields
         foreach ($this->fieldsToAdd as $field) {
             $this->fields[$field[0]] = [
                 'title' => StringUtility::normalize($field[1] ?: $field[0]),
+                'hasFilter' => $field[2],
             ];
+        }
+
+        // Disable filter for relation fields
+        foreach ($this->fields as $fieldName => $field) {
+            if (strstr($fieldName, '___')) {
+                $this->fields[$fieldName]['hasFilter'] = false;
+            }
         }
     }
 
@@ -92,8 +105,7 @@ trait DatasheetFieldsTrait
         foreach ($entity->getFields() as $field) {
             $this->fields[StringUtility::toCamelCase($field->getName())] = [
                 'title' => $field->getName(),
-                'hasFiltering' => false, //in_array($key, $this->hasFilter),
-                // todo !
+                'hasFilter' => $this->isEnableFiltering() && (!$field instanceof RelationField),
             ];
         }
     }
@@ -103,8 +115,7 @@ trait DatasheetFieldsTrait
         foreach (array_keys($item) as $name) {
             $this->fields[$name] = [
                 'title' => StringUtility::normalize($name),
-                'hasFiltering' => false, //in_array($key, $this->hasFilter),
-                // todo !
+                'hasFilter' => $this->isEnableFiltering(),
             ];
         }
     }
