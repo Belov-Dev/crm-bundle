@@ -6,6 +6,7 @@ use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Exception\NotImplementedYetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Throwable;
 
@@ -180,15 +181,34 @@ class Datasheet
         }, $result);
     }
 
-    protected function cloneQueryBuilder($useFilters = false): QueryBuilder
+    protected function cloneQueryBuilder($applyFilters = false): QueryBuilder
     {
         $queryBuilder = clone $this->queryBuilder;
 
-        if ($useFilters) {
-            foreach ($this->getFilters() as $fieldName => $value) {
-                if (!trim($value)) {
-                    continue;
+        if (!$applyFilters) {
+            return $queryBuilder;
+        }
+
+        foreach ($this->getFilters() as $fieldName => $value) {
+            if (!trim($value)) {
+                continue;
+            }
+
+            if (strstr($fieldName, self::NEST_SEPARATOR)) {
+                $parentAlias = $this->getQueryBuilderMainAlias();
+                $path = explode(self::NEST_SEPARATOR, $fieldName);
+                $targetFieldName = array_pop($path);
+
+                foreach ($path as $relation) {
+                    if(!$this->isAlreadyJoined($queryBuilder, $relation)){
+                        $queryBuilder->join(sprintf('%s.%s', $parentAlias, $relation), $relation);
+                    }
+                    $parentAlias = $relation;
                 }
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s = :%sFilter', $parentAlias, $targetFieldName, $fieldName))
+                    ->setParameter($fieldName . 'Filter', $value);
+            }else{
                 $queryBuilder
                     ->andWhere(sprintf('%s.%s = :%sFilter', $this->getQueryBuilderMainAlias(), $fieldName, $fieldName))
                     ->setParameter($fieldName . 'Filter', $value);
@@ -196,6 +216,20 @@ class Datasheet
         }
 
         return $queryBuilder;
+    }
+
+    protected function isAlreadyJoined($queryBuilder, $relation)
+    {
+        foreach($queryBuilder->getDQLPart('join') as $joins){
+            /** @var Join $join */
+            foreach($joins as $join){
+                if($join->getAlias() == $relation){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected function getQueryBuilderMainAlias(): string

@@ -94,13 +94,6 @@ trait DatasheetFieldsTrait
                 'hasFilter' => $field[2],
             ];
         }
-
-        // Disable filter for relation fields
-//        foreach ($this->fields as $fieldName => $field) {
-//            if (strstr($fieldName, '___')) {
-//                $this->fields[$fieldName]['hasFilter'] = false;
-//            }
-//        }
     }
 
     protected function buildFieldsFromObjectItem($item)
