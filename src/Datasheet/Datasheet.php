@@ -6,11 +6,14 @@ use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Exception\NotImplementedYetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Throwable;
 
 class Datasheet
 {
+    const NEST_SEPARATOR = "___";
+
     use DatasheetDependencyInjectionTrait;
 
     use DatasheetFieldsTrait;
@@ -27,7 +30,6 @@ class Datasheet
     public function build()
     {
         if ($this->queryBuilder) {
-            $this->setEnableFiltering(true);
             $this->buildDataFromQueryBuilder();
         } else {
             if ($this->getFilters()) {
@@ -133,7 +135,7 @@ class Datasheet
             ->getQuery()
             ->getSingleScalarResult();
         $this->setItemsTotal($total);
-
+//
         // Get items
         $offset = ($this->page) * $this->itemsPerPage;
         $this->data = $this->cloneQueryBuilder(true)
@@ -152,26 +154,61 @@ class Datasheet
 
     protected function getFieldFilterOptions($field)
     {
-        $result = $this->cloneQueryBuilder()
-            ->select(sprintf('DISTINCT(%s.%s)', $this->getQueryBuilderMainAlias(), $field))
-            ->orderBy(sprintf('%s.%s', $this->getQueryBuilderMainAlias(), $field), 'ASC')
-            ->getQuery()
-            ->getArrayResult();
+        if (strstr($field, self::NEST_SEPARATOR)) {
+            $queryBuilder = $this->cloneQueryBuilder();
+            $path = explode(self::NEST_SEPARATOR, $field);
+            $field = array_pop($path);
+            $parentAlias = $this->getQueryBuilderMainAlias();
 
+            foreach ($path as $relation) {
+                $queryBuilder->join(sprintf('%s.%s', $parentAlias, $relation), $relation);
+                $parentAlias = $relation;
+            }
+            $result = $queryBuilder
+                ->select(sprintf('DISTINCT(%s.%s)', $relation, $field))
+                ->orderBy(sprintf('%s.%s', $relation, $field), 'ASC')
+                ->getQuery()
+                ->getArrayResult();
+        } else {
+            $result = $this->cloneQueryBuilder()
+                ->select(sprintf('DISTINCT(%s.%s)', $this->getQueryBuilderMainAlias(), $field))
+                ->orderBy(sprintf('%s.%s', $this->getQueryBuilderMainAlias(), $field), 'ASC')
+                ->getQuery()
+                ->getArrayResult();
+        }
         return array_map(function ($item) {
             return reset($item);
         }, $result);
     }
 
-    protected function cloneQueryBuilder($considerFilters = false): QueryBuilder
+    protected function cloneQueryBuilder($applyFilters = false): QueryBuilder
     {
         $queryBuilder = clone $this->queryBuilder;
 
-        if ($considerFilters) {
-            foreach ($this->getFilters() as $fieldName => $value) {
-                if (!trim($value)) {
-                    continue;
+        if (!$applyFilters) {
+            return $queryBuilder;
+        }
+
+        foreach ($this->getFilters() as $fieldName => $value) {
+            if (!trim($value)) {
+                continue;
+            }
+
+            if (strstr($fieldName, self::NEST_SEPARATOR)) {
+                $parentAlias = $this->getQueryBuilderMainAlias();
+                $path = explode(self::NEST_SEPARATOR, $fieldName);
+                $targetFieldName = array_pop($path);
+
+                foreach ($path as $relation) {
+                    if(!$this->isAlreadyJoined($queryBuilder, $relation)){
+                        $queryBuilder->join(sprintf('%s.%s', $parentAlias, $relation), $relation);
+                    }
+                    $parentAlias = $relation;
                 }
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s = :%sFilter', $parentAlias, $targetFieldName, $fieldName))
+                    ->setParameter($fieldName . 'Filter', $value);
+            }else{
                 $queryBuilder
                     ->andWhere(sprintf('%s.%s = :%sFilter', $this->getQueryBuilderMainAlias(), $fieldName, $fieldName))
                     ->setParameter($fieldName . 'Filter', $value);
@@ -179,6 +216,20 @@ class Datasheet
         }
 
         return $queryBuilder;
+    }
+
+    protected function isAlreadyJoined($queryBuilder, $relation)
+    {
+        foreach($queryBuilder->getDQLPart('join') as $joins){
+            /** @var Join $join */
+            foreach($joins as $join){
+                if($join->getAlias() == $relation){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected function getQueryBuilderMainAlias(): string

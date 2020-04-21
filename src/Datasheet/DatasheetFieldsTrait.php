@@ -29,12 +29,17 @@ trait DatasheetFieldsTrait
         return $this;
     }
 
-    public function setField($name, $title = null, $hasFilter = false): self
+    public function setField($name, $title = null, $hasFilter = null): self
     {
         $name = str_replace('.', '___', $name);
-        $this->fieldsToAdd[] = [$name, $title, $hasFilter];
+        $this->fieldsToAdd[] = [$name, $title, is_null($hasFilter) ? $this->isEnableFiltering() : $hasFilter];
 
         return $this;
+    }
+
+    public function addField($name, $title = null, $hasFilter = null): self
+    {
+        return $this->setField($name, $title, $hasFilter);
     }
 
     public function removeFields(): self
@@ -88,13 +93,6 @@ trait DatasheetFieldsTrait
                 'title' => StringUtility::normalize($field[1] ?: $field[0]),
                 'hasFilter' => $field[2],
             ];
-        }
-
-        // Disable filter for relation fields
-        foreach ($this->fields as $fieldName => $field) {
-            if (strstr($fieldName, '___')) {
-                $this->fields[$fieldName]['hasFilter'] = false;
-            }
         }
     }
 
