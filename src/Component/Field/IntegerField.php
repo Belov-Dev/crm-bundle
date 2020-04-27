@@ -15,4 +15,9 @@ class IntegerField extends AbstractField implements FieldInterface
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
     }
+
+    public function setValueToObject($value, $object): FieldInterface
+    {
+        return parent::setValueToObject((int)$value, $object);
+    }
 }

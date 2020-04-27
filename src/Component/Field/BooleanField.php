@@ -39,8 +39,6 @@ class BooleanField extends AbstractField implements FieldInterface
 
     public function setValueToObject($value, $object): FieldInterface
     {
-        $value = (bool)$value;
-
-        return parent::setValueToObject($value, $object);
+        return parent::setValueToObject((bool)$value, $object);
     }
 }

@@ -15,4 +15,9 @@ class FloatField extends AbstractField implements FieldInterface
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
     }
+
+    public function setValueToObject($value, $object): FieldInterface
+    {
+        return parent::setValueToObject((float)$value, $object);
+    }
 }
