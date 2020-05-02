@@ -27,6 +27,8 @@ trait DatasheetGettersSettersTrait
 
     protected $summaryRow = null;
 
+    protected $translationPrefix;
+
     public function getItems()
     {
         return $this->items;
@@ -159,6 +161,18 @@ trait DatasheetGettersSettersTrait
     public function addSummaryRow(array $summaryRow): self
     {
         $this->summaryRow = $summaryRow;
+
+        return $this;
+    }
+
+    public function getTranslationPrefix()
+    {
+        return $this->translationPrefix;
+    }
+
+    public function addTranslationPrefix($translationPrefix): self
+    {
+        $this->translationPrefix = $translationPrefix;
 
         return $this;
     }

@@ -8,7 +8,7 @@
                 <th>&nbsp;</th>
             {% endif %}
             {% for field in datasheet.fields %}
-                <th>{{ field.title|trans }}</th>
+                <th>{{ (datasheet.translationPrefix ? datasheet.translationPrefix ~ ' ' : '')  ~ field.title|trans }}</th>
             {% endfor %}
         </tr>
         {% if datasheet.enableFiltering %}
