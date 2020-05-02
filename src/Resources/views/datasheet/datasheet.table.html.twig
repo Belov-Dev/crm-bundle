@@ -50,6 +50,20 @@
             </tr>
         {% endfor %}
         </tbody>
+        {% if datasheet.hasSummaryRow %}
+            <tfoot>
+            <tr>
+                {% if datasheet.enableFiltering %}
+                    <td>&nbsp;</td>
+                {% endif %}
+                {% for fieldName, field in datasheet.fields %}
+                    <th class="text-right">
+                        {{ (datasheet.summaryRow[fieldName] ?? '')|raw }}
+                    </th>
+                {% endfor %}
+            </tr>
+            </tfoot>
+        {% endif %}
     </table>
 </form>
 
@@ -61,3 +75,12 @@
         {% endfor %}
     </script>
 {% endif %}
+
+<style>
+    [data-datasheet-id] td {
+        max-width: 150px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+</style>

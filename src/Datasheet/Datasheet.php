@@ -64,16 +64,6 @@ class Datasheet
             }
             $items[] = $item;
         }
-
-        if (is_array($this->getSummaryRow())) {
-            $item = [];
-
-            foreach ($this->fields as $fieldName => $field) {
-                $item[$fieldName] = $this->summaryRow[$fieldName] ?? '';
-            }
-            $items[] = $item;
-        }
-
         $this->items = $items;
     }
 

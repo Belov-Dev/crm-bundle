@@ -43,7 +43,9 @@ class DatasheetBuilder
         }
 
         if (!count($datasheet->getItems())) {
-            return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig');
+            return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig', [
+                'datasheet' => $datasheet,
+            ]);
         }
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [

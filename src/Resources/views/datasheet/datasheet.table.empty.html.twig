@@ -1,8 +1,23 @@
+<table class="table table-hover table-bordered table-stiped table-sm table-striped table-condensed"
+       data-datasheet-id="{{ datasheet.uniqueId }}">
+    <thead>
+    <tr>
+        {% if datasheet.enableFiltering %}
+            <th>&nbsp;</th>
+        {% endif %}
+        {% for field in datasheet.fields %}
+            <th>{{ field.title|trans }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+</table>
+
 <table class="table table-hover table-bordered table-stiped table-sm table-striped table-condensed">
     <tbody>
     <tr>
         <td>
-            <b class="text-muted"><i class="glyphicon glyphicon-info-sign"></i>{% trans %}List is empty{% endtrans %}</b>
+            <b class="text-muted"><i class="glyphicon glyphicon-info-sign"></i>{% trans %}List is empty{% endtrans %}
+            </b>
         </td>
     </tr>
     </tbody>

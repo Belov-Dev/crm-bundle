@@ -151,6 +151,11 @@ trait DatasheetGettersSettersTrait
         return $this->summaryRow;
     }
 
+    public function hasSummaryRow()
+    {
+        return is_array($this->getSummaryRow());
+    }
+
     public function addSummaryRow(array $summaryRow): self
     {
         $this->summaryRow = $summaryRow;
