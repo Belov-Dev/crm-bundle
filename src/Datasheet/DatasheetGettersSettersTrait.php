@@ -25,6 +25,8 @@ trait DatasheetGettersSettersTrait
 
     protected $showDebug = false;
 
+    protected $summaryRow = null;
+
     public function getItems()
     {
         return $this->items;
@@ -140,6 +142,18 @@ trait DatasheetGettersSettersTrait
     public function setShowDebug(bool $showDebug): self
     {
         $this->showDebug = $showDebug;
+
+        return $this;
+    }
+
+    public function getSummaryRow()
+    {
+        return $this->summaryRow;
+    }
+
+    public function addSummaryRow(array $summaryRow): self
+    {
+        $this->summaryRow = $summaryRow;
 
         return $this;
     }

@@ -64,6 +64,16 @@ class Datasheet
             }
             $items[] = $item;
         }
+
+        if (is_array($this->getSummaryRow())) {
+            $item = [];
+
+            foreach ($this->fields as $fieldName => $field) {
+                $item[$fieldName] = $this->summaryRow[$fieldName] ?? '';
+            }
+            $items[] = $item;
+        }
+
         $this->items = $items;
     }
 
@@ -200,7 +210,7 @@ class Datasheet
                 $targetFieldName = array_pop($path);
 
                 foreach ($path as $relation) {
-                    if(!$this->isAlreadyJoined($queryBuilder, $relation)){
+                    if (!$this->isAlreadyJoined($queryBuilder, $relation)) {
                         $queryBuilder->join(sprintf('%s.%s', $parentAlias, $relation), $relation);
                     }
                     $parentAlias = $relation;
@@ -208,7 +218,7 @@ class Datasheet
                 $queryBuilder
                     ->andWhere(sprintf('%s.%s = :%sFilter', $parentAlias, $targetFieldName, $fieldName))
                     ->setParameter($fieldName . 'Filter', $value);
-            }else{
+            } else {
                 $queryBuilder
                     ->andWhere(sprintf('%s.%s = :%sFilter', $this->getQueryBuilderMainAlias(), $fieldName, $fieldName))
                     ->setParameter($fieldName . 'Filter', $value);
@@ -220,10 +230,10 @@ class Datasheet
 
     protected function isAlreadyJoined($queryBuilder, $relation)
     {
-        foreach($queryBuilder->getDQLPart('join') as $joins){
+        foreach ($queryBuilder->getDQLPart('join') as $joins) {
             /** @var Join $join */
-            foreach($joins as $join){
-                if($join->getAlias() == $relation){
+            foreach ($joins as $join) {
+                if ($join->getAlias() == $relation) {
                     return true;
                 }
             }
