@@ -111,6 +111,9 @@ trait DatasheetFieldsTrait
     protected function buildFieldsFromArrayItem($item)
     {
         foreach (array_keys($item) as $name) {
+            if(0 === $name){
+                continue;
+            }
             $this->fields[$name] = [
                 'title' => StringUtility::normalize($name),
                 'hasFilter' => $this->isEnableFiltering(),

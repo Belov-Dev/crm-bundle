@@ -6,12 +6,11 @@ use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Exception\NotImplementedYetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Throwable;
 
-class Datasheet
+class DatasheetPrev
 {
     const NEST_SEPARATOR = "___";
 
@@ -134,7 +133,6 @@ class Datasheet
         $total = $this->cloneQueryBuilder(true)
             ->select(sprintf('count(%s)', $this->getQueryBuilderMainAlias()))
             ->getQuery()
-//            ->getSQL();
             ->getSingleScalarResult();
         $this->setItemsTotal($total);
 //
@@ -144,16 +142,14 @@ class Datasheet
             ->setFirstResult($offset)
             ->setMaxResults($this->itemsPerPage)
             ->getQuery()
-//            ->getSQL();
-            ->getResult(AbstractQuery::HYDRATE_ARRAY);
-
+            ->getResult();
 
         // SQL query for debug
-//        $this->debug['sql'] = $this->cloneQueryBuilder(true)
-//            ->setFirstResult($offset)
-//            ->setMaxResults($this->itemsPerPage)
-//            ->getQuery()
-//            ->getSQL();
+        $this->debug['sql'] = $this->cloneQueryBuilder(true)
+            ->setFirstResult($offset)
+            ->setMaxResults($this->itemsPerPage)
+            ->getQuery()
+            ->getSQL();
     }
 
     protected function getFieldFilterOptions($field)
