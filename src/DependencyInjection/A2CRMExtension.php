@@ -3,6 +3,7 @@
 namespace A2Global\CRMBundle\DependencyInjection;
 
 use A2Global\CRMBundle\Component\Field\FieldInterface;
+use A2Global\CRMBundle\Datasheet\Adapter\DatasheetAdapterInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -21,6 +22,11 @@ class A2CRMExtension extends Extension
          $container
             ->registerForAutoconfiguration(FieldInterface::class)
             ->addTag('a2crm.entity_field');
+
+         $container
+            ->registerForAutoconfiguration(DatasheetAdapterInterface::class)
+            ->addTag('a2crm.datasheet.adapter');
+
     }
 
     public function getAlias()

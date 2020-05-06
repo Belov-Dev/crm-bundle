@@ -7,7 +7,7 @@ use A2Global\CRMBundle\Utility\StringUtility;
 
 trait DatasheetFieldsTrait
 {
-    protected $fields = [];
+    public $fields = [];
 
     protected $fieldHandlers;
 
@@ -71,53 +71,13 @@ trait DatasheetFieldsTrait
         return $this;
     }
 
-    protected function buildFields($item)
+    public function getFieldsToAdd(): array
     {
-        // Build fields from data
-        if (!$this->removeFields) {
-            if (is_object($item)) {
-                $this->buildFieldsFromObjectItem($item);
-            } else {
-                $this->buildFieldsFromArrayItem($item);
-            }
-        }
-
-        // Remove specified fields
-        foreach ($this->fieldsToRemove as $name) {
-            unset($this->fields[$name]);
-        }
-
-        // Add specified fields
-        foreach ($this->fieldsToAdd as $field) {
-            $this->fields[$field[0]] = [
-                'title' => StringUtility::normalize($field[1] ?: $field[0]),
-                'hasFilter' => $field[2],
-            ];
-        }
+        return $this->fieldsToAdd;
     }
 
-    protected function buildFieldsFromObjectItem($item)
+    public function getFieldsToRemove(): array
     {
-        $entity = $this->entityInfoProvider->getEntity($item);
-
-        foreach ($entity->getFields() as $field) {
-            $this->fields[StringUtility::toCamelCase($field->getName())] = [
-                'title' => $field->getName(),
-                'hasFilter' => $this->isEnableFiltering() && (!$field instanceof RelationField),
-            ];
-        }
-    }
-
-    protected function buildFieldsFromArrayItem($item)
-    {
-        foreach (array_keys($item) as $name) {
-            if(0 === $name){
-                continue;
-            }
-            $this->fields[$name] = [
-                'title' => StringUtility::normalize($name),
-                'hasFilter' => $this->isEnableFiltering(),
-            ];
-        }
+        return $this->fieldsToRemove;
     }
 }

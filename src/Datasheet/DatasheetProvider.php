@@ -1,12 +1,11 @@
 <?php
 
-namespace A2Global\CRMBundle\Builder;
+namespace A2Global\CRMBundle\Datasheet;
 
-use A2Global\CRMBundle\Datasheet\Datasheet;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
-class DatasheetBuilder
+class DatasheetProvider
 {
     const MAX_PAGES_IN_PAGINATOR = 5;
 
@@ -14,42 +13,43 @@ class DatasheetBuilder
 
     private $requestStack;
 
-    public function __construct(Environment $twig, RequestStack $requestStack)
+    private $datasheetBuilder;
+
+    public function __construct(
+        DatasheetBuilder $datasheetBuilder,
+        Environment $twig,
+        RequestStack $requestStack
+    )
     {
         $this->twig = $twig;
         $this->requestStack = $requestStack;
+        $this->datasheetBuilder = $datasheetBuilder;
     }
 
     public function getTable(Datasheet $datasheet)
     {
         // Get all query string params
         $queryString = $this->requestStack->getMasterRequest()->query->all();
+//        $page = isset($queryString['page']) && ((int)$queryString['page'] > 0) ? ((int)$queryString['page']) : 1;
 
         // Set pages
-        $currentPage = isset($queryString['page']) && ((int) $queryString['page'] > 0) ? (((int) $queryString['page']) - 1) : 0;
-        $datasheet->setPage($currentPage);
-
-        // Set filters
-        $datasheet->setFilters($queryString['filter'] ?? []);
-
-        // Build datasheet
-        $datasheet->build();
+        $this->datasheetBuilder->build($datasheet);
 
         // Filter form url (reset filters, page. leaving per_page)
-        if($datasheet->isEnableFiltering()){
-            unset($queryString['page']);
-            unset($queryString['filter']);
-            $filterFormUrl = http_build_query($queryString);
-        }
+//        if ($this->datasheetBuilder->) {
+//            unset($queryString['page']);
+//            unset($queryString['filter']);
+//            $filterFormUrl = http_build_query($queryString);
+//        }
 
-        if (!count($datasheet->getItems())) {
+        if (!$this->datasheetBuilder->getItemsTotal()) {
             return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig', [
-                'datasheet' => $datasheet,
+                'datasheet' => $this->datasheetBuilder,
             ]);
         }
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
-            'datasheet' => $datasheet,
+            'datasheet' => $this->datasheetBuilder,
             'filterFormUrl' => $filterFormUrl ?? null,
         ]);
     }

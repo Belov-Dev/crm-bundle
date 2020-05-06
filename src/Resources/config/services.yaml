@@ -17,3 +17,6 @@ services:
 
     A2Global\CRMBundle\Registry\EntityFieldRegistry:
         arguments: [!tagged { tag: 'a2crm.entity_field' }]
+
+    A2Global\CRMBundle\Registry\DatasheetAdapterRegistry:
+        arguments: [!tagged { tag: 'a2crm.datasheet.adapter' }]

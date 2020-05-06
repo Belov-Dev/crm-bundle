@@ -14,7 +14,6 @@ trait DatasheetGettersSettersTrait
 
     protected $itemsTotal = 0;
 
-    /** @var QueryBuilder */
     protected $queryBuilder = null;
 
     protected $filters = [];
@@ -34,20 +33,6 @@ trait DatasheetGettersSettersTrait
         return $this->items;
     }
 
-    public function setQueryBuilder($queryBuilder): self
-    {
-//        $this->setEnableFiltering(true);
-        $this->queryBuilder = $queryBuilder;
-
-        return $this;
-    }
-
-    public function setData($data): self
-    {
-        $this->data = $data;
-
-        return $this;
-    }
 
     public function getFields()
     {

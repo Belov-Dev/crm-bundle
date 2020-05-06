@@ -4,14 +4,14 @@
            data-datasheet-id="{{ datasheet.uniqueId }}">
         <thead>
         <tr>
-            {% if datasheet.enableFiltering %}
+            {% if datasheet.hasFilters %}
                 <th>&nbsp;</th>
             {% endif %}
             {% for field in datasheet.fields %}
                 <th>{{ ((datasheet.translationPrefix ? datasheet.translationPrefix ~ '.' : '')  ~ field.title)|trans }}</th>
             {% endfor %}
         </tr>
-        {% if datasheet.enableFiltering %}
+        {% if datasheet.hasFilters %}
             <tr>
                 <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
                 {% for fieldName, field in datasheet.fields %}
@@ -39,7 +39,7 @@
         <tbody>
         {% for item in datasheet.items %}
             <tr>
-                {% if datasheet.enableFiltering %}
+                {% if datasheet.hasFilters %}
                     <td>&nbsp;</td>
                 {% endif %}
                 {% for fieldName, field in datasheet.fields %}
@@ -50,10 +50,10 @@
             </tr>
         {% endfor %}
         </tbody>
-        {% if datasheet.hasSummaryRow %}
+        {% if datasheet.summaryRow %}
             <tfoot>
             <tr>
-                {% if datasheet.enableFiltering %}
+                {% if datasheet.hasFilters %}
                     <td>&nbsp;</td>
                 {% endif %}
                 {% for fieldName, field in datasheet.fields %}
@@ -67,13 +67,13 @@
     </table>
 </form>
 
-{% if datasheet.enableFiltering %}
-    <script>
-        {# options set for datasheet filtering #}
-        {% for fieldName, options in datasheet.filterOptions %}
-        let datasheet{{ datasheet.uniqueId }}{{ fieldName }}FilterOptions = {{ options|json_encode|raw }};
-        {% endfor %}
-    </script>
+{% if datasheet.hasFilters %}
+{#    <script>#}
+{#         options set for datasheet filtering #}
+{#        {% for fieldName, options in datasheet.filterOptions %}#}
+{#        let datasheet{{ datasheet.uniqueId }}{{ fieldName }}FilterOptions = {{ options|json_encode|raw }};#}
+{#        {% endfor %}#}
+{#//     </script>#}
 {% endif %}
 
 <style>

@@ -14,11 +14,6 @@ class DatasheetPrev
 {
     const NEST_SEPARATOR = "___";
 
-    use DatasheetDependencyInjectionTrait;
-
-    use DatasheetFieldsTrait;
-
-    use DatasheetGettersSettersTrait;
 
     protected $items = [];
 
@@ -98,11 +93,6 @@ class DatasheetPrev
         }
 
         return $filterOptions;
-    }
-
-    public function getUniqueId()
-    {
-        return spl_object_id($this);
     }
 
     protected function buildDataFromArray()
@@ -237,28 +227,4 @@ class DatasheetPrev
         return $this->queryBuilder->getDQLPart('from')[0]->getAlias();
     }
 
-    protected function handleValue($value)
-    {
-        if (is_bool($value)) {
-            if ($value) {
-                return '<span class="badge bg-light-blue">Yes</span>';
-            } else {
-                return '<span class="badge">No</span>';
-            }
-        }
-
-        if ($value instanceof DateTimeInterface) {
-            return $value->format('d-m-Y');
-        }
-
-        if (is_object($value)) {
-            if (!method_exists($value, '__toString')) {
-                return StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
-            } else {
-                return (string)$value;
-            }
-        }
-
-        return $value;
-    }
 }

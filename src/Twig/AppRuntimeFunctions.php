@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace A2Global\CRMBundle\Twig;
 
-use A2Global\CRMBundle\Builder\DatasheetBuilder;
+use A2Global\CRMBundle\Datasheet\DatasheetProvider;
 use A2Global\CRMBundle\Datasheet\Datasheet;
-use A2Global\CRMBundle\Datasheet\DatasheetInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Routing\RouterInterface;
@@ -17,17 +16,17 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
 
     private $router;
 
-    private $datasheetBuilder;
+    private $datasheetProvider;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         RouterInterface $router,
-        DatasheetBuilder $datasheetBuilder
+        DatasheetProvider $datasheetProvider
     )
     {
         $this->entityManager = $entityManager;
         $this->router = $router;
-        $this->datasheetBuilder = $datasheetBuilder;
+        $this->datasheetProvider = $datasheetProvider;
     }
 
     // TODO PERFORMANCE extract this method to separate files
@@ -63,7 +62,7 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
             throw new Exception(sprintf('Invalid class `%s`, please provide object of DataSheetInterface to build the datasheet', get_class($datasheet)));
         }
 
-        return $this->datasheetBuilder->getTable($datasheet);
+        return $this->datasheetProvider->getTable($datasheet);
     }
 
     public function getPagination($datasheet)
@@ -72,6 +71,6 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
             throw new Exception(sprintf('Invalid class `%s`, please provide object of Datasheet', get_class($datasheet)));
         }
 
-        return $this->datasheetBuilder->getPagination($datasheet);
+        return $this->datasheetProvider->getPagination($datasheet);
     }
 }
