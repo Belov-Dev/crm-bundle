@@ -8,5 +8,9 @@ interface DatasheetAdapterInterface
 {
     public function supports(Datasheet $datasheet): bool;
 
-    public function getFields(Datasheet $datasheet);
+    public function buildItems(Datasheet $datasheet, $page = 1, $perPage = 15, $filters = []): array;
+
+    public function buildFields(Datasheet $datasheet): array;
+
+    public function buildItemsTotal(Datasheet $datasheet): int;
 }

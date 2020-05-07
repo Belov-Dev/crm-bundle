@@ -2,7 +2,7 @@
        data-datasheet-id="{{ datasheet.uniqueId }}">
     <thead>
     <tr>
-        {% if datasheet.enableFiltering %}
+        {% if datasheet.hasFilters %}
             <th>&nbsp;</th>
         {% endif %}
         {% for field in datasheet.fields %}

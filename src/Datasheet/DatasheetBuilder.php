@@ -7,8 +7,6 @@ use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Registry\DatasheetAdapterRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
-use Doctrine\ORM\Query\Expr\Join;
-use Doctrine\ORM\QueryBuilder;
 use Exception;
 use PHPUnit\Framework\Error\Deprecated;
 use Throwable;
@@ -58,12 +56,10 @@ class DatasheetBuilder
         $this->filters = $filters;
 
         $this->adapter = $this->getAdapter($datasheet);
-
-        $this->buildData();
-
-        $this->buildFields();
-
-        $this->updateData();
+        $this->items = $this->adapter->buildItems($datasheet, $this->page, $this->perPage, $filters);
+        $this->fields = $this->adapter->buildFields($datasheet);
+        $this->itemsTotal = $this->adapter->buildItemsTotal($datasheet);
+        $this->updateItems();
     }
 
     protected function getAdapter($datasheet): DatasheetAdapterInterface
@@ -78,27 +74,6 @@ class DatasheetBuilder
     }
 
     /** Build data */
-
-    protected function buildData()
-    {
-        foreach ($this->fieldsResolverRegistry->get() as $strategy) {
-            if ($strategy->supports($this->datasheet)) {
-                $fields = $strategy->getFields($this->datasheet);
-
-                break;
-            }
-        }
-
-        // building data
-        if ($this->datasheet->queryBuilder) {
-            $this->buildDataFromQueryBuilder();
-        } else {
-//            if ($datasheet->getFilters()) {
-//                throw new NotImplementedYetException('Search doesnt work for array datasheets');
-//            }
-            $this->buildDataFromArray();
-        }
-    }
 
     protected function buildDataFromArray()
     {
@@ -200,7 +175,7 @@ class DatasheetBuilder
 
     /** Update data */
 
-    protected function updateData()
+    protected function updateItems()
     {
         $items = [];
 
@@ -308,60 +283,4 @@ class DatasheetBuilder
 
     /** Other */
 
-    protected function cloneQueryBuilder($applyFilters = false): QueryBuilder
-    {
-        $queryBuilder = clone $this->datasheet->queryBuilder;
-
-        if (!$applyFilters) {
-            return $queryBuilder;
-        }
-
-        return $queryBuilder;
-        foreach ($this->datasheet->getFilters() as $fieldName => $value) {
-            if (!trim($value)) {
-                continue;
-            }
-
-            if (strstr($fieldName, Datasheet::NEST_SEPARATOR)) {
-                $parentAlias = $this->getQueryBuilderMainAlias();
-                $path = explode(Datasheet::NEST_SEPARATOR, $fieldName);
-                $targetFieldName = array_pop($path);
-
-                foreach ($path as $relation) {
-                    if (!$this->isAlreadyJoined($queryBuilder, $relation)) {
-                        $queryBuilder->join(sprintf('%s.%s', $parentAlias, $relation), $relation);
-                    }
-                    $parentAlias = $relation;
-                }
-                $queryBuilder
-                    ->andWhere(sprintf('%s.%s = :%sFilter', $parentAlias, $targetFieldName, $fieldName))
-                    ->setParameter($fieldName . 'Filter', $value);
-            } else {
-                $queryBuilder
-                    ->andWhere(sprintf('%s.%s = :%sFilter', $this->getQueryBuilderMainAlias(), $fieldName, $fieldName))
-                    ->setParameter($fieldName . 'Filter', $value);
-            }
-        }
-
-        return $queryBuilder;
-    }
-
-    protected function isAlreadyJoined($queryBuilder, $relation)
-    {
-        foreach ($queryBuilder->getDQLPart('join') as $joins) {
-            /** @var Join $join */
-            foreach ($joins as $join) {
-                if ($join->getAlias() == $relation) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    protected function getQueryBuilderMainAlias(): string
-    {
-        return $this->datasheet->queryBuilder->getDQLPart('from')[0]->getAlias();
-    }
 }
