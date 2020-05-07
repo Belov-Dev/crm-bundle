@@ -8,19 +8,19 @@ use Doctrine\ORM\QueryBuilder;
 class Datasheet
 {
     /** @var QueryBuilder */
-    public $queryBuilder;
+    protected $queryBuilder;
 
-    public $data = [];
+    protected $data = [];
 
-    public $fieldOptions = [];
+    protected $fieldsToShow = [];
 
-    public $fieldsToRemove = [];
+    protected $fieldsToRemove = [];
 
-    public $fieldHandlers = [];
+    protected $fieldHandlers = [];
 
-    public $translationPrefix;
+    protected $translationPrefix;
 
-    public $summaryRow;
+    protected $summaryRow;
 
     public function setQueryBuilder($queryBuilder): self
     {
@@ -36,50 +36,48 @@ class Datasheet
         return $this;
     }
 
-    public function setFields($fields): self
+    public function showFields($fields): self
     {
         $fields = func_get_args();
 
         foreach ($fields as $field) {
-            $this->fields[StringUtility::toCamelCase($field)] = [];
+            $this->fieldsToShow[StringUtility::toCamelCase($field)] = [
+                'title' => StringUtility::normalize($field),
+            ];
         }
 
         return $this;
     }
 
-    public function setField($field, $options = []): self
-    {
-        $fieldName = StringUtility::toCamelCase($field);
-        $this->fieldOptions[$fieldName] = $options;
-
-        if (!isset($this->fieldOptions[$fieldName]['title'])) {
-            $this->fieldOptions[$fieldName]['title'] = StringUtility::normalize($fieldName);
-        }
-
-        return $this;
-    }
-
-    public function removeFields()
+    public function removeFields(): self
     {
         $fields = func_get_args();
 
         foreach ($fields as $field) {
             $this->fieldsToRemove[] = StringUtility::toCamelCase($field);
         }
+
+        return $this;
     }
 
-    public function addFieldHandler($callbackFunction)
+    public function addFieldHandler($callbackFunction): self
     {
         $this->fieldHandlers[] = $callbackFunction;
+
+        return $this;
     }
 
-    public function setTranslationPrefix($translationPrefix)
+    public function setTranslationPrefix($translationPrefix): self
     {
         $this->translationPrefix = $translationPrefix;
+
+        return $this;
     }
 
-    public function setSummaryRow($summaryRow)
+    public function setSummaryRow($summaryRow): self
     {
         $this->summaryRow = $summaryRow;
+
+        return $this;
     }
 }

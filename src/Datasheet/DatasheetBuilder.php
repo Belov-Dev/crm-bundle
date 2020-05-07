@@ -3,30 +3,16 @@
 namespace A2Global\CRMBundle\Datasheet;
 
 use A2Global\CRMBundle\Datasheet\Adapter\DatasheetAdapterInterface;
-use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Registry\DatasheetAdapterRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
 use Exception;
-use PHPUnit\Framework\Error\Deprecated;
-use Throwable;
 
 class DatasheetBuilder
 {
     const NEST_SEPARATOR = "___";
 
     protected $adapterRegistry;
-
-    /** @var Datasheet */
-    protected $datasheet;
-
-    protected $adapter;
-
-    protected $page;
-
-    protected $perPage;
-
-    protected $filters;
 
     public function __construct(
         DatasheetAdapterRegistry $adapterRegistry
@@ -35,23 +21,22 @@ class DatasheetBuilder
         $this->adapterRegistry = $adapterRegistry;
     }
 
-    /**
-     * Build executes when datasheet is rendered, when all parameters already defined.
-     * That's is because we need to pass $limit, $perpage when executing callable getData()
-     * These options are defined before build()
-     */
-    public function build(Datasheet $datasheet, $page = 1, $perPage = 15, $filters = [])
+    public function build(DatasheetExtended $datasheet)
     {
-        $this->datasheet = $datasheet;
-        $this->page = $page - 1;
-        $this->perPage = $perPage;
-        $this->filters = $filters;
+        $adapter = $this->getAdapter($datasheet);
+        $datasheet
+            ->setItems($adapter->getItems($datasheet))
+            ->setItemsTotal($adapter->getItemsTotal($datasheet));
 
-        $this->adapter = $this->getAdapter($datasheet);
-        $this->items = $this->adapter->buildItems($datasheet, $this->page, $this->perPage, $filters);
-        $this->fields = $this->adapter->buildFields($datasheet);
-        $this->itemsTotal = $this->adapter->buildItemsTotal($datasheet);
-        $this->updateItems();
+        $fields = $datasheet->getFieldsToShow() ?: $adapter->getFields($datasheet);
+
+        foreach ($datasheet->getFieldsToRemove() as $fieldToRemove) {
+            if (isset($fields[$fieldToRemove])) {
+                unset($fields[$fieldToRemove]);
+            }
+        }
+        $datasheet->setFields($fields);
+        $this->updateItems($datasheet);
     }
 
     protected function getAdapter($datasheet): DatasheetAdapterInterface
@@ -65,7 +50,7 @@ class DatasheetBuilder
         throw new Exception('Datsheet adapter can not be resolved');
     }
 
-    /** Build data */
+    /** move */
 
     protected function buildDataFromArray()
     {
@@ -80,75 +65,6 @@ class DatasheetBuilder
 
         if (count($this->data) > $this->getItemsPerPage()) {
             $this->data = array_splice($this->data, $this->getPage() * $this->getItemsPerPage(), $this->getItemsPerPage());
-        }
-    }
-
-    protected function buildDataFromQueryBuilder()
-    {
-        // Do we still need this?
-        if (is_callable($this->datasheet->queryBuilder)) {
-            throw new Deprecated('User another method');
-        }
-
-        // Get & set total items count
-//        $total = $this->cloneQueryBuilder(true)
-//            ->select(sprintf('count(%s)', $this->getQueryBuilderMainAlias()))
-//            ->getQuery()
-//            ->getSQL();
-//            ->getSingleScalarResult();
-//        $this->itemsTotal = $total;
-//
-        // Get items
-        $query = $this->cloneQueryBuilder(true)
-            ->setFirstResult($this->page * $this->perPage)
-            ->setMaxResults($this->perPage)
-            ->getQuery()
-            ->getSQL();
-        echo $query;
-        $items = $this->cloneQueryBuilder(true)
-            ->setFirstResult($this->page * $this->perPage)
-            ->setMaxResults($this->perPage)
-            ->getQuery()
-            ->getArrayResult();
-        // In case of complex query builder — result would be an array
-        // and each item has extra key '0', needed to be deleted
-        $this->items = $items;
-    }
-
-    /** Build fields */
-
-    protected function buildFields()
-    {
-        if ($this->datasheet->fields) {
-            $this->fields = $this->datasheet->fields;
-
-            return;
-        }
-        $fields = [];
-
-        foreach ($this->fieldsResolverRegistry->get() as $strategy) {
-            if ($strategy->supports($this->datasheet)) {
-                $fields = $strategy->getFields($this->datasheet);
-
-                break;
-            }
-        }
-
-        foreach ($this->datasheet->fieldsToRemove as $field) {
-            unset($fields[$field]);
-        }
-        $this->fields = $fields;
-    }
-
-    protected function buildFieldsFromObjectItem($item)
-    {
-        $entity = $this->entityInfoProvider->getEntity($item);
-
-        foreach ($entity->getFields() as $field) {
-            $this->fields[StringUtility::toCamelCase($field->getName())] = [
-                'title' => $field->getName(),
-                'hasFilter' => $this->isEnableFiltering() && (!$field instanceof RelationField),
-            ];
         }
     }
 
@@ -167,14 +83,14 @@ class DatasheetBuilder
 
     /** Update data */
 
-    protected function updateItems()
+    protected function updateItems(DatasheetExtended $datasheet)
     {
         $items = [];
 
-        foreach ($this->items as $itemOriginal) {
+        foreach ($datasheet->getItems() as $itemOriginal) {
             $item = [];
 
-            foreach ($this->fields as $fieldName => $fieldOptions) {
+            foreach ($datasheet->getFields() as $fieldName => $fieldOptions) {
 //                if (!isset($itemOriginal[$fieldName])) {
 //                    throw new DatasheetException(sprintf('Datasheet failed to get %s value from data', $fieldName));
 //                }
@@ -182,20 +98,20 @@ class DatasheetBuilder
                 $value = is_object($itemOriginal) ? $this->getObjectValue($itemOriginal, $fieldName) : $itemOriginal[$fieldName];
                 $value = $this->handleValue($value);
 
-                if (isset($this->datasheet->fieldHandlers[$fieldName])) {
-                    $callable = $this->datasheet->fieldHandlers[$fieldName];
-
-                    try {
-                        $value = $callable($itemOriginal);
-                    } catch (Throwable $e) {
-                        throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
-                    }
-                }
+//                if (isset($this->datasheet->fieldHandlers[$fieldName])) {
+//                    $callable = $this->datasheet->fieldHandlers[$fieldName];
+//
+//                    try {
+//                        $value = $callable($itemOriginal);
+//                    } catch (Throwable $e) {
+//                        throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
+//                    }
+//                }
                 $item[$fieldName] = $value;
             }
             $items[] = $item;
         }
-        $this->items = $items;
+        $datasheet->setItems($items);
     }
 
     protected function getObjectValue($object, $path)
@@ -235,11 +151,5 @@ class DatasheetBuilder
 
         return $value;
     }
-
-    /** Getters for the resulted datasheet todo move to another class */
-
-
-
-    /** Other */
 
 }

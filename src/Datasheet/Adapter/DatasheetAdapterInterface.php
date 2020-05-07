@@ -2,15 +2,15 @@
 
 namespace A2Global\CRMBundle\Datasheet\Adapter;
 
-use A2Global\CRMBundle\Datasheet\Datasheet;
+use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 
 interface DatasheetAdapterInterface
 {
-    public function supports(Datasheet $datasheet): bool;
+    public function supports(DatasheetExtended $datasheet): bool;
 
-    public function buildItems(Datasheet $datasheet, $page = 1, $perPage = 15, $filters = []): array;
+    public function getItems(DatasheetExtended $datasheet): array;
 
-    public function buildFields(Datasheet $datasheet): array;
+    public function getItemsTotal(DatasheetExtended $datasheet): int;
 
-    public function buildItemsTotal(Datasheet $datasheet): int;
+    public function getFields(DatasheetExtended $datasheet): array;
 }

@@ -2,14 +2,15 @@
 
 namespace A2Global\CRMBundle\Datasheet\Adapter;
 
+use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 trait QueryBuilderAdapterTrait
 {
-    protected function cloneQueryBuilder($queryBuilder, $applyFilters = false): QueryBuilder
+    protected function cloneQueryBuilder(DatasheetExtended $datasheet, $applyFilters = false): QueryBuilder
     {
-        $queryBuilder = clone $queryBuilder;
+        $queryBuilder = clone $datasheet->getQueryBuilder();
 
         if (!$applyFilters) {
             return $queryBuilder;

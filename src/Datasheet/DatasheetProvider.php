@@ -9,11 +9,11 @@ class DatasheetProvider
 {
     const MAX_PAGES_IN_PAGINATOR = 5;
 
-    private $twig;
+    protected $twig;
 
-    private $requestStack;
+    protected $requestStack;
 
-    private $datasheetBuilder;
+    protected $datasheetBuilder;
 
     public function __construct(
         DatasheetBuilder $datasheetBuilder,
@@ -26,13 +26,12 @@ class DatasheetProvider
         $this->datasheetBuilder = $datasheetBuilder;
     }
 
-    public function getTable(Datasheet $datasheet)
+    public function getTable(DatasheetExtended $datasheet)
     {
-        // Get all query string params
         $queryString = $this->requestStack->getMasterRequest()->query->all();
-//        $page = isset($queryString['page']) && ((int)$queryString['page'] > 0) ? ((int)$queryString['page']) : 1;
-
-        // Set pages
+        $datasheet
+            ->setPage(max(1, (int)($queryString['page'] ?? 0)) - 1)
+            ->setItemsPerPage((int)($queryString['perPage'] ?? 15));
         $this->datasheetBuilder->build($datasheet);
 
         // Filter form url (reset filters, page. leaving per_page)
@@ -42,19 +41,19 @@ class DatasheetProvider
 //            $filterFormUrl = http_build_query($queryString);
 //        }
 
-        if (!$this->datasheetBuilder->getItemsTotal()) {
+        if (!$datasheet->getItemsTotal()) {
             return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig', [
-                'datasheet' => $this->datasheetBuilder,
+                'datasheet' => $datasheet,
             ]);
         }
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
-            'datasheet' => $this->datasheetBuilder,
+            'datasheet' => $datasheet,
             'filterFormUrl' => $filterFormUrl ?? null,
         ]);
     }
 
-    public function getPagination(Datasheet $datasheet)
+    public function getPagination(DatasheetExtended $datasheet)
     {
         $currentPage = $datasheet->getPage();
         $itemsTotal = $datasheet->getItemsTotal();

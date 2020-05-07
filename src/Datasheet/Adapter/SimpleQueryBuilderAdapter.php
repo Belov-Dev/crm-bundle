@@ -2,8 +2,7 @@
 
 namespace A2Global\CRMBundle\Datasheet\Adapter;
 
-use A2Global\CRMBundle\Datasheet\Datasheet;
-use A2Global\CRMBundle\Datasheet\DatasheetBuilder;
+use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\Query\Expr\From;
@@ -19,34 +18,40 @@ class SimpleQueryBuilderAdapter implements DatasheetAdapterInterface
         $this->entityInfoProvider = $entityInfoProvider;
     }
 
-    public function supports(Datasheet $datasheet): bool
+    public function supports(DatasheetExtended $datasheet): bool
     {
-        return count($datasheet->queryBuilder->getDQLPart('select')) < 2;
+        return count($datasheet->getQueryBuilder()->getDQLPart('select')) < 2;
     }
 
-    public function buildItems(Datasheet $datasheet, $page = 0, $perPage = 15, $filters = []): array
+    public function getItems(DatasheetExtended $datasheet): array
     {
         $query = $this
-            ->cloneQueryBuilder($datasheet->queryBuilder, true)
-            ->setFirstResult($page * $perPage)
-            ->setMaxResults($perPage)
+            ->cloneQueryBuilder($datasheet, true)
+            ->setFirstResult($datasheet->getPage() * $datasheet->getItemsPerPage())
+            ->setMaxResults($datasheet->getItemsPerPage())
             ->getQuery()
             ->getSQL();
 //        echo $query;
 
-        $items = $this->cloneQueryBuilder($datasheet->queryBuilder, true)
-            ->setFirstResult($page * $perPage)
-            ->setMaxResults($perPage)
+        return $this->cloneQueryBuilder($datasheet, true)
+            ->setFirstResult($datasheet->getPage() * $datasheet->getItemsPerPage())
+            ->setMaxResults($datasheet->getItemsPerPage())
             ->getQuery()
             ->getResult();
-
-        return $items;
     }
 
-    public function buildFields(Datasheet $datasheet): array
+    public function getItemsTotal(DatasheetExtended $datasheet): int
+    {
+        return $this->cloneQueryBuilder($datasheet, true)
+            ->select(sprintf('count(%s)', $this->getQueryBuilderMainAlias($datasheet->getQueryBuilder())))
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getFields(DatasheetExtended $datasheet): array
     {
         /** @var From $firstFrom */
-        $firstFrom = $datasheet->queryBuilder->getDQLPart('from')[0];
+        $firstFrom = $datasheet->getQueryBuilder()->getDQLPart('from')[0];
         $entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
         $fields = [];
 
@@ -55,15 +60,6 @@ class SimpleQueryBuilderAdapter implements DatasheetAdapterInterface
                 'title' => StringUtility::normalize($field->getName()),
             ];
         }
-
         return $fields;
-    }
-
-    public function buildItemsTotal(Datasheet $datasheet): int
-    {
-        return $this->cloneQueryBuilder($datasheet->queryBuilder, true)
-            ->select(sprintf('count(%s)', $this->getQueryBuilderMainAlias($datasheet->queryBuilder)))
-            ->getQuery()
-            ->getSingleScalarResult();
     }
 }
