@@ -11,7 +11,7 @@ class ComplexQueryBuilderAdapter implements DatasheetAdapterInterface
 
     public function supports(DatasheetExtended $datasheet): bool
     {
-        return count($datasheet->getQueryBuilder()->getDQLPart('select')) > 1;
+        return $datasheet->getQueryBuilder() && count($datasheet->getQueryBuilder()->getDQLPart('select')) > 1;
     }
 
     public function getItems(DatasheetExtended $datasheet): array

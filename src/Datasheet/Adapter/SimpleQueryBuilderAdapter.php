@@ -20,7 +20,7 @@ class SimpleQueryBuilderAdapter implements DatasheetAdapterInterface
 
     public function supports(DatasheetExtended $datasheet): bool
     {
-        return count($datasheet->getQueryBuilder()->getDQLPart('select')) < 2;
+        return $datasheet->getQueryBuilder() && count($datasheet->getQueryBuilder()->getDQLPart('select')) < 2;
     }
 
     public function getItems(DatasheetExtended $datasheet): array

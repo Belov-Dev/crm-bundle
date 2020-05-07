@@ -20,6 +20,35 @@ class DatasheetExtended extends Datasheet
 
     protected $filters;
 
+    /** Base properties */
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    public function getQueryBuilder(): ?QueryBuilder
+    {
+        return $this->queryBuilder;
+    }
+
+    public function getFieldsToShow(): ?array
+    {
+        return $this->fieldsToShow;
+    }
+
+    public function getFieldsToRemove(): ?array
+    {
+        return $this->fieldsToRemove;
+    }
+
+    public function getFieldHandlers(): ?array
+    {
+        return $this->fieldHandlers;
+    }
+
+    /** Extended properties */
+
     public function getUniqueId()
     {
         return spl_object_id($this);
@@ -85,10 +114,7 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
-
-
-
-
+    /** Other */
 
     public function hasFilters()
     {
@@ -125,30 +151,5 @@ class DatasheetExtended extends Datasheet
     {
         $this->filters = $filters;
         return $this;
-    }
-
-    public function getQueryBuilder(): QueryBuilder
-    {
-        return $this->queryBuilder;
-    }
-
-    public function getData(): array
-    {
-        return $this->data;
-    }
-
-    public function getFieldsToShow(): array
-    {
-        return $this->fieldsToShow;
-    }
-
-    public function getFieldsToRemove(): array
-    {
-        return $this->fieldsToRemove;
-    }
-
-    public function getFieldHandlers(): array
-    {
-        return $this->fieldHandlers;
     }
 }
