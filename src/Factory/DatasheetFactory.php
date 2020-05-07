@@ -3,24 +3,12 @@
 namespace A2Global\CRMBundle\Factory;
 
 use A2Global\CRMBundle\Datasheet\Datasheet;
-use A2Global\CRMBundle\Provider\EntityInfoProvider;
+use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 
 class DatasheetFactory
 {
-    private $entityInfoProvider;
-
-    public function __construct(EntityInfoProvider $entityInfoProvider)
+    public function createNew(): Datasheet
     {
-        $this->entityInfoProvider = $entityInfoProvider;
-    }
-
-    public function get()
-    {
-        return $this->createNew();
-    }
-
-    public function createNew()
-    {
-        return new Datasheet($this->entityInfoProvider);
+        return new DatasheetExtended();
     }
 }

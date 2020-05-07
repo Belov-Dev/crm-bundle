@@ -22,19 +22,11 @@ class DatasheetBuilder
 
     protected $adapter;
 
-    protected $fields;
-
-    protected $items;
-
     protected $page;
 
     protected $perPage;
 
     protected $filters;
-
-    protected $itemsTotal;
-
-    protected $hasFilters;
 
     public function __construct(
         DatasheetAdapterRegistry $adapterRegistry
@@ -246,40 +238,7 @@ class DatasheetBuilder
 
     /** Getters for the resulted datasheet todo move to another class */
 
-    public function getFields()
-    {
-        return $this->fields;
-    }
 
-    public function getItems()
-    {
-        return $this->items;
-    }
-
-    public function getItemsTotal()
-    {
-        return $this->itemsTotal;
-    }
-
-    public function getUniqueId()
-    {
-        return spl_object_id($this);
-    }
-
-    public function hasFilters()
-    {
-        return $this->hasFilters;
-    }
-
-    public function translationPrefix()
-    {
-        return $this->datasheet->translationPrefix;
-    }
-
-    public function getSummaryRow()
-    {
-        return $this->datasheet->summaryRow;
-    }
 
     /** Other */
 

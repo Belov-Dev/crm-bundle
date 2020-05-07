@@ -12,7 +12,7 @@ class Datasheet
 
     public $data = [];
 
-    public $fields = [];
+    public $fieldOptions = [];
 
     public $fieldsToRemove = [];
 
@@ -42,6 +42,18 @@ class Datasheet
 
         foreach ($fields as $field) {
             $this->fields[StringUtility::toCamelCase($field)] = [];
+        }
+
+        return $this;
+    }
+
+    public function setField($field, $options = []): self
+    {
+        $fieldName = StringUtility::toCamelCase($field);
+        $this->fieldOptions[$fieldName] = $options;
+
+        if (!isset($this->fieldOptions[$fieldName]['title'])) {
+            $this->fieldOptions[$fieldName]['title'] = StringUtility::normalize($fieldName);
         }
 
         return $this;
