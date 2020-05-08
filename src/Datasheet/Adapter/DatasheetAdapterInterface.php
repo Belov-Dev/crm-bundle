@@ -13,4 +13,6 @@ interface DatasheetAdapterInterface
     public function getItemsTotal(DatasheetExtended $datasheet): int;
 
     public function getFields(DatasheetExtended $datasheet): array;
+
+    public function hasFilters(DatasheetExtended $datasheet): bool;
 }

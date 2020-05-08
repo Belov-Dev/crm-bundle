@@ -12,6 +12,7 @@ use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\Table;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -55,6 +56,14 @@ class EntityInfoProvider
         $entity = new Entity(StringUtility::normalize($entityName));
         $class = 'App\\Entity\\' . StringUtility::toPascalCase($entityName);
         $reflection = new ReflectionClass($class);
+        $tableAnnotation = $this->reader->getClassAnnotation($reflection, Table::class);
+
+        if($tableAnnotation){
+            $tableName = $tableAnnotation->name;
+        }else{
+            $tableName = StringUtility::toSnakeCase($entity->getName());
+        }
+        $entity->setTableName($tableName);
 
         foreach ($reflection->getProperties() as $property) {
             $field = $this->getField($property, $reflection);

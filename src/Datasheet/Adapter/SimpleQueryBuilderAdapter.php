@@ -2,9 +2,12 @@
 
 namespace A2Global\CRMBundle\Datasheet\Adapter;
 
+use A2Global\CRMBundle\Component\Field\RelationField;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
+use A2Global\CRMBundle\Datasheet\FilterableEntity;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\From;
 
 class SimpleQueryBuilderAdapter implements DatasheetAdapterInterface
@@ -13,9 +16,15 @@ class SimpleQueryBuilderAdapter implements DatasheetAdapterInterface
 
     private $entityInfoProvider;
 
-    public function __construct(EntityInfoProvider $entityInfoProvider)
+    private $entityManager;
+
+    public function __construct(
+        EntityInfoProvider $entityInfoProvider,
+        EntityManagerInterface $entityManager
+    )
     {
         $this->entityInfoProvider = $entityInfoProvider;
+        $this->entityManager = $entityManager;
     }
 
     public function supports(DatasheetExtended $datasheet): bool
@@ -61,5 +70,45 @@ class SimpleQueryBuilderAdapter implements DatasheetAdapterInterface
             ];
         }
         return $fields;
+    }
+
+    public function hasFilters(DatasheetExtended $datasheet): bool
+    {
+        return true;
+    }
+
+    public function getFilters(DatasheetExtended $datasheet, $fieldName)
+    {
+        /** @var From $firstFrom */
+        $firstFrom = $datasheet->getQueryBuilder()->getDQLPart('from')[0];
+        $entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
+
+        $field = $entity->getField($fieldName);
+
+        if ($field instanceof RelationField) {
+            $targetEntityClass = 'App\\Entity\\' . $field->getTargetEntity();
+            $targetEntityObject = new $targetEntityClass();
+
+            if (!$targetEntityObject instanceof FilterableEntity) {
+                return false;
+            }
+            $entity = $this->entityInfoProvider->getEntity($targetEntityObject);
+            $fieldName = $targetEntityObject->getFilterField();
+        }
+
+        $results = $this->entityManager
+            ->getConnection()
+            ->fetchAll(
+                sprintf(
+                    'SELECT DISTINCT(%s) FROM %s ORDER BY %s',
+                    StringUtility::toSnakeCase($fieldName),
+                    $entity->getTableName(),
+                    StringUtility::toSnakeCase($fieldName)
+                )
+            );
+
+        return array_map(function ($result) {
+            return reset($result);
+        }, $results);
     }
 }

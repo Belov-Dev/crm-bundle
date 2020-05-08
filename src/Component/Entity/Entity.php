@@ -11,6 +11,8 @@ class Entity
 {
     protected $name;
 
+    protected $tableName;
+
     /** @var FieldInterface[] */
     protected $fields = [];
 
@@ -64,6 +66,18 @@ class Entity
         $newFieldName = StringUtility::toCamelCase($field->getName());
         $this->fields = ArrayUtility::renameKey($this->fields, $fieldName, $newFieldName);
         $this->fields[$newFieldName] = $field;
+
+        return $this;
+    }
+
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
+
+    public function setTableName($tableName): self
+    {
+        $this->tableName = $tableName;
 
         return $this;
     }

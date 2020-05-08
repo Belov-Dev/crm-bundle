@@ -114,6 +114,13 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
+    public function setHasFilters($hasFilters): self
+    {
+        $this->hasFilters = $hasFilters;
+
+        return $this;
+    }
+
     /** Other */
 
     public function hasFilters()
@@ -134,12 +141,6 @@ class DatasheetExtended extends Datasheet
     public function getHasFilters()
     {
         return $this->hasFilters;
-    }
-
-    public function setHasFilters($hasFilters)
-    {
-        $this->hasFilters = $hasFilters;
-        return $this;
     }
 
     public function getFilters()

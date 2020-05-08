@@ -26,13 +26,23 @@ class DatasheetBuilder
         $adapter = $this->getAdapter($datasheet);
         $datasheet
             ->setItems($adapter->getItems($datasheet))
-            ->setItemsTotal($adapter->getItemsTotal($datasheet));
+            ->setItemsTotal($adapter->getItemsTotal($datasheet))
+            ->setHasFilters($adapter->hasFilters($datasheet));
 
         $fields = $datasheet->getFieldsToShow() ?: $adapter->getFields($datasheet);
 
         foreach ($datasheet->getFieldsToRemove() as $fieldToRemove) {
             if (isset($fields[$fieldToRemove])) {
                 unset($fields[$fieldToRemove]);
+            }
+        }
+
+        if ($datasheet->hasFilters()) {
+            foreach ($fields as $fieldName => $fieldOptions) {
+                if ($fieldName == 'id') {
+                    continue;
+                }
+                $fields[$fieldName]['filters'] = $adapter->getFilters($datasheet, $fieldName);
             }
         }
         $datasheet->setFields($fields);
@@ -49,39 +59,6 @@ class DatasheetBuilder
 
         throw new Exception('Datsheet adapter can not be resolved');
     }
-
-    /** move */
-
-    protected function buildDataFromArray()
-    {
-        if (is_callable($this->data)) {
-            $callable = $this->data;
-            $this->data = $callable($this->itemsPerPage, $this->page * $this->itemsPerPage);
-        }
-
-        if (is_null($this->itemsTotal)) {
-            $this->setItemsTotal(count($this->data));
-        }
-
-        if (count($this->data) > $this->getItemsPerPage()) {
-            $this->data = array_splice($this->data, $this->getPage() * $this->getItemsPerPage(), $this->getItemsPerPage());
-        }
-    }
-
-    protected function buildFieldsFromArrayItem($item)
-    {
-        foreach (array_keys($item) as $name) {
-            if (0 === $name) {
-                continue;
-            }
-            $this->fields[$name] = [
-                'title' => StringUtility::normalize($name),
-                'hasFilter' => $this->isEnableFiltering(),
-            ];
-        }
-    }
-
-    /** Update data */
 
     protected function updateItems(DatasheetExtended $datasheet)
     {
@@ -151,5 +128,4 @@ class DatasheetBuilder
 
         return $value;
     }
-
 }

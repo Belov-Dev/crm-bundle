@@ -4,7 +4,6 @@ namespace A2Global\CRMBundle\Datasheet\Adapter;
 
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use A2Global\CRMBundle\Utility\StringUtility;
-use Doctrine\ORM\Query\Expr\From;
 
 class ArrayAdapter implements DatasheetAdapterInterface
 {
@@ -43,5 +42,10 @@ class ArrayAdapter implements DatasheetAdapterInterface
         }
 
         return $fields;
+    }
+
+    public function hasFilters(DatasheetExtended $datasheet): bool
+    {
+        return false;
     }
 }

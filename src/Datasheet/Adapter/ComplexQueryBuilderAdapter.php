@@ -68,4 +68,9 @@ class ComplexQueryBuilderAdapter implements DatasheetAdapterInterface
 
         return $fields;
     }
+
+    public function hasFilters(DatasheetExtended $datasheet): bool
+    {
+        return false;
+    }
 }
