@@ -22,7 +22,7 @@
                             {% set value = datasheet.filters[fieldName] ?? '' %}
                             <input type="text" autocomplete="off"
                                    style="width:100%;"
-                                   name="filter[{{ fieldName }}]"
+                                   name="datasheet_{{ datasheet.uniqueId }}[{{ fieldName }}]"
                                    value="{{ datasheet.filters[fieldName] ?? '' }}"
                                    data-datasheet-filter="{{ fieldName }}">
                             {% if value %}
@@ -70,7 +70,7 @@
         // options set for datasheet filtering
         {% for fieldName, options in datasheet.fields %}
         {% if fieldName != 'id' %}
-        let datasheet{{ datasheet.uniqueId }}{{ fieldName }}FilterOptions = {{ options.filters|json_encode|raw }};
+        let datasheet_{{ datasheet.uniqueId }}_{{ fieldName }}_options = {{ options.filters|json_encode|raw }};
         {% endif %}
         {% endfor %}
     </script>

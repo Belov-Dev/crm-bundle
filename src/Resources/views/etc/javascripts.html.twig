@@ -76,7 +76,7 @@
             let searchString = filterInput.val().toLowerCase();
             let datasheetId = filterInput.parents('table').data('datasheet-id');
             let fieldName = filterInput.data('datasheet-filter');
-            let varName = 'datasheet' + datasheetId + fieldName + 'FilterOptions';
+            let varName = 'datasheet_' + datasheetId + '_' + fieldName + '_options';
             let options = eval(varName);
             let filteredOptions = options.filter(str => str.toLowerCase().includes(searchString));
             datasheetFilterOptions.html('');

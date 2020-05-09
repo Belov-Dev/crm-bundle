@@ -1,6 +1,5 @@
 services:
 
-    # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
@@ -15,8 +14,14 @@ services:
         resource: '../../../src/Controller'
         tags: ['controller.service_arguments']
 
+    _instanceof:
+        A2Global\CRMBundle\Component\Field\FieldInterface:
+            tags: ['a2crm.entity_field']
+        A2Global\CRMBundle\Datasheet\DatasheetBuilder\DatasheetBuilderInterface:
+            tags: ['a2crm.datasheet.builder']
+
     A2Global\CRMBundle\Registry\EntityFieldRegistry:
         arguments: [!tagged { tag: 'a2crm.entity_field' }]
 
-    A2Global\CRMBundle\Registry\DatasheetAdapterRegistry:
-        arguments: [!tagged { tag: 'a2crm.datasheet.adapter' }]
+    A2Global\CRMBundle\Registry\DatasheetBuilderRegistry:
+        arguments: [!tagged { tag: 'a2crm.datasheet.builder' }]

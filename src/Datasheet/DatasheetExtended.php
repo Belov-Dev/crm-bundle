@@ -6,6 +6,8 @@ use Doctrine\ORM\QueryBuilder;
 
 class DatasheetExtended extends Datasheet
 {
+    const NEST_SEPARATOR = "___";
+
     protected $fields;
 
     protected $items;
@@ -18,7 +20,7 @@ class DatasheetExtended extends Datasheet
 
     protected $itemsPerPage;
 
-    protected $filters;
+    protected $filters = [];
 
     /** Base properties */
 
@@ -51,7 +53,13 @@ class DatasheetExtended extends Datasheet
 
     public function getUniqueId()
     {
-        return spl_object_id($this);
+        $uniqueData = [
+            $this->getData(),
+            $this->getQueryBuilder(),
+            $this->getFieldsToShow(),
+        ];
+
+        return strtoupper(substr(base_convert(md5(json_encode($uniqueData)), 16, 32), 0, 12));
     }
 
     public function getFields()
@@ -121,6 +129,18 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
+    public function setFilters($filters): self
+    {
+        $this->filters = $filters;
+
+        return $this;
+    }
+
     /** Other */
 
     public function hasFilters()
@@ -143,14 +163,4 @@ class DatasheetExtended extends Datasheet
         return $this->hasFilters;
     }
 
-    public function getFilters()
-    {
-        return $this->filters;
-    }
-
-    public function setFilters($filters)
-    {
-        $this->filters = $filters;
-        return $this;
-    }
 }

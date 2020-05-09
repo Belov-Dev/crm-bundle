@@ -2,9 +2,9 @@
 
 namespace A2Global\CRMBundle\Registry;
 
-use A2Global\CRMBundle\Datasheet\Adapter\DatasheetAdapterInterface;
+use A2Global\CRMBundle\Datasheet\DatasheetBuilder\DatasheetBuilderInterface;
 
-class DatasheetAdapterRegistry
+class DatasheetBuilderRegistry
 {
     protected $objects;
 
@@ -14,7 +14,7 @@ class DatasheetAdapterRegistry
     }
 
     /**
-     * @return DatasheetAdapterInterface[]
+     * @return DatasheetBuilderInterface[]
      */
     public function get()
     {

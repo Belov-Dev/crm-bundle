@@ -1,73 +1,62 @@
 <?php
 
-namespace A2Global\CRMBundle\Datasheet;
+namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
-use A2Global\CRMBundle\Datasheet\Adapter\DatasheetAdapterInterface;
-use A2Global\CRMBundle\Registry\DatasheetAdapterRegistry;
+use A2Global\CRMBundle\Datasheet\DatasheetExtended;
+use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
-use Exception;
+use Doctrine\ORM\QueryBuilder;
 
-class DatasheetBuilder
+abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 {
     const NEST_SEPARATOR = "___";
 
-    protected $adapterRegistry;
+    /** @var DatasheetExtended */
+    protected $datasheet;
 
-    public function __construct(
-        DatasheetAdapterRegistry $adapterRegistry
-    )
+    public function setDatasheet(DatasheetExtended $datasheet): self
     {
-        $this->adapterRegistry = $adapterRegistry;
+        $this->datasheet = $datasheet;
+
+        return $this;
     }
 
-    public function build(DatasheetExtended $datasheet)
+    public function build()
     {
-        $adapter = $this->getAdapter($datasheet);
-        $datasheet
-            ->setItems($adapter->getItems($datasheet))
-            ->setItemsTotal($adapter->getItemsTotal($datasheet))
-            ->setHasFilters($adapter->hasFilters($datasheet));
+        $this->datasheet
+            ->setItems($this->getItems())
+            ->setItemsTotal($this->getItemsTotal());
+//            ->setHasFilters($adapter->hasFilters($datasheet));
 
-        $fields = $datasheet->getFieldsToShow() ?: $adapter->getFields($datasheet);
+        $fields = $this->datasheet->getFieldsToShow() ?: $this->getFields();
 
-        foreach ($datasheet->getFieldsToRemove() as $fieldToRemove) {
+        foreach ($this->datasheet->getFieldsToRemove() as $fieldToRemove) {
             if (isset($fields[$fieldToRemove])) {
                 unset($fields[$fieldToRemove]);
             }
         }
 
-        if ($datasheet->hasFilters()) {
+        if ($this->datasheet->hasFilters()) {
             foreach ($fields as $fieldName => $fieldOptions) {
                 if ($fieldName == 'id') {
                     continue;
                 }
-                $fields[$fieldName]['filters'] = $adapter->getFilters($datasheet, $fieldName);
+                $fields[$fieldName]['filters'] = $this->getFilters($fieldName);
             }
         }
-        $datasheet->setFields($fields);
-        $this->updateItems($datasheet);
+        $this->datasheet->setFields($fields);
+        $this->updateItems($this->datasheet);
     }
 
-    protected function getAdapter($datasheet): DatasheetAdapterInterface
-    {
-        foreach ($this->adapterRegistry->get() as $adapter) {
-            if ($adapter->supports($datasheet)) {
-                return $adapter;
-            }
-        }
-
-        throw new Exception('Datsheet adapter can not be resolved');
-    }
-
-    protected function updateItems(DatasheetExtended $datasheet)
+    protected function updateItems()
     {
         $items = [];
 
-        foreach ($datasheet->getItems() as $itemOriginal) {
+        foreach ($this->datasheet->getItems() as $itemOriginal) {
             $item = [];
 
-            foreach ($datasheet->getFields() as $fieldName => $fieldOptions) {
+            foreach ($this->datasheet->getFields() as $fieldName => $fieldOptions) {
 //                if (!isset($itemOriginal[$fieldName])) {
 //                    throw new DatasheetException(sprintf('Datasheet failed to get %s value from data', $fieldName));
 //                }
@@ -88,7 +77,7 @@ class DatasheetBuilder
             }
             $items[] = $item;
         }
-        $datasheet->setItems($items);
+        $this->datasheet->setItems($items);
     }
 
     protected function getObjectValue($object, $path)
@@ -127,5 +116,44 @@ class DatasheetBuilder
         }
 
         return $value;
+    }
+
+    /** QB datasheet helpers */
+
+    protected function getQbMainAlias(): string
+    {
+        return $this->datasheet->getQueryBuilder()->getDQLPart('from')[0]->getAlias();
+    }
+
+    protected function cloneQb(): QueryBuilder
+    {
+        return clone $this->datasheet->getQueryBuilder();
+    }
+
+    /** Interface methods */
+
+    public function supports(): bool
+    {
+        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
+    }
+
+    public function getItems(): array
+    {
+        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
+    }
+
+    public function getItemsTotal(): int
+    {
+        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
+    }
+
+    public function getFields(): array
+    {
+        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
+    }
+
+    public function hasFilters(): bool
+    {
+        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
     }
 }

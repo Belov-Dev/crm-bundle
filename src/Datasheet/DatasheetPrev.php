@@ -12,7 +12,6 @@ use Throwable;
 
 class DatasheetPrev
 {
-    const NEST_SEPARATOR = "___";
 
 
     protected $items = [];

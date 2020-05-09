@@ -2,6 +2,10 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
+use A2Global\CRMBundle\Datasheet\DatasheetBuilder\AbstractDatasheetBuilder;
+use A2Global\CRMBundle\Datasheet\DatasheetBuilder\DatasheetBuilderInterface;
+use A2Global\CRMBundle\Exception\DatasheetException;
+use A2Global\CRMBundle\Registry\DatasheetBuilderRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
@@ -13,17 +17,17 @@ class DatasheetProvider
 
     protected $requestStack;
 
-    protected $datasheetBuilder;
+    protected $datasheetBuilderRegistry;
 
     public function __construct(
-        DatasheetBuilder $datasheetBuilder,
         Environment $twig,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        DatasheetBuilderRegistry $datasheetBuilderRegistry
     )
     {
         $this->twig = $twig;
         $this->requestStack = $requestStack;
-        $this->datasheetBuilder = $datasheetBuilder;
+        $this->datasheetBuilderRegistry = $datasheetBuilderRegistry;
     }
 
     public function getTable(DatasheetExtended $datasheet)
@@ -32,7 +36,7 @@ class DatasheetProvider
         $datasheet
             ->setPage(max(1, (int)($queryString['page'] ?? 0)) - 1)
             ->setItemsPerPage((int)($queryString['perPage'] ?? 15));
-        $this->datasheetBuilder->build($datasheet);
+        $this->getBuilder($datasheet)->build();
 
         // Filter form url (reset filters, page. leaving per_page)
 //        if ($this->datasheetBuilder->) {
@@ -40,12 +44,6 @@ class DatasheetProvider
 //            unset($queryString['filter']);
 //            $filterFormUrl = http_build_query($queryString);
 //        }
-
-        if (!$datasheet->getItemsTotal()) {
-            return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig', [
-                'datasheet' => $datasheet,
-            ]);
-        }
 
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
@@ -102,14 +100,19 @@ class DatasheetProvider
         ]);
     }
 
-    protected function hasFiltering($fields): bool
+    /**
+     * @return AbstractDatasheetBuilder
+     * @throws DatasheetException
+     */
+    protected function getBuilder(DatasheetExtended $datasheet)
     {
-        foreach ($fields as $field) {
-            if (isset($field['hasFiltering']) && $field['hasFiltering']) {
-                return true;
+        /** @var AbstractDatasheetBuilder $builder */
+        foreach ($this->datasheetBuilderRegistry->get() as $builder) {
+            if ($builder->setDatasheet($datasheet)->supports($datasheet)) {
+                return $builder;
             }
         }
 
-        return false;
+        throw new DatasheetException('Failed to resolve builder for the datasheet');
     }
 }
