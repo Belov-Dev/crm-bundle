@@ -3,7 +3,6 @@
 namespace A2Global\CRMBundle\Datasheet;
 
 use A2Global\CRMBundle\Datasheet\DatasheetBuilder\AbstractDatasheetBuilder;
-use A2Global\CRMBundle\Datasheet\DatasheetBuilder\DatasheetBuilderInterface;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Registry\DatasheetBuilderRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -35,7 +34,8 @@ class DatasheetProvider
         $queryString = $this->requestStack->getMasterRequest()->query->all();
         $datasheet
             ->setPage(max(1, (int)($queryString['page'] ?? 0)) - 1)
-            ->setItemsPerPage((int)($queryString['perPage'] ?? 15));
+            ->setItemsPerPage((int)($queryString['perPage'] ?? 15))
+            ->setFilters($queryString['datasheet_' . $datasheet->getUniqueId()] ?? []);
         $this->getBuilder($datasheet)->build();
 
         // Filter form url (reset filters, page. leaving per_page)

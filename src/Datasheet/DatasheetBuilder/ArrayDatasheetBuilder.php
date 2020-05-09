@@ -39,15 +39,11 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
             foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {
                 $fields[StringUtility::toCamelCase($fieldName)] = [
                     'title' => StringUtility::normalize($fieldName),
+                    'hasFilter' => false,
                 ];
             }
         }
 
         return $fields;
-    }
-
-    public function hasFilters(): bool
-    {
-        return false;
     }
 }

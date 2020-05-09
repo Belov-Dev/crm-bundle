@@ -65,15 +65,11 @@ class sqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
             }
             $fields[StringUtility::toCamelCase(trim($tmp[1]))] = [
                 'title' => StringUtility::normalize($tmp[1]),
+                'hasFilter' => false,
             ];
         }
 
         return $fields;
-    }
-
-    public function hasFilters(): bool
-    {
-        return false;
     }
 
     protected function cloneQbFiltered(): QueryBuilder

@@ -2,10 +2,12 @@
 
 namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
+use A2Global\CRMBundle\Component\Field\FieldInterface;
+use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Component\Field\RelationField;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use A2Global\CRMBundle\Datasheet\FilterableEntity;
-use A2Global\CRMBundle\Provider\EntityInfoProvider;
+use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\From;
@@ -18,11 +20,9 @@ class qbDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetBu
     protected $entityManager;
 
     public function __construct(
-        EntityInfoProvider $entityInfoProvider,
         EntityManagerInterface $entityManager
     )
     {
-        $this->entityInfoProvider = $entityInfoProvider;
         $this->entityManager = $entityManager;
     }
 
@@ -68,48 +68,32 @@ class qbDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetBu
         $entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
         $fields = [];
 
-        foreach ($entity->getFields() as $field) {
-            $fields[StringUtility::toCamelCase($field->getName())] = [
-                'title' => StringUtility::normalize($field->getName()),
+        foreach ($entity->getFields() as $entityField) {
+            $fieldName = StringUtility::toCamelCase($entityField->getName());
+            $fields[$fieldName] = [
+                'title' => StringUtility::normalize($entityField->getName()),
+                'hasFilter' => $this->hasFilter($entityField),
             ];
         }
+
         return $fields;
     }
 
-    public function hasFilters(): bool
+    public function getFilters($fieldName)
     {
-        return false;
-    }
-
-    public function getFilters()
-    {
-        /** @var From $firstFrom */
-        $firstFrom = $datasheet->getQueryBuilder()->getDQLPart('from')[0];
-        $entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
-
-        $field = $entity->getField($fieldName);
-
-        if ($field instanceof RelationField) {
-            $targetEntityClass = 'App\\Entity\\' . $field->getTargetEntity();
-            $targetEntityObject = new $targetEntityClass();
-
-            if (!$targetEntityObject instanceof FilterableEntity) {
-                return false;
-            }
-            $entity = $this->entityInfoProvider->getEntity($targetEntityObject);
-            $fieldName = $targetEntityObject->getFilterField();
+        if ($this->getEntity()->getField($fieldName) instanceof RelationField) {
+            $tableName = $this->entityInfoProvider
+                ->getEntity($this->getEntity()->getField($fieldName)->getTargetEntity())
+                ->getTableName();
+            $fieldName = $this->datasheet->getFieldOptions($fieldName)['filterBy'];
+        } else {
+            $tableName = $this->getEntity()->getTableName();
+            $fieldName = StringUtility::toSnakeCase($fieldName);
         }
 
         $results = $this->entityManager
             ->getConnection()
-            ->fetchAll(
-                sprintf(
-                    'SELECT DISTINCT(%s) FROM %s ORDER BY %s',
-                    StringUtility::toSnakeCase($fieldName),
-                    $entity->getTableName(),
-                    StringUtility::toSnakeCase($fieldName)
-                )
-            );
+            ->fetchAll(sprintf('SELECT DISTINCT(%s) FROM %s ORDER BY %s', $fieldName, $tableName, $fieldName));
 
         return array_map(function ($result) {
             return reset($result);
@@ -118,45 +102,50 @@ class qbDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetBu
 
     protected function cloneQbFiltered(): QueryBuilder
     {
-        return $this->cloneQb();
-        $queryBuilder = clone $this->datasheet->getQueryBuilder();
+        $this->joined = [];
+        $queryBuilder = $this->cloneQb();
 
-        if (!$applyFilters) {
+        if (count($this->datasheet->getFilters()) < 1) {
             return $queryBuilder;
         }
 
-        return $queryBuilder;
-        foreach ($datasheet->getFilters() as $fieldName => $value) {
+        foreach ($this->datasheet->getFilters() as $fieldName => $value) {
             if (!trim($value)) {
                 continue;
             }
+            $field = $this->getEntity()->getField($fieldName);
 
-            if (strstr($fieldName, DatasheetExtended::NEST_SEPARATOR)) {
-                $parentAlias = $this->getQueryBuilderMainAlias();
-                $path = explode(DatasheetExtended::NEST_SEPARATOR, $fieldName);
-                $targetFieldName = array_pop($path);
-
-                foreach ($path as $relation) {
-                    if (!$this->isAlreadyJoined($queryBuilder, $relation)) {
-                        $queryBuilder->join(sprintf('%s.%s', $parentAlias, $relation), $relation);
-                    }
-                    $parentAlias = $relation;
-                }
-                $queryBuilder
-                    ->andWhere(sprintf('%s.%s = :%sFilter', $parentAlias, $targetFieldName, $fieldName))
+            if ($field instanceof RelationField) {
+                $fieldOptions = $this->datasheet->getFieldOptions($fieldName);
+                $this
+                    ->join($queryBuilder, $this->getQbMainAlias(), $fieldName)
+                    ->andWhere(sprintf('%s.%s = :%sFilter', $fieldName, $fieldOptions['filterBy'], $fieldName))
                     ->setParameter($fieldName . 'Filter', $value);
-            } else {
-                $queryBuilder
-                    ->andWhere(sprintf(
-                        '%s.%s = :%sFilter',
-                        $this->getQueryBuilderMainAlias($datasheet->getQueryBuilder()),
-                        $fieldName,
-                        $fieldName
-                    ))
-                    ->setParameter($fieldName . 'Filter', $value);
+                continue;
             }
+
+            $queryBuilder
+                ->andWhere(sprintf('%s.%s = :%sFilter', $this->getQbMainAlias(), $fieldName, $fieldName))
+                ->setParameter($fieldName . 'Filter', $value);
         }
 
         return $queryBuilder;
+    }
+
+    protected function hasFilter(FieldInterface $entityField)
+    {
+        if ($entityField instanceof IdField) {
+            return false;
+        }
+
+        if ($entityField instanceof RelationField) {
+            $fieldOptions = $this->datasheet->getFieldOptions(StringUtility::toCamelCase($entityField->getName()));
+
+            if (!isset($fieldOptions['filterBy'])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

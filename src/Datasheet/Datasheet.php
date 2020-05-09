@@ -16,6 +16,8 @@ class Datasheet
 
     protected $fieldsToRemove = [];
 
+    protected $fieldOptions = [];
+
     protected $fieldHandlers = [];
 
     protected $translationPrefix;
@@ -56,6 +58,13 @@ class Datasheet
         foreach ($fields as $field) {
             $this->fieldsToRemove[] = StringUtility::toCamelCase($field);
         }
+
+        return $this;
+    }
+
+    public function setFieldOptions($field, array $options): self
+    {
+        $this->fieldOptions[$field] = $options;
 
         return $this;
     }

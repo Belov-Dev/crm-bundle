@@ -2,10 +2,14 @@
 
 namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
+use A2Global\CRMBundle\Component\Entity\Entity;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use A2Global\CRMBundle\Exception\DatasheetException;
+use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
+use Doctrine\Common\Annotations\Annotation\Required;
+use Doctrine\ORM\Query\Expr\From;
 use Doctrine\ORM\QueryBuilder;
 
 abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
@@ -14,6 +18,9 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 
     /** @var DatasheetExtended */
     protected $datasheet;
+
+    /** @var EntityInfoProvider */
+    protected $entityInfoProvider;
 
     public function setDatasheet(DatasheetExtended $datasheet): self
     {
@@ -27,7 +34,6 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         $this->datasheet
             ->setItems($this->getItems())
             ->setItemsTotal($this->getItemsTotal());
-//            ->setHasFilters($adapter->hasFilters($datasheet));
 
         $fields = $this->datasheet->getFieldsToShow() ?: $this->getFields();
 
@@ -37,16 +43,15 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
             }
         }
 
-        if ($this->datasheet->hasFilters()) {
-            foreach ($fields as $fieldName => $fieldOptions) {
-                if ($fieldName == 'id') {
-                    continue;
-                }
-                $fields[$fieldName]['filters'] = $this->getFilters($fieldName);
+        foreach ($fields as $fieldName => $fieldOptions) {
+            if (!$fieldOptions['hasFilter']) {
+                continue;
             }
+            $fields[$fieldName]['filters'] = $this->getFilters($fieldName);
+            $this->datasheet->setHasFilters(true);
         }
         $this->datasheet->setFields($fields);
-        $this->updateItems($this->datasheet);
+        $this->updateItems();
     }
 
     protected function updateItems()
@@ -118,7 +123,17 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         return $value;
     }
 
-    /** QB datasheet helpers */
+    /** QB builders common part */
+
+    /** @Required */
+    public function setEntityInfoProvider(EntityInfoProvider $entityInfoProvider)
+    {
+        $this->entityInfoProvider = $entityInfoProvider;
+    }
+
+    protected $entity;
+
+    protected $joined = [];
 
     protected function getQbMainAlias(): string
     {
@@ -128,6 +143,29 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     protected function cloneQb(): QueryBuilder
     {
         return clone $this->datasheet->getQueryBuilder();
+    }
+
+    protected function getEntity(): Entity
+    {
+        if (!$this->entity) {
+            /** @var From $firstFrom */
+            $firstFrom = $this->datasheet->getQueryBuilder()->getDQLPart('from')[0];
+            $this->entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
+        }
+
+        return $this->entity;
+    }
+
+    protected function join(QueryBuilder $queryBuilder, $entity, $relation): QueryBuilder
+    {
+        $join = sprintf('%s.%s', $entity, $relation);
+
+        if (!in_array($join, $this->joined)) {
+            $queryBuilder->join($join, $relation);
+            $this->joined[] = $join;
+        }
+
+        return $queryBuilder;
     }
 
     /** Interface methods */
@@ -148,11 +186,6 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     }
 
     public function getFields(): array
-    {
-        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
-    }
-
-    public function hasFilters(): bool
     {
         throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
     }

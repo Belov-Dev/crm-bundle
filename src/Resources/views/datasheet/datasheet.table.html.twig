@@ -14,11 +14,9 @@
         {% if datasheet.hasFilters %}
             <tr>
                 <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
-                {% for fieldName, field in datasheet.fields %}
-                    <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
-                        {% if fieldName == 'id' %}
-                            <input type="text" class="form-control-sm" size="3">
-                        {% else %}
+                {% for fieldName, fieldOptions in datasheet.fields %}
+                    {% if fieldOptions.hasFilter %}
+                        <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
                             {% set value = datasheet.filters[fieldName] ?? '' %}
                             <input type="text" autocomplete="off"
                                    style="width:100%;"
@@ -28,8 +26,10 @@
                             {% if value %}
                                 <div data-datasheet-filter-clear="{{ fieldName }}">&times;</div>
                             {% endif %}
-                        {% endif %}
-                    </th>
+                        </th>
+                    {% else %}
+                        <th>&nbsp;</th>
+                    {% endif %}
                 {% endfor %}
             </tr>
         {% endif %}
@@ -69,7 +69,7 @@
     <script>
         // options set for datasheet filtering
         {% for fieldName, options in datasheet.fields %}
-        {% if fieldName != 'id' %}
+        {% if options.hasFilter %}
         let datasheet_{{ datasheet.uniqueId }}_{{ fieldName }}_options = {{ options.filters|json_encode|raw }};
         {% endif %}
         {% endfor %}

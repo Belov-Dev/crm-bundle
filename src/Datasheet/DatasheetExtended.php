@@ -141,6 +141,11 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
+    public function getFieldOptions($fieldName)
+    {
+        return $this->fieldOptions[$fieldName] ?? [];
+    }
+
     /** Other */
 
     public function hasFilters()
