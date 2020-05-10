@@ -57,9 +57,9 @@ class DatasheetProvider
 
     public function getPagination(Datasheet $datasheet)
     {
-        $currentPage = $datasheet->getPage();
-        $itemsTotal = $datasheet->getItemsTotal();
-        $pagesTotal = (int)ceil($itemsTotal / $datasheet->getItemsPerPage());
+        $currentPage = $datasheet->page;
+        $itemsTotal = $datasheet->itemsTotal;
+        $pagesTotal = (int)ceil($itemsTotal / $datasheet->itemsPerPage);
 
         if (!$pagesTotal) {
             return null;
@@ -69,7 +69,7 @@ class DatasheetProvider
 
         // Creating query string pattern
         $queryString = $this->requestStack->getMasterRequest()->query->all();
-        $queryString['per_page'] = $datasheet->getItemsPerPage();
+        $queryString['per_page'] = $datasheet->itemsPerPage;
         unset($queryString['page']);
         unset($queryString['per_page']);
 
@@ -89,7 +89,7 @@ class DatasheetProvider
         return $this->twig->render('@A2CRM/datasheet/datasheet.pagination.html.twig', [
             'pagination' => [
                 'currentPage' => $currentPage + 1,
-                'perPage' => $datasheet->getItemsPerPage(),
+                'perPage' => $datasheet->itemsPerPage,
                 'totalPages' => $pagesTotal,
                 'pagesFrom' => $pagesFrom,
                 'pagesTo' => $pagesTo,

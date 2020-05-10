@@ -37,6 +37,11 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 
     public function build($page, $itemsPerPage, $filters): DatasheetExtended
     {
+        $this->getDatasheet()
+            ->setPage($page)
+            ->setItemsPerPage($itemsPerPage)
+            ->setFilters($filters);
+
         $this->buildItems();
         $fields = $this->getDatasheet()->getFieldsToShow() ?: $this->getFields();
 

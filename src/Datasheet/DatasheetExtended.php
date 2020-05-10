@@ -2,41 +2,39 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
-use Doctrine\ORM\QueryBuilder;
-
 class DatasheetExtended extends Datasheet
 {
     const NEST_SEPARATOR = "___";
+
+    protected $original;
 
     protected $fields;
 
     protected $items;
 
-    protected $itemsTotal;
-
     protected $hasFilters;
-
-    protected $page;
-
-    protected $itemsPerPage;
 
     protected $filters = [];
 
     public function __construct($data)
     {
-        parent::__construct($data['data']);
+        parent::__construct(null);
+
+        foreach ($data as $key => $value) {
+            $this->{$key} = $value;
+        }
     }
 
     /** Base properties */
 
+    public function getOriginal(): Datasheet
+    {
+        return $this->original;
+    }
+
     public function getData()
     {
         return $this->data;
-    }
-
-    public function getQueryBuilder(): ?QueryBuilder
-    {
-        return $this->queryBuilder;
     }
 
     public function getFieldsToShow(): ?array
@@ -94,36 +92,36 @@ class DatasheetExtended extends Datasheet
 
     public function getPage()
     {
-        return $this->page;
+        return $this->getOriginal()->page;
     }
 
     public function setPage($page): self
     {
-        $this->page = $page;
+        $this->getOriginal()->page = $page;
 
         return $this;
     }
 
     public function getItemsPerPage()
     {
-        return $this->itemsPerPage;
+        return $this->getOriginal()->itemsPerPage;
     }
 
     public function setItemsPerPage($itemsPerPage): self
     {
-        $this->itemsPerPage = $itemsPerPage;
+        $this->getOriginal()->itemsPerPage = $itemsPerPage;
 
         return $this;
     }
 
     public function getItemsTotal()
     {
-        return $this->itemsTotal;
+        return $this->getOriginal()->itemsTotal;
     }
 
     public function setItemsTotal($itemsTotal): self
     {
-        $this->itemsTotal = $itemsTotal;
+        $this->getOriginal()->itemsTotal = $itemsTotal;
 
         return $this;
     }

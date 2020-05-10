@@ -28,6 +28,7 @@ class Datasheet
     public function __invoke(): array
     {
         return [
+            'original' => $this,
             'data' => $this->data,
             'fieldsToShow' => $this->fieldsToShow,
             'fieldsToRemove' => $this->fieldsToRemove,
