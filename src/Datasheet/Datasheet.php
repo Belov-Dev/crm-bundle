@@ -3,14 +3,10 @@
 namespace A2Global\CRMBundle\Datasheet;
 
 use A2Global\CRMBundle\Utility\StringUtility;
-use Doctrine\ORM\QueryBuilder;
 
 class Datasheet
 {
-    /** @var QueryBuilder */
-    protected $queryBuilder;
-
-    protected $data = [];
+    protected $data;
 
     protected $fieldsToShow = [];
 
@@ -24,18 +20,22 @@ class Datasheet
 
     protected $summaryRow;
 
-    public function setQueryBuilder($queryBuilder): self
-    {
-        $this->queryBuilder = $queryBuilder;
-
-        return $this;
-    }
-
-    public function setData(array $data): self
+    public function __construct($data)
     {
         $this->data = $data;
+    }
 
-        return $this;
+    public function __invoke(): array
+    {
+        return [
+            'data' => $this->data,
+            'fieldsToShow' => $this->fieldsToShow,
+            'fieldsToRemove' => $this->fieldsToRemove,
+            'fieldOptions' => $this->fieldOptions,
+            'fieldHandlers' => $this->fieldHandlers,
+            'translationPrefix' => $this->translationPrefix,
+            'summaryRow' => $this->summaryRow,
+        ];
     }
 
     public function showFields($fields): self

@@ -6,6 +6,7 @@ use A2Global\CRMBundle\Datasheet\DatasheetBuilder\AbstractDatasheetBuilder;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Registry\DatasheetBuilderRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\VarDumper\Cloner\Data;
 use Twig\Environment;
 
 class DatasheetProvider
@@ -29,14 +30,17 @@ class DatasheetProvider
         $this->datasheetBuilderRegistry = $datasheetBuilderRegistry;
     }
 
-    public function getTable(DatasheetExtended $datasheet)
+    public function getTable(Datasheet $datasheet)
     {
+        $datasheet = $this->decorate($datasheet);
+        $builder = $this->getBuilder($datasheet);
+
         $queryString = $this->requestStack->getMasterRequest()->query->all();
-        $datasheet
-            ->setPage(max(1, (int)($queryString['page'] ?? 0)) - 1)
-            ->setItemsPerPage((int)($queryString['perPage'] ?? 15))
-            ->setFilters($queryString['datasheet_' . $datasheet->getUniqueId()] ?? []);
-        $this->getBuilder($datasheet)->build();
+        $page = max(1, (int)($queryString['page'] ?? 0)) - 1;
+        $perPage = (int)($queryString['perPage'] ?? 15);
+        $filters = $queryString['datasheet_' . $datasheet->getUniqueId()] ?? [];
+
+        $datasheet = $builder->build($page, $perPage, $filters);
 
         // Filter form url (reset filters, page. leaving per_page)
 //        if ($this->datasheetBuilder->) {
@@ -51,7 +55,7 @@ class DatasheetProvider
         ]);
     }
 
-    public function getPagination(DatasheetExtended $datasheet)
+    public function getPagination(Datasheet $datasheet)
     {
         $currentPage = $datasheet->getPage();
         $itemsTotal = $datasheet->getItemsTotal();
@@ -100,15 +104,15 @@ class DatasheetProvider
         ]);
     }
 
-    /**
-     * @return AbstractDatasheetBuilder
-     * @throws DatasheetException
-     */
-    protected function getBuilder(DatasheetExtended $datasheet)
+    public function decorate(Datasheet $datasheet): DatasheetExtended
     {
-        /** @var AbstractDatasheetBuilder $builder */
+        return new DatasheetExtended($datasheet());
+    }
+
+    protected function getBuilder(Datasheet $datasheet): AbstractDatasheetBuilder
+    {
         foreach ($this->datasheetBuilderRegistry->get() as $builder) {
-            if ($builder->setDatasheet($datasheet)->supports($datasheet)) {
+            if ($builder->setDatasheet($datasheet)->supports()) {
                 return $builder;
             }
         }

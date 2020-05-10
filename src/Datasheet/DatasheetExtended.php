@@ -22,6 +22,11 @@ class DatasheetExtended extends Datasheet
 
     protected $filters = [];
 
+    public function __construct($data)
+    {
+        parent::__construct($data['data']);
+    }
+
     /** Base properties */
 
     public function getData()
@@ -54,9 +59,10 @@ class DatasheetExtended extends Datasheet
     public function getUniqueId()
     {
         $uniqueData = [
-            $this->getData(),
-            $this->getQueryBuilder(),
-            $this->getFieldsToShow(),
+            microtime(),
+//            $this->getData(),
+//            $this->getQueryBuilder(),
+//            $this->getFieldsToShow(),
         ];
 
         return strtoupper(substr(base_convert(md5(json_encode($uniqueData)), 16, 32), 0, 12));

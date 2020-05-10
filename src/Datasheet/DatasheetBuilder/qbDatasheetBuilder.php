@@ -5,9 +5,6 @@ namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 use A2Global\CRMBundle\Component\Field\FieldInterface;
 use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Component\Field\RelationField;
-use A2Global\CRMBundle\Datasheet\DatasheetExtended;
-use A2Global\CRMBundle\Datasheet\FilterableEntity;
-use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\From;
@@ -19,19 +16,14 @@ class qbDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetBu
 
     protected $entityManager;
 
-    public function __construct(
-        EntityManagerInterface $entityManager
-    )
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
     public function supports(): bool
     {
-        return
-            $this->datasheet->getQueryBuilder()
-            &&
-            count($this->datasheet->getQueryBuilder()->getDQLPart('select')) < 2;
+        return $this->getDatasheet()->getData() instanceof QueryBuilder;
     }
 
     public function getItems(): array

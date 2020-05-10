@@ -3,14 +3,15 @@
 namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
 use A2Global\CRMBundle\Component\Entity\Entity;
+use A2Global\CRMBundle\Datasheet\Datasheet;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
-use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
 use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\ORM\Query\Expr\From;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\VarDumper\Cloner\Data;
 
 abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 {
@@ -29,15 +30,17 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         return $this;
     }
 
-    public function build()
+    public function getDatasheet(): DatasheetExtended
     {
-        $this->datasheet
-            ->setItems($this->getItems())
-            ->setItemsTotal($this->getItemsTotal());
+        return $this->datasheet;
+    }
 
-        $fields = $this->datasheet->getFieldsToShow() ?: $this->getFields();
+    public function build($page, $itemsPerPage, $filters): DatasheetExtended
+    {
+        $this->buildItems();
+        $fields = $this->getDatasheet()->getFieldsToShow() ?: $this->getFields();
 
-        foreach ($this->datasheet->getFieldsToRemove() as $fieldToRemove) {
+        foreach ($this->getDatasheet()->getFieldsToRemove() as $fieldToRemove) {
             if (isset($fields[$fieldToRemove])) {
                 unset($fields[$fieldToRemove]);
             }
@@ -48,20 +51,28 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
                 continue;
             }
             $fields[$fieldName]['filters'] = $this->getFilters($fieldName);
-            $this->datasheet->setHasFilters(true);
+            $this->getDatasheet()->setHasFilters(true);
         }
-        $this->datasheet->setFields($fields);
+        $this->getDatasheet()->setFields($fields);
         $this->updateItems();
+
+        return $this->getDatasheet();
+    }
+
+    protected function buildItems()
+    {
+        $this->getDatasheet()->setItems($this->getItems());
+        $this->getDatasheet()->setItemsTotal($this->getItemsTotal());
     }
 
     protected function updateItems()
     {
         $items = [];
 
-        foreach ($this->datasheet->getItems() as $itemOriginal) {
+        foreach ($this->getDatasheet()->getItems() as $itemOriginal) {
             $item = [];
 
-            foreach ($this->datasheet->getFields() as $fieldName => $fieldOptions) {
+            foreach ($this->getDatasheet()->getFields() as $fieldName => $fieldOptions) {
 //                if (!isset($itemOriginal[$fieldName])) {
 //                    throw new DatasheetException(sprintf('Datasheet failed to get %s value from data', $fieldName));
 //                }
@@ -82,7 +93,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
             }
             $items[] = $item;
         }
-        $this->datasheet->setItems($items);
+        $this->getDatasheet()->setItems($items);
     }
 
     protected function getObjectValue($object, $path)
@@ -166,27 +177,5 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         }
 
         return $queryBuilder;
-    }
-
-    /** Interface methods */
-
-    public function supports(): bool
-    {
-        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
-    }
-
-    public function getItems(): array
-    {
-        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
-    }
-
-    public function getItemsTotal(): int
-    {
-        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
-    }
-
-    public function getFields(): array
-    {
-        throw new DatasheetException('Datasheet builder method should be implemented: ' . __METHOD__);
     }
 }

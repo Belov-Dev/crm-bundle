@@ -8,7 +8,7 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
 {
     public function supports(): bool
     {
-        return !$this->datasheet->getQueryBuilder();
+        return is_array($this->getDatasheet()->getData());
     }
 
     public function getItems(): array
