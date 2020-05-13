@@ -2,8 +2,6 @@
 
 namespace A2Global\CRMBundle\Datasheet;
 
-use A2Global\CRMBundle\Utility\StringUtility;
-
 class Datasheet
 {
     protected $data;
@@ -19,6 +17,10 @@ class Datasheet
     protected $translationPrefix;
 
     protected $summaryRow;
+
+    protected $page = 1;
+
+    protected $itemsPerPage = 15;
 
     public function __construct($data)
     {
@@ -36,6 +38,8 @@ class Datasheet
             'fieldHandlers' => $this->fieldHandlers,
             'translationPrefix' => $this->translationPrefix,
             'summaryRow' => $this->summaryRow,
+            'page' => $this->page,
+            'itemsPerPage' => $this->itemsPerPage,
         ];
     }
 
@@ -77,6 +81,20 @@ class Datasheet
     public function setSummaryRow($summaryRow): self
     {
         $this->summaryRow = $summaryRow;
+
+        return $this;
+    }
+
+    public function setPage(int $page): self
+    {
+        $this->page = $page;
+
+        return $this;
+    }
+
+    public function setItemsPerPage(int $itemsPerPage): self
+    {
+        $this->itemsPerPage = $itemsPerPage;
 
         return $this;
     }

@@ -2,6 +2,7 @@
 
 namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
+use A2Global\CRMBundle\Datasheet\Datasheet;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
@@ -18,7 +19,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     /** @var EntityInfoProvider */
     protected $entityInfoProvider;
 
-    public function setDatasheet(DatasheetExtended $datasheet): self
+    public function setDatasheet(Datasheet $datasheet): self
     {
         $this->datasheet = $datasheet;
 
@@ -30,7 +31,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         return $this->datasheet;
     }
 
-    public function build($page, $itemsPerPage, $filters)
+    public function build($page = null, $itemsPerPage = null, $filters = [])
     {
         $this->updateItems();
     }

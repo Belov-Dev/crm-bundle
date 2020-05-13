@@ -5,9 +5,11 @@ namespace A2Global\CRMBundle\Twig;
 
 use A2Global\CRMBundle\Datasheet\DatasheetProvider;
 use A2Global\CRMBundle\Datasheet\Datasheet;
+use A2Global\CRMBundle\Exception\DatasheetException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Routing\RouterInterface;
+use Throwable;
 use Twig\Extension\RuntimeExtensionInterface;
 
 class AppRuntimeFunctions implements RuntimeExtensionInterface
@@ -62,7 +64,11 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
             throw new Exception(sprintf('Invalid class `%s`, please provide object of DataSheetInterface to build the datasheet', get_class($datasheet)));
         }
 
-        return $this->datasheetProvider->getTable($datasheet);
+        try {
+            return $this->datasheetProvider->getTable($datasheet);
+        } catch (Throwable $e) {
+            throw new DatasheetException(sprintf('Failed to handle datasheet (%s at %s:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+        }
     }
 
     public function getPagination($datasheet)
@@ -71,6 +77,10 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
             throw new Exception(sprintf('Invalid class `%s`, please provide object of Datasheet', get_class($datasheet)));
         }
 
-        return $this->datasheetProvider->getPagination($datasheet);
+        try {
+            return $this->datasheetProvider->getPagination($datasheet);
+        } catch (Throwable $e) {
+            throw new DatasheetException(sprintf('Failed to handle datasheet (%s at %s:%s)', $e->getMessage(), $e->getFile(), $e->getLine()));
+        }
     }
 }

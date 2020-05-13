@@ -11,7 +11,7 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         return is_array($this->getDatasheet()->getData());
     }
 
-    public function build($page, $itemsPerPage, $filters)
+    public function build($page = null, $itemsPerPage = null, $filters = [])
     {
         if (is_callable($this->getDatasheet()->getData())) {
             $callable = $this->getDatasheet()->getData();
@@ -19,10 +19,15 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         }else{
             $this->getDatasheet()->setItems($this->getDatasheet()->getData());
         }
-        $this->getDatasheet()
-            ->setPage($page)
-            ->setItemsPerPage($itemsPerPage)
-            ->setItemsTotal(count($this->getDatasheet()->getItems()));
+
+        if($page){
+            $this->getDatasheet()->setPage($page);
+        }
+
+        if($itemsPerPage){
+            $this->getDatasheet()->setItemsPerPage($itemsPerPage);
+        }
+        $this->getDatasheet()->setItemsTotal(count($this->getDatasheet()->getItems()));
 
         if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
             foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {

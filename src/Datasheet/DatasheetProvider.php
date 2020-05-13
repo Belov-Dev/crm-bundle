@@ -35,16 +35,10 @@ class DatasheetProvider
         $datasheet = $this->decorate($datasheet);
         $builder = $this->getBuilder($datasheet);
 
-        $queryString = $this->requestStack->getMasterRequest()->query->all();
-        $page = max(1, (int)($queryString['page'] ?? 0)) - 1;
-        $perPage = (int)($queryString['perPage'] ?? 15);
+        $request = $this->requestStack->getMasterRequest();
+        $queryString = $request->query->all();
         $filters = $queryString['datasheet_' . $datasheet->getUniqueId()] ?? [];
-
-        try {
-            $builder->build($page, $perPage, $filters);
-        } catch (Throwable $e) {
-            throw new DatasheetException(sprintf('Failed to build datasheet (%s at %s)', $e->getMessage(), $e->getTraceAsString()));
-        }
+        $builder->build($request->get('page'), $request->get('perPage'), $filters);
 
         // Filter form url (reset filters, page. leaving per_page)
 //        if ($this->datasheetBuilder->) {
@@ -61,9 +55,11 @@ class DatasheetProvider
 
     public function getPagination(Datasheet $datasheet)
     {
-        $currentPage = $datasheet->page;
-        $itemsTotal = $datasheet->itemsTotal;
-        $pagesTotal = (int)ceil($itemsTotal / $datasheet->itemsPerPage);
+        /** @var DatasheetExtended $datasheet */
+        $datasheet = $datasheet->extended;
+        $currentPage = $datasheet->getPage() - 1;
+        $itemsTotal = $datasheet->getItemsTotal();
+        $pagesTotal = (int)ceil($itemsTotal / $datasheet->getItemsPerPage());
 
         if (!$pagesTotal) {
             return null;
@@ -73,7 +69,7 @@ class DatasheetProvider
 
         // Creating query string pattern
         $queryString = $this->requestStack->getMasterRequest()->query->all();
-        $queryString['per_page'] = $datasheet->itemsPerPage;
+        $queryString['per_page'] = $datasheet->getItemsPerPage();
         unset($queryString['page']);
         unset($queryString['per_page']);
 
@@ -93,7 +89,7 @@ class DatasheetProvider
         return $this->twig->render('@A2CRM/datasheet/datasheet.pagination.html.twig', [
             'pagination' => [
                 'currentPage' => $currentPage + 1,
-                'perPage' => $datasheet->itemsPerPage,
+                'perPage' => $datasheet->getItemsPerPage(),
                 'totalPages' => $pagesTotal,
                 'pagesFrom' => $pagesFrom,
                 'pagesTo' => $pagesTo,
@@ -110,7 +106,10 @@ class DatasheetProvider
 
     public function decorate(Datasheet $datasheet): DatasheetExtended
     {
-        return new DatasheetExtended($datasheet());
+        $datasheetExtended = new DatasheetExtended($datasheet());
+        $datasheet->extended = $datasheetExtended;
+
+        return $datasheetExtended;
     }
 
     protected function getBuilder(Datasheet $datasheet): AbstractDatasheetBuilder

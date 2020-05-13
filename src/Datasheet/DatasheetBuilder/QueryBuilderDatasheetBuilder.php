@@ -39,17 +39,20 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
         return $this->getDatasheet()->getData() instanceof QueryBuilder;
     }
 
-    public function build($page, $itemsPerPage, $filters)
+    public function build($page = null, $itemsPerPage = null, $filters = [])
     {
-        $this
-            ->getDatasheet()
-            ->setPage($page)
-            ->setItemsPerPage($itemsPerPage);
+        if($page){
+            $this->getDatasheet()->setPage($page);
+        }
+
+        if($itemsPerPage){
+            $this->getDatasheet()->setItemsPerPage($itemsPerPage);
+        }
         $this->queryBuilder = clone $this->getDatasheet()->getData();
         $this->buildFields();
 
         $sql = (clone $this->getQueryBuilder())
-            ->setFirstResult($this->getDatasheet()->getPage() * $this->getDatasheet()->getItemsPerPage())
+            ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
             ->getSQL();
@@ -61,7 +64,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
 
         $result = $this->getQueryBuilder()
-            ->setFirstResult($this->getDatasheet()->getPage() * $this->getDatasheet()->getItemsPerPage())
+            ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
             ->getArrayResult();
@@ -70,6 +73,42 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
         $this->getDatasheet()->setItemsTotal($total);
 
         parent::build($page, $itemsPerPage, $filters);
+    }
+
+    public function getFields(): array
+    {
+        $fields = [];
+
+        foreach ($this->getEntity()->getFields() as $entityField) {
+            $fieldName = StringUtility::toCamelCase($entityField->getName());
+            $fields[$fieldName] = [
+                'title' => StringUtility::normalize($entityField->getName()),
+                'hasFilter' => $this->hasFilter($entityField),
+            ];
+        }
+
+        return $fields;
+    }
+
+    public function getFilters($fieldName)
+    {
+        if ($this->getEntity()->getField($fieldName) instanceof RelationField) {
+            $tableName = $this->entityInfoProvider
+                ->getEntity($this->getEntity()->getField($fieldName)->getTargetEntity())
+                ->getTableName();
+            $fieldName = $this->datasheet->getFieldOptions($fieldName)['filterBy'];
+        } else {
+            $tableName = $this->getEntity()->getTableName();
+            $fieldName = StringUtility::toSnakeCase($fieldName);
+        }
+
+        $results = $this->entityManager
+            ->getConnection()
+            ->fetchAll(sprintf('SELECT DISTINCT(%s) FROM %s ORDER BY %s', $fieldName, $tableName, $fieldName));
+
+        return array_map(function ($result) {
+            return reset($result);
+        }, $results);
     }
 
     protected function buildFields()
@@ -171,42 +210,6 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
                 'hasFilter' => false,
             ];
         }
-    }
-
-    public function getFields(): array
-    {
-        $fields = [];
-
-        foreach ($this->getEntity()->getFields() as $entityField) {
-            $fieldName = StringUtility::toCamelCase($entityField->getName());
-            $fields[$fieldName] = [
-                'title' => StringUtility::normalize($entityField->getName()),
-                'hasFilter' => $this->hasFilter($entityField),
-            ];
-        }
-
-        return $fields;
-    }
-
-    public function getFilters($fieldName)
-    {
-        if ($this->getEntity()->getField($fieldName) instanceof RelationField) {
-            $tableName = $this->entityInfoProvider
-                ->getEntity($this->getEntity()->getField($fieldName)->getTargetEntity())
-                ->getTableName();
-            $fieldName = $this->datasheet->getFieldOptions($fieldName)['filterBy'];
-        } else {
-            $tableName = $this->getEntity()->getTableName();
-            $fieldName = StringUtility::toSnakeCase($fieldName);
-        }
-
-        $results = $this->entityManager
-            ->getConnection()
-            ->fetchAll(sprintf('SELECT DISTINCT(%s) FROM %s ORDER BY %s', $fieldName, $tableName, $fieldName));
-
-        return array_map(function ($result) {
-            return reset($result);
-        }, $results);
     }
 
     protected function getBaseAlias(): string

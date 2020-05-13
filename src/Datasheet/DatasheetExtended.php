@@ -16,6 +16,8 @@ class DatasheetExtended extends Datasheet
 
     protected $filters = [];
 
+    protected $itemsTotal = 0;
+
     public function __construct($data)
     {
         parent::__construct(null);
@@ -26,11 +28,6 @@ class DatasheetExtended extends Datasheet
     }
 
     /** Base properties */
-
-    public function getOriginal(): Datasheet
-    {
-        return $this->original;
-    }
 
     public function getData()
     {
@@ -50,6 +47,16 @@ class DatasheetExtended extends Datasheet
     public function getFieldHandlers(): ?array
     {
         return $this->fieldHandlers;
+    }
+
+    public function getItemsPerPage()
+    {
+        return $this->itemsPerPage;
+    }
+
+    public function getPage()
+    {
+        return $this->page;
     }
 
     /** Extended properties */
@@ -90,38 +97,14 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
-    public function getPage()
-    {
-        return $this->getOriginal()->page;
-    }
-
-    public function setPage($page): self
-    {
-        $this->getOriginal()->page = $page;
-
-        return $this;
-    }
-
-    public function getItemsPerPage()
-    {
-        return $this->getOriginal()->itemsPerPage;
-    }
-
-    public function setItemsPerPage($itemsPerPage): self
-    {
-        $this->getOriginal()->itemsPerPage = $itemsPerPage;
-
-        return $this;
-    }
-
     public function getItemsTotal()
     {
-        return $this->getOriginal()->itemsTotal;
+        return $this->itemsTotal;
     }
 
     public function setItemsTotal($itemsTotal): self
     {
-        $this->getOriginal()->itemsTotal = $itemsTotal;
+        $this->itemsTotal = $itemsTotal;
 
         return $this;
     }
@@ -150,6 +133,19 @@ class DatasheetExtended extends Datasheet
         return $this->fieldOptions[$fieldName] ?? [];
     }
 
+    public function getOriginal(): Datasheet
+    {
+        return $this->original;
+    }
+
+    public function setOriginal(Datasheet $original): self
+    {
+        $this->original = $original;
+
+        return $this;
+    }
+
+
     /** Other */
 
     public function hasFilters()
@@ -171,5 +167,4 @@ class DatasheetExtended extends Datasheet
     {
         return $this->hasFilters;
     }
-
 }
