@@ -11,29 +11,18 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         return is_array($this->getDatasheet()->getData());
     }
 
-    public function getItems(): array
+    public function build($page, $itemsPerPage, $filters)
     {
-        if (is_callable($this->datasheet->getData())) {
-            $callable = $this->datasheet->getData();
-            $this->datasheet->setData(
-                $callable(
-                    $this->datasheet->getItemsPerPage(),
-                    $this->datasheet->getPage() * $this->datasheet->getItemsPerPage()
-                )
-            );
+        if (is_callable($this->getDatasheet()->getData())) {
+            $callable = $this->getDatasheet()->getData();
+            $this->getDatasheet()->setItems($callable());
+        }else{
+            $this->getDatasheet()->setItems($this->getDatasheet()->getData());
         }
-
-        return $this->datasheet->getData();
-    }
-
-    public function getItemsTotal(): int
-    {
-        return count($this->datasheet->getData());
-    }
-
-    public function getFields(): array
-    {
-        $fields = [];
+        $this->getDatasheet()
+            ->setPage($page)
+            ->setItemsPerPage($itemsPerPage)
+            ->setItemsTotal(count($this->getDatasheet()->getItems()));
 
         if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
             foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {
@@ -43,7 +32,23 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
                 ];
             }
         }
+//        $fields = $this->getDatasheet()->getFieldsToShow() ?: $this->getFields();
+//
+//        foreach ($this->getDatasheet()->getFieldsToRemove() as $fieldToRemove) {
+//            if (isset($fields[$fieldToRemove])) {
+//                unset($fields[$fieldToRemove]);
+//            }
+//        }
+//
+//        foreach ($fields as $fieldName => $fieldOptions) {
+//            if (!$fieldOptions['hasFilter']) {
+//                continue;
+//            }
+//            $fields[$fieldName]['filters'] = $this->getFilters($fieldName);
+//            $this->getDatasheet()->setHasFilters(true);
+//        }
+        $this->getDatasheet()->setFields($fields);
 
-        return $fields;
+        parent::build($page, $itemsPerPage, $filters);
     }
 }

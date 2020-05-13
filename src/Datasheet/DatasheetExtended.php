@@ -8,11 +8,11 @@ class DatasheetExtended extends Datasheet
 
     protected $original;
 
-    protected $fields;
+    protected $fields = [];
 
-    protected $items;
+    protected $items = [];
 
-    protected $hasFilters;
+    protected $hasFilters = false;
 
     protected $filters = [];
 

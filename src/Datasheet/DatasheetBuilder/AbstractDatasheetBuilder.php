@@ -2,16 +2,11 @@
 
 namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
-use A2Global\CRMBundle\Component\Entity\Entity;
-use A2Global\CRMBundle\Datasheet\Datasheet;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
 use Doctrine\Common\Annotations\Annotation\Required;
-use Doctrine\ORM\Query\Expr\From;
-use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\VarDumper\Cloner\Data;
 
 abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 {
@@ -35,39 +30,9 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         return $this->datasheet;
     }
 
-    public function build($page, $itemsPerPage, $filters): DatasheetExtended
+    public function build($page, $itemsPerPage, $filters)
     {
-        $this->getDatasheet()
-            ->setPage($page)
-            ->setItemsPerPage($itemsPerPage)
-            ->setFilters($filters);
-
-        $this->buildItems();
-        $fields = $this->getDatasheet()->getFieldsToShow() ?: $this->getFields();
-
-        foreach ($this->getDatasheet()->getFieldsToRemove() as $fieldToRemove) {
-            if (isset($fields[$fieldToRemove])) {
-                unset($fields[$fieldToRemove]);
-            }
-        }
-
-        foreach ($fields as $fieldName => $fieldOptions) {
-            if (!$fieldOptions['hasFilter']) {
-                continue;
-            }
-            $fields[$fieldName]['filters'] = $this->getFilters($fieldName);
-            $this->getDatasheet()->setHasFilters(true);
-        }
-        $this->getDatasheet()->setFields($fields);
         $this->updateItems();
-
-        return $this->getDatasheet();
-    }
-
-    protected function buildItems()
-    {
-        $this->getDatasheet()->setItems($this->getItems());
-        $this->getDatasheet()->setItemsTotal($this->getItemsTotal());
     }
 
     protected function updateItems()
@@ -82,9 +47,20 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 //                    throw new DatasheetException(sprintf('Datasheet failed to get %s value from data', $fieldName));
 //                }
 //                $value = $itemOriginal[$fieldName];
-                $value = is_object($itemOriginal) ? $this->getObjectValue($itemOriginal, $fieldName) : $itemOriginal[$fieldName];
+                if(is_object($itemOriginal)){
+                    $value = $this->getObjectValue($itemOriginal, $fieldName);
+                }else{
+                    $tmp = explode('.', $fieldName);
+//
+                    if(count($tmp) > 1){
+                        $key = implode(self::NEST_SEPARATOR, $tmp);
+                        $value = $itemOriginal[$key];
+                    }else{
+                        $value = $itemOriginal[$fieldName];
+                    }
+                }
                 $value = $this->handleValue($value);
-
+//
 //                if (isset($this->datasheet->fieldHandlers[$fieldName])) {
 //                    $callable = $this->datasheet->fieldHandlers[$fieldName];
 //
@@ -145,42 +121,5 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     public function setEntityInfoProvider(EntityInfoProvider $entityInfoProvider)
     {
         $this->entityInfoProvider = $entityInfoProvider;
-    }
-
-    protected $entity;
-
-    protected $joined = [];
-
-    protected function getQbMainAlias(): string
-    {
-        return $this->datasheet->getQueryBuilder()->getDQLPart('from')[0]->getAlias();
-    }
-
-    protected function cloneQb(): QueryBuilder
-    {
-        return clone $this->datasheet->getQueryBuilder();
-    }
-
-    protected function getEntity(): Entity
-    {
-        if (!$this->entity) {
-            /** @var From $firstFrom */
-            $firstFrom = $this->datasheet->getQueryBuilder()->getDQLPart('from')[0];
-            $this->entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
-        }
-
-        return $this->entity;
-    }
-
-    protected function join(QueryBuilder $queryBuilder, $entity, $relation): QueryBuilder
-    {
-        $join = sprintf('%s.%s', $entity, $relation);
-
-        if (!in_array($join, $this->joined)) {
-            $queryBuilder->join($join, $relation);
-            $this->joined[] = $join;
-        }
-
-        return $queryBuilder;
     }
 }

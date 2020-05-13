@@ -41,24 +41,14 @@ class Datasheet
 
     public function showFields($fields): self
     {
-        $fields = func_get_args();
-
-        foreach ($fields as $field) {
-            $this->fieldsToShow[StringUtility::toCamelCase($field)] = [
-                'title' => StringUtility::normalize($field),
-            ];
-        }
+        $this->fieldsToShow = func_get_args();
 
         return $this;
     }
 
     public function removeFields(): self
     {
-        $fields = func_get_args();
-
-        foreach ($fields as $field) {
-            $this->fieldsToRemove[] = StringUtility::toCamelCase($field);
-        }
+        $this->fieldsToRemove = func_get_args();
 
         return $this;
     }

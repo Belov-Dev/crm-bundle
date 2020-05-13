@@ -6,7 +6,7 @@ use A2Global\CRMBundle\Datasheet\DatasheetBuilder\AbstractDatasheetBuilder;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Registry\DatasheetBuilderRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\VarDumper\Cloner\Data;
+use Throwable;
 use Twig\Environment;
 
 class DatasheetProvider
@@ -40,7 +40,11 @@ class DatasheetProvider
         $perPage = (int)($queryString['perPage'] ?? 15);
         $filters = $queryString['datasheet_' . $datasheet->getUniqueId()] ?? [];
 
-        $datasheet = $builder->build($page, $perPage, $filters);
+        try {
+            $builder->build($page, $perPage, $filters);
+        } catch (Throwable $e) {
+            throw new DatasheetException(sprintf('Failed to build datasheet (%s at %s)', $e->getMessage(), $e->getTraceAsString()));
+        }
 
         // Filter form url (reset filters, page. leaving per_page)
 //        if ($this->datasheetBuilder->) {

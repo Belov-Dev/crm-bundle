@@ -5,7 +5,7 @@ namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\QueryBuilder;
 
-class sqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetBuilderInterface
+class sqlDatasheetBuilder
 {
     public function supports(): bool
     {
