@@ -41,15 +41,24 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
 
     public function build($page = null, $itemsPerPage = null, $filters = [])
     {
-        if($page){
+        if ($page) {
             $this->getDatasheet()->setPage($page);
         }
 
-        if($itemsPerPage){
+        if ($itemsPerPage) {
             $this->getDatasheet()->setItemsPerPage($itemsPerPage);
         }
         $this->queryBuilder = clone $this->getDatasheet()->getData();
         $this->buildFields();
+
+        foreach ($filters as $filterField => $filterValue) {
+            if (!trim($filterValue)) {
+                continue;
+            }
+            $this->getQueryBuilder()
+                ->andWhere(sprintf('%s.%s = :filter%s', $this->getBaseAlias(), $filterField, $filterField))
+                ->setParameter('filter' . $filterField, $filterValue);
+        }
 
         $sql = (clone $this->getQueryBuilder())
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
@@ -69,8 +78,10 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             ->getQuery()
             ->getArrayResult();
 
-        $this->getDatasheet()->setItems($result);
-        $this->getDatasheet()->setItemsTotal($total);
+        $this->getDatasheet()
+            ->setItems($result)
+            ->setItemsTotal($total)
+            ->setHasFilters(true);
 
         parent::build($page, $itemsPerPage, $filters);
     }
@@ -199,17 +210,39 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             $this->getDatasheet()->setFields($fields);
             $this->getQueryBuilder()->resetDQLPart('select');
 
-            foreach($newSelects as $newSelect){
+            foreach ($newSelects as $newSelect) {
                 $this->getQueryBuilder()->addSelect($newSelect);
             }
         }
 
-        foreach ($this->getEntity()->getFields() as $field) {
-            $fields[StringUtility::toCamelCase($field->getName())] = [
-                'title' => StringUtility::normalize($field->getName()),
-                'hasFilter' => false,
-            ];
+//        foreach ($this->getEntity()->getFields() as $field) {
+//            $fields[StringUtility::toCamelCase($field->getName())] = [
+//                'title' => StringUtility::normalize($field->getName()),
+//                'hasFilter' => false,
+//            ];
+//        }
+
+        foreach ($fields as $fieldName => $field) {
+            if ($fieldName == 'id') {
+                continue;
+            }
+
+            if (strpos($fieldName, '.')) {
+                continue;
+            }
+            $choices = $this->entityManager->getConnection()->fetchAll(sprintf(
+                'SELECT DISTINCT(%s) FROM (%s) ORDER BY %s',
+                StringUtility::toSnakeCase($fieldName),
+                $this->getEntity()->getTableName(),
+                StringUtility::toSnakeCase($fieldName)
+            ));
+            $choices = array_map(function ($item) {
+                return reset($item);
+            }, $choices);
+            $fields[$fieldName]['filterChoices'] = $choices;
+            $fields[$fieldName]['hasFilter'] = true;
         }
+        $this->getDatasheet()->setFields($fields);
     }
 
     protected function getBaseAlias(): string

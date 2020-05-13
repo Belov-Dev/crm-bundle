@@ -40,7 +40,6 @@ class DatasheetProvider
         $filters = $queryString['datasheet_' . $datasheet->getUniqueId()] ?? [];
         $builder->build($request->get('page'), $request->get('perPage'), $filters);
 
-        // Filter form url (reset filters, page. leaving per_page)
 //        if ($this->datasheetBuilder->) {
 //            unset($queryString['page']);
 //            unset($queryString['filter']);

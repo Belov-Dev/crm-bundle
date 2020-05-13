@@ -64,8 +64,7 @@ class DatasheetExtended extends Datasheet
     public function getUniqueId()
     {
         $uniqueData = [
-            microtime(),
-//            $this->getData(),
+            $this->getData(),
 //            $this->getQueryBuilder(),
 //            $this->getFieldsToShow(),
         ];

@@ -11,6 +11,7 @@
                 <th>{{ ((datasheet.translationPrefix ? datasheet.translationPrefix ~ '.' : '')  ~ field.title)|trans }}</th>
             {% endfor %}
         </tr>
+
         {% if datasheet.hasFilters %}
             <tr>
                 <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
@@ -70,7 +71,7 @@
         // options set for datasheet filtering
         {% for fieldName, options in datasheet.fields %}
         {% if options.hasFilter %}
-        let datasheet_{{ datasheet.uniqueId }}_{{ fieldName }}_options = {{ options.filters|json_encode|raw }};
+        let datasheet_{{ datasheet.uniqueId }}_{{ fieldName }}_choices = {{ options.filterChoices|json_encode|raw }};
         {% endif %}
         {% endfor %}
     </script>
