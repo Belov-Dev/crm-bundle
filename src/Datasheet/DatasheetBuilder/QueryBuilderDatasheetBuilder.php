@@ -212,6 +212,10 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             }
         }
 
+        foreach ($this->getDatasheet()->getFieldsToRemove() as $fieldToRemove) {
+            unset($fields[$fieldToRemove]);
+        }
+
         $this->getDatasheet()->setFields($this->addFilterChoices($fields));
     }
 

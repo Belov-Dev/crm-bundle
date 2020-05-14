@@ -42,6 +42,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     {
         $this->updateItems();
         $this->getDatasheet()->setDebugMode($this->parameterBag->get('kernel.environment') == 'dev');
+
     }
 
     protected function updateItems()

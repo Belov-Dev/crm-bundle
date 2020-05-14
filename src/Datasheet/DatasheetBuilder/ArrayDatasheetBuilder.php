@@ -38,15 +38,30 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         }
         $fields = [];
 
-        if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
-            foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {
+        if ($this->getDatasheet()->getFieldsToShow()) {
+            foreach ($this->getDatasheet()->getFieldsToShow() as $fieldName) {
                 $fieldName = StringUtility::toCamelCase($fieldName);
                 $fields[$fieldName] = [
                     'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? StringUtility::normalize($fieldName),
                     'hasFilter' => false,
                 ];
             }
+        } else {
+            if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
+                foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {
+                    $fieldName = StringUtility::toCamelCase($fieldName);
+                    $fields[$fieldName] = [
+                        'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? StringUtility::normalize($fieldName),
+                        'hasFilter' => false,
+                    ];
+                }
+            }
         }
+
+        foreach ($this->getDatasheet()->getFieldsToRemove() as $fieldToRemove) {
+            unset($fields[$fieldToRemove]);
+        }
+
         $this->getDatasheet()->setFields($fields);
 
         parent::build($page, $itemsPerPage, $filters);
