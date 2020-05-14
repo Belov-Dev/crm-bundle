@@ -203,6 +203,8 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
     protected function addFilterChoices($fields)
     {
         foreach ($fields as $fieldName => $field) {
+            $fields[$fieldName]['hasFilter'] = true;
+
             if ($fieldName == 'id') {
                 continue;
             }
