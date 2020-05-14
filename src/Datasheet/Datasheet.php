@@ -70,9 +70,9 @@ class Datasheet
         return $this;
     }
 
-    public function addFieldHandler($callbackFunction): self
+    public function addFieldHandler($field, $callbackFunction): self
     {
-        $this->fieldHandlers[] = $callbackFunction;
+        $this->fieldHandlers[$field] = $callbackFunction;
 
         return $this;
     }

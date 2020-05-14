@@ -4,11 +4,13 @@ namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
 use A2Global\CRMBundle\Datasheet\Datasheet;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
+use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
 use Doctrine\Common\Annotations\Annotation\Required;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Throwable;
 
 abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 {
@@ -50,15 +52,11 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
             $item = [];
 
             foreach ($this->getDatasheet()->getFields() as $fieldName => $fieldOptions) {
-//                if (!isset($itemOriginal[$fieldName])) {
-//                    throw new DatasheetException(sprintf('Datasheet failed to get %s value from data', $fieldName));
-//                }
-//                $value = $itemOriginal[$fieldName];
                 if (is_object($itemOriginal)) {
                     $value = $this->getObjectValue($itemOriginal, $fieldName);
                 } else {
                     $tmp = explode('.', $fieldName);
-//
+
                     if (count($tmp) > 1) {
                         $key = implode(self::NEST_SEPARATOR, $tmp);
                         $value = $itemOriginal[$key];
@@ -67,16 +65,16 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
                     }
                 }
                 $value = $this->handleValue($value);
-//
-//                if (isset($this->datasheet->fieldHandlers[$fieldName])) {
-//                    $callable = $this->datasheet->fieldHandlers[$fieldName];
-//
-//                    try {
-//                        $value = $callable($itemOriginal);
-//                    } catch (Throwable $e) {
-//                        throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
-//                    }
-//                }
+
+                if (isset($this->getDatasheet()->getFieldHandlers()[$fieldName])) {
+                    $callable = $this->getDatasheet()->getFieldHandlers()[$fieldName];
+
+                    try {
+                        $value = $callable($itemOriginal);
+                    } catch (Throwable $e) {
+                        throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
+                    }
+                }
                 $item[$fieldName] = $value;
             }
             $items[] = $item;
