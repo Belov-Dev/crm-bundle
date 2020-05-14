@@ -118,8 +118,10 @@ class Datasheet
         return $this;
     }
 
-    public function disableFilters()
+    public function disableFilters(): self
     {
         $this->disableFilters = true;
+
+        return $this;
     }
 }
