@@ -22,9 +22,14 @@ class Datasheet
 
     protected $itemsPerPage = 15;
 
+    protected $constructedFrom = '';
+
     public function __construct($data)
     {
         $this->data = $data;
+        $backtrace = debug_backtrace();
+        $lastBacktrace = reset($backtrace);
+        $this->constructedFrom = $lastBacktrace['file'] . $lastBacktrace['line'];
     }
 
     public function __invoke(): array
@@ -40,6 +45,7 @@ class Datasheet
             'summaryRow' => $this->summaryRow,
             'page' => $this->page,
             'itemsPerPage' => $this->itemsPerPage,
+            'constructedFrom' => $this->constructedFrom,
         ];
     }
 

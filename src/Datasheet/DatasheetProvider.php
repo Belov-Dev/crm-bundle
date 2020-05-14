@@ -107,6 +107,7 @@ class DatasheetProvider
     {
         $datasheetExtended = new DatasheetExtended($datasheet());
         $datasheet->extended = $datasheetExtended;
+        $datasheetExtended->addDebug($datasheetExtended->getUniqueId());
 
         return $datasheetExtended;
     }

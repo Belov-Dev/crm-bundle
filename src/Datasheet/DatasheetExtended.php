@@ -18,6 +18,12 @@ class DatasheetExtended extends Datasheet
 
     protected $itemsTotal = 0;
 
+    protected $debug = [];
+
+    protected $constructedFrom = '';
+
+    protected $uniqueId;
+
     public function __construct($data)
     {
         parent::__construct(null);
@@ -25,6 +31,13 @@ class DatasheetExtended extends Datasheet
         foreach ($data as $key => $value) {
             $this->{$key} = $value;
         }
+
+        $this->generateUniqueId();
+    }
+
+    protected function generateUniqueId()
+    {
+        $this->uniqueId = strtoupper(substr(md5($this->constructedFrom), 0, 4));
     }
 
     /** Base properties */
@@ -63,13 +76,7 @@ class DatasheetExtended extends Datasheet
 
     public function getUniqueId()
     {
-        $uniqueData = [
-            $this->getData(),
-//            $this->getQueryBuilder(),
-//            $this->getFieldsToShow(),
-        ];
-
-        return strtoupper(substr(base_convert(md5(json_encode($uniqueData)), 16, 32), 0, 12));
+        return $this->uniqueId;
     }
 
     public function getFields()
@@ -144,6 +151,29 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
+    public function getDebug(): array
+    {
+        return $this->debug;
+    }
+
+    public function addDebug(string $debug): DatasheetExtended
+    {
+        $this->debug[] = $debug;
+
+        return $this;
+    }
+
+    public function getConstructedFrom(): string
+    {
+        return $this->constructedFrom;
+    }
+
+    public function setConstructedFrom(string $constructedFrom): DatasheetExtended
+    {
+        $this->constructedFrom = $constructedFrom;
+
+        return $this;
+    }
 
     /** Other */
 

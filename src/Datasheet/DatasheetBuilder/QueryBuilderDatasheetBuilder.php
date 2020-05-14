@@ -48,7 +48,9 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
         if ($itemsPerPage) {
             $this->getDatasheet()->setItemsPerPage($itemsPerPage);
         }
+        $this->getDatasheet()->setFilters($filters);
         $this->queryBuilder = clone $this->getDatasheet()->getData();
+        $this->initEntity();
         $this->buildFields();
 
         foreach ($filters as $filterField => $filterValue) {
@@ -65,6 +67,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
             ->getSQL();
+        $this->getDatasheet()->addDebug($sql);
 
         $total = (clone $this->getQueryBuilder())
             ->resetDQLPart('select')
@@ -99,27 +102,6 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
         }
 
         return $fields;
-    }
-
-    public function getFilters($fieldName)
-    {
-        if ($this->getEntity()->getField($fieldName) instanceof RelationField) {
-            $tableName = $this->entityInfoProvider
-                ->getEntity($this->getEntity()->getField($fieldName)->getTargetEntity())
-                ->getTableName();
-            $fieldName = $this->datasheet->getFieldOptions($fieldName)['filterBy'];
-        } else {
-            $tableName = $this->getEntity()->getTableName();
-            $fieldName = StringUtility::toSnakeCase($fieldName);
-        }
-
-        $results = $this->entityManager
-            ->getConnection()
-            ->fetchAll(sprintf('SELECT DISTINCT(%s) FROM %s ORDER BY %s', $fieldName, $tableName, $fieldName));
-
-        return array_map(function ($result) {
-            return reset($result);
-        }, $results);
     }
 
     protected function buildFields()
@@ -262,13 +244,14 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
 
     protected function getEntity(): Entity
     {
-        if (!$this->entity) {
-            /** @var From $firstFrom */
-            $firstFrom = $this->getQueryBuilder()->getDQLPart('from')[0];
-            $this->entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
-        }
-
         return $this->entity;
+    }
+
+    protected function initEntity()
+    {
+        /** @var From $firstFrom */
+        $firstFrom = $this->getQueryBuilder()->getDQLPart('from')[0];
+        $this->entity = $this->entityInfoProvider->getEntity(StringUtility::getShortClassName($firstFrom->getFrom()));
     }
 
     protected function join(QueryBuilder $queryBuilder, $field)
