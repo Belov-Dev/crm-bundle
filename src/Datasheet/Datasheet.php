@@ -26,6 +26,8 @@ class Datasheet
 
     protected $constructedFrom = '';
 
+    protected $disableFilters = false;
+
     public function __construct($data)
     {
         $this->data = $data;
@@ -49,6 +51,7 @@ class Datasheet
             'itemsPerPage' => $this->itemsPerPage,
             'itemsTotal' => $this->itemsTotal,
             'constructedFrom' => $this->constructedFrom,
+            'disableFilters' => $this->disableFilters,
         ];
     }
 
@@ -113,5 +116,10 @@ class Datasheet
         $this->itemsTotal = $itemsTotal;
 
         return $this;
+    }
+
+    public function disableFilters()
+    {
+        $this->disableFilters = true;
     }
 }

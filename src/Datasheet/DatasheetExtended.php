@@ -170,11 +170,16 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
+    public function setDisableFilters($disableFilters)
+    {
+        $this->disableFilters = $disableFilters;
+    }
+
     /** Other */
 
     public function hasFilters()
     {
-        return $this->hasFilters;
+        return $this->disableFilters ? false : $this->hasFilters;
     }
 
     public function getTranslationPrefix()
