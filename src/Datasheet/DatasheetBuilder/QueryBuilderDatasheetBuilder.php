@@ -108,22 +108,23 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
     {
         // Fields was defined by ShowFields method
 
-//        if ($this->getDatasheet()->getFieldsToShow()) {
-//
-//            foreach ($this->getDatasheet()->getFieldsToShow() as $field) {
-//                $fields[StringUtility::toCamelCase($field)] = [
-//                    'title' => StringUtility::normalize($field),
-//                    'hasFilter' => false,
-//                ];
-//            }
-//            return $fields;
-//        }
+        if ($this->getDatasheet()->getFieldsToShow()) {
+            $fields = [];
+
+            foreach ($this->getDatasheet()->getFieldsToShow() as $field) {
+                $fields[StringUtility::toCamelCase($field)] = [
+                    'title' => StringUtility::normalize($field),
+                ];
+            }
+            $this->getDatasheet()->setFields($this->addFilterChoices($fields));
+
+            return;
+        }
+
         $selects = $this->getQueryBuilder()->getDQLPart('select');
 
         if (count($selects) == 1) {
             // Fields was not defined, no selects in query, so get all fields of base from
-            $fields = [];
-
             foreach ($this->getEntity()->getFields() as $field) {
                 if ($field instanceof RelationField) {
                     $this->join($this->getQueryBuilder(), $field->getName());
@@ -196,14 +197,11 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
                 $this->getQueryBuilder()->addSelect($newSelect);
             }
         }
+        $this->getDatasheet()->setFields($this->addFilterChoices($fields));
+    }
 
-//        foreach ($this->getEntity()->getFields() as $field) {
-//            $fields[StringUtility::toCamelCase($field->getName())] = [
-//                'title' => StringUtility::normalize($field->getName()),
-//                'hasFilter' => false,
-//            ];
-//        }
-
+    protected function addFilterChoices($fields)
+    {
         foreach ($fields as $fieldName => $field) {
             if ($fieldName == 'id') {
                 continue;
@@ -224,7 +222,8 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             $fields[$fieldName]['filterChoices'] = $choices;
             $fields[$fieldName]['hasFilter'] = true;
         }
-        $this->getDatasheet()->setFields($fields);
+
+        return $fields;
     }
 
     protected function getBaseAlias(): string
