@@ -106,21 +106,6 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
 
     protected function buildFields()
     {
-        // Fields was defined by ShowFields method
-
-        if ($this->getDatasheet()->getFieldsToShow()) {
-            $fields = [];
-
-            foreach ($this->getDatasheet()->getFieldsToShow() as $field) {
-                $fields[StringUtility::toCamelCase($field)] = [
-                    'title' => StringUtility::normalize($field),
-                ];
-            }
-            $this->getDatasheet()->setFields($this->addFilterChoices($fields));
-
-            return;
-        }
-
         $selects = $this->getQueryBuilder()->getDQLPart('select');
 
         if (count($selects) == 1) {
@@ -196,6 +181,17 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
                 $this->getQueryBuilder()->addSelect($newSelect);
             }
         }
+
+        if ($this->getDatasheet()->getFieldsToShow()) {
+            $fields = [];
+
+            foreach ($this->getDatasheet()->getFieldsToShow() as $fieldToShow) {
+                $fields[$fieldToShow] = [
+                    'title' => StringUtility::normalize($fieldToShow),
+                ];
+            }
+        }
+
         $this->getDatasheet()->setFields($this->addFilterChoices($fields));
     }
 
