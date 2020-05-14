@@ -175,6 +175,11 @@ class DatasheetExtended extends Datasheet
         $this->disableFilters = $disableFilters;
     }
 
+    public function getSummary()
+    {
+        return $this->summary;
+    }
+
     /** Other */
 
     public function hasFilters()
@@ -185,11 +190,6 @@ class DatasheetExtended extends Datasheet
     public function getTranslationPrefix()
     {
         return $this->translationPrefix;
-    }
-
-    public function getSummaryRow()
-    {
-        return $this->summaryRow;
     }
 
     public function getHasFilters()

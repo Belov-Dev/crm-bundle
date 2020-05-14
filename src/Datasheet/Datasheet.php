@@ -16,7 +16,7 @@ class Datasheet
 
     protected $translationPrefix;
 
-    protected $summaryRow;
+    protected $summary;
 
     protected $page = 1;
 
@@ -46,7 +46,7 @@ class Datasheet
             'fieldOptions' => $this->fieldOptions,
             'fieldHandlers' => $this->fieldHandlers,
             'translationPrefix' => $this->translationPrefix,
-            'summaryRow' => $this->summaryRow,
+            'summary' => $this->summary,
             'page' => $this->page,
             'itemsPerPage' => $this->itemsPerPage,
             'itemsTotal' => $this->itemsTotal,
@@ -90,9 +90,9 @@ class Datasheet
         return $this;
     }
 
-    public function setSummaryRow($summaryRow): self
+    public function addSummary($summary): self
     {
-        $this->summaryRow = $summaryRow;
+        $this->summary = $summary;
 
         return $this;
     }
