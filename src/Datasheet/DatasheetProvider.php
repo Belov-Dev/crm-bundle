@@ -6,7 +6,6 @@ use A2Global\CRMBundle\Datasheet\DatasheetBuilder\AbstractDatasheetBuilder;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Registry\DatasheetBuilderRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Throwable;
 use Twig\Environment;
 
 class DatasheetProvider

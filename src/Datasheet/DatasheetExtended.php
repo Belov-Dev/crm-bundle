@@ -24,6 +24,8 @@ class DatasheetExtended extends Datasheet
 
     protected $uniqueId;
 
+    protected $debugMode = false;
+
     public function __construct($data)
     {
         parent::__construct(null);
@@ -195,5 +197,17 @@ class DatasheetExtended extends Datasheet
     public function getHasFilters()
     {
         return $this->hasFilters;
+    }
+
+    public function isDebugMode(): bool
+    {
+        return $this->debugMode;
+    }
+
+    public function setDebugMode(bool $debugMode): DatasheetExtended
+    {
+        $this->debugMode = $debugMode;
+
+        return $this;
     }
 }

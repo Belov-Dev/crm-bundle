@@ -1,9 +1,12 @@
 <form action="{{ filterFormUrl }}" method="GET">
 
-    <details>
-        <summary>Debug</summary>
-        {{ datasheet.debug|json_encode }}
-    </details>
+    {% if datasheet.isDebugMode %}
+        <details>
+            <summary>Debug</summary>
+            {{ datasheet.debug|json_encode }}
+        </details>
+    {% endif %}
+
     <table class="table table-hover table-bordered table-stiped table-sm table-striped table-condensed"
            data-datasheet-id="{{ datasheet.uniqueId }}">
         <thead>

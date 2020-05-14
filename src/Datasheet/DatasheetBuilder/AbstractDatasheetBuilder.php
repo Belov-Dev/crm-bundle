@@ -8,6 +8,7 @@ use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
 use Doctrine\Common\Annotations\Annotation\Required;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 {
@@ -18,6 +19,10 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 
     /** @var EntityInfoProvider */
     protected $entityInfoProvider;
+
+
+    /** @var ParameterBagInterface */
+    protected $parameterBag;
 
     public function setDatasheet(Datasheet $datasheet): self
     {
@@ -34,6 +39,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     public function build($page = null, $itemsPerPage = null, $filters = [])
     {
         $this->updateItems();
+        $this->getDatasheet()->setDebugMode($this->parameterBag->get('kernel.environment') == 'dev');
     }
 
     protected function updateItems()
@@ -48,15 +54,15 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 //                    throw new DatasheetException(sprintf('Datasheet failed to get %s value from data', $fieldName));
 //                }
 //                $value = $itemOriginal[$fieldName];
-                if(is_object($itemOriginal)){
+                if (is_object($itemOriginal)) {
                     $value = $this->getObjectValue($itemOriginal, $fieldName);
-                }else{
+                } else {
                     $tmp = explode('.', $fieldName);
 //
-                    if(count($tmp) > 1){
+                    if (count($tmp) > 1) {
                         $key = implode(self::NEST_SEPARATOR, $tmp);
                         $value = $itemOriginal[$key];
-                    }else{
+                    } else {
                         $value = $itemOriginal[$fieldName];
                     }
                 }
@@ -122,5 +128,11 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     public function setEntityInfoProvider(EntityInfoProvider $entityInfoProvider)
     {
         $this->entityInfoProvider = $entityInfoProvider;
+    }
+
+    /** @Required */
+    public function setParameterBag(ParameterBagInterface $parameterBag)
+    {
+        $this->parameterBag = $parameterBag;
     }
 }
