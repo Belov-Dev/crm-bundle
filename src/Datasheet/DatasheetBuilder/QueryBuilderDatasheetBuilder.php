@@ -8,6 +8,7 @@ use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Component\Field\RelationField;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
+use A2Global\CRMBundle\Utility\ArrayUtility;
 use A2Global\CRMBundle\Utility\StringUtility;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
@@ -75,14 +76,31 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             ->getQuery()
             ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
 
-        $result = $this->getQueryBuilder()
+        $items = $this->getQueryBuilder()
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
             ->getArrayResult();
 
+        $replaceNestedFields = [];
+
+        foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
+            if (strpos($fieldName, '.')) {
+                $replaceNestedFields[$fieldName] = str_replace('.', self::NEST_SEPARATOR, $fieldName);
+            }
+        }
+        if (count($replaceNestedFields) > 0) {
+            $replaceNestedFields = array_flip($replaceNestedFields);
+
+            for ($i = 0; $i < count($items); $i++) {
+                foreach ($replaceNestedFields as $from => $to) {
+                    $items[$i] = ArrayUtility::renameKey($items[$i], $from, $to);
+                }
+            }
+        }
+
         $this->getDatasheet()
-            ->setItems($result)
+            ->setItems($items)
             ->setItemsTotal($total)
             ->setHasFilters(true);
 
@@ -109,6 +127,8 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
         $selects = $this->getQueryBuilder()->getDQLPart('select');
 
         if (count($selects) == 1) {
+            $this->getQueryBuilder()->resetDQLPart('select');
+
             // Fields was not defined, no selects in query, so get all fields of base from
             foreach ($this->getEntity()->getFields() as $field) {
                 if ($field instanceof RelationField) {

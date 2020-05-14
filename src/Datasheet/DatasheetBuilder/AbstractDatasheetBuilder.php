@@ -52,18 +52,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
             $item = [];
 
             foreach ($this->getDatasheet()->getFields() as $fieldName => $fieldOptions) {
-                if (is_object($itemOriginal)) {
-                    $value = $this->getObjectValue($itemOriginal, $fieldName);
-                } else {
-                    $tmp = explode('.', $fieldName);
-
-                    if (count($tmp) > 1) {
-                        $key = implode(self::NEST_SEPARATOR, $tmp);
-                        $value = $itemOriginal[$key];
-                    } else {
-                        $value = $itemOriginal[$fieldName];
-                    }
-                }
+                $value = $itemOriginal[$fieldName];
                 $value = $this->handleValue($value);
 
                 if (isset($this->getDatasheet()->getFieldHandlers()[$fieldName])) {
@@ -77,23 +66,9 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
                 }
                 $item[$fieldName] = $value;
             }
-            dd($item);
             $items[] = $item;
         }
         $this->getDatasheet()->setItems($items);
-    }
-
-    protected function getObjectValue($object, $path)
-    {
-        $path = explode(self::NEST_SEPARATOR, $path);
-        $subObject = $object->{'get' . $path[0]}();
-
-        if (count($path) == 1) {
-            return $subObject;
-        }
-        array_shift($path);
-
-        return $this->getObjectValue($subObject, implode(self::NEST_SEPARATOR, $path));
     }
 
     protected function handleValue($value)
