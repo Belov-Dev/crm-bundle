@@ -16,18 +16,21 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         if (is_callable($this->getDatasheet()->getData())) {
             $callable = $this->getDatasheet()->getData();
             $this->getDatasheet()->setItems($callable());
-        }else{
+        } else {
             $this->getDatasheet()->setItems($this->getDatasheet()->getData());
         }
 
-        if($page){
+        if ($page) {
             $this->getDatasheet()->setPage($page);
         }
 
-        if($itemsPerPage){
+        if ($itemsPerPage) {
             $this->getDatasheet()->setItemsPerPage($itemsPerPage);
         }
-        $this->getDatasheet()->setItemsTotal(count($this->getDatasheet()->getItems()));
+
+        if (!$this->getDatasheet()->getItemsTotal() && count($this->getDatasheet()->getItems())) {
+            $this->getDatasheet()->setItemsTotal(count($this->getDatasheet()->getItems()));
+        }
 
         if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
             foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {

@@ -69,6 +69,11 @@ class DatasheetExtended extends Datasheet
         return $this->itemsPerPage;
     }
 
+    public function getItemsTotal()
+    {
+        return $this->itemsTotal;
+    }
+
     public function getPage()
     {
         return $this->page;
@@ -101,18 +106,6 @@ class DatasheetExtended extends Datasheet
     public function setItems($items): self
     {
         $this->items = $items;
-
-        return $this;
-    }
-
-    public function getItemsTotal()
-    {
-        return $this->itemsTotal;
-    }
-
-    public function setItemsTotal($itemsTotal): self
-    {
-        $this->itemsTotal = $itemsTotal;
 
         return $this;
     }

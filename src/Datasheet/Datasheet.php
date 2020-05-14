@@ -22,6 +22,8 @@ class Datasheet
 
     protected $itemsPerPage = 15;
 
+    protected $itemsTotal = 0;
+
     protected $constructedFrom = '';
 
     public function __construct($data)
@@ -45,6 +47,7 @@ class Datasheet
             'summaryRow' => $this->summaryRow,
             'page' => $this->page,
             'itemsPerPage' => $this->itemsPerPage,
+            'itemsTotal' => $this->itemsTotal,
             'constructedFrom' => $this->constructedFrom,
         ];
     }
@@ -101,6 +104,13 @@ class Datasheet
     public function setItemsPerPage(int $itemsPerPage): self
     {
         $this->itemsPerPage = $itemsPerPage;
+
+        return $this;
+    }
+
+    public function setItemsTotal(int $itemsTotal): self
+    {
+        $this->itemsTotal = $itemsTotal;
 
         return $this;
     }
