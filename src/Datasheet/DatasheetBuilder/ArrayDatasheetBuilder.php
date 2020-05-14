@@ -36,6 +36,7 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         if (!$this->getDatasheet()->getItemsTotal() && count($this->getDatasheet()->getItems())) {
             $this->getDatasheet()->setItemsTotal(count($this->getDatasheet()->getItems()));
         }
+        $fields = [];
 
         if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
             foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {
