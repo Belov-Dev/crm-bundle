@@ -45,6 +45,13 @@ class DatasheetProvider
 //            $filterFormUrl = http_build_query($queryString);
 //        }
 
+        if($datasheet->getItemsTotal() < 1){
+            return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig', [
+                'datasheet' => $datasheet,
+                'filterFormUrl' => $filterFormUrl ?? null,
+            ]);
+        }
+
         return $this->twig->render('@A2CRM/datasheet/datasheet.table.html.twig', [
             'datasheet' => $datasheet,
             'filterFormUrl' => $filterFormUrl ?? null,
