@@ -129,9 +129,9 @@ class DatasheetExtended extends Datasheet
         return $this;
     }
 
-    public function getFieldOptions($fieldName)
+    public function getFieldOptions()
     {
-        return $this->fieldOptions[$fieldName] ?? [];
+        return $this->fieldOptions;
     }
 
     public function getOriginal(): Datasheet

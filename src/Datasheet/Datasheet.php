@@ -69,9 +69,13 @@ class Datasheet
         return $this;
     }
 
-    public function setFieldOptions($field, array $options): self
+    public function setField($field, $titleOrOptions): self
     {
-        $this->fieldOptions[$field] = $options;
+        if (is_array($titleOrOptions)) {
+            $this->fieldOptions[$field] = $titleOrOptions;
+        } else {
+            $this->fieldOptions[$field]['title'] = $titleOrOptions;
+        }
 
         return $this;
     }

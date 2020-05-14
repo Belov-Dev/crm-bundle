@@ -26,7 +26,7 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
             $this->getDatasheet()->setItems(
                 $callable(
                     $this->getDatasheet()->getItemsPerPage(),
-                    $this->getDatasheet()->getItemsPerPage() * ($this->getDatasheet()->getPage() -1)
+                    $this->getDatasheet()->getItemsPerPage() * ($this->getDatasheet()->getPage() - 1)
                 )
             );
         } else {
@@ -40,8 +40,9 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
 
         if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
             foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {
-                $fields[StringUtility::toCamelCase($fieldName)] = [
-                    'title' => StringUtility::normalize($fieldName),
+                $fieldName = StringUtility::toCamelCase($fieldName);
+                $fields[$fieldName] = [
+                    'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? StringUtility::normalize($fieldName),
                     'hasFilter' => false,
                 ];
             }

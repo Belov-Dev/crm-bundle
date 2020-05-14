@@ -153,7 +153,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
                     $fieldTitle = StringUtility::normalize($field->getName());
                 }
                 $fields[$fieldName] = [
-                    'title' => $fieldTitle,
+                    'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? $fieldTitle,
                     'hasFilter' => false,
                 ];
             }
@@ -283,56 +283,6 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
     protected function getQueryBuilder(): QueryBuilder
     {
         return $this->queryBuilder;
-    }
-
-    protected function getQueryBuilderFiltered(): QueryBuilder
-    {
-
-        $this->joined = [];
-        $queryBuilder = $this->cloneQb();
-
-        if (count($this->datasheet->getFilters()) < 1) {
-            return $queryBuilder;
-        }
-
-        foreach ($this->datasheet->getFilters() as $fieldName => $value) {
-            if (!trim($value)) {
-                continue;
-            }
-            $field = $this->getEntity()->getField($fieldName);
-
-            if ($field instanceof RelationField) {
-                $fieldOptions = $this->datasheet->getFieldOptions($fieldName);
-                $this
-                    ->join($queryBuilder, $this->getQbMainAlias(), $fieldName)
-                    ->andWhere(sprintf('%s.%s = :%sFilter', $fieldName, $fieldOptions['filterBy'], $fieldName))
-                    ->setParameter($fieldName . 'Filter', $value);
-                continue;
-            }
-
-            $queryBuilder
-                ->andWhere(sprintf('%s.%s = :%sFilter', $this->getQbMainAlias(), $fieldName, $fieldName))
-                ->setParameter($fieldName . 'Filter', $value);
-        }
-
-        return $queryBuilder;
-    }
-
-    protected function hasFilter(FieldInterface $entityField)
-    {
-        if ($entityField instanceof IdField) {
-            return false;
-        }
-
-        if ($entityField instanceof RelationField) {
-            $fieldOptions = $this->datasheet->getFieldOptions(StringUtility::toCamelCase($entityField->getName()));
-
-            if (!isset($fieldOptions['filterBy'])) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     protected function updateQueryBuilderWithSelects(QueryBuilder $queryBuilder)
