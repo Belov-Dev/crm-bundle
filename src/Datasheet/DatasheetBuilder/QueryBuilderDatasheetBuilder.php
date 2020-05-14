@@ -207,7 +207,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
 
             foreach ($this->getDatasheet()->getFieldsToShow() as $fieldToShow) {
                 $fields[$fieldToShow] = [
-                    'title' => StringUtility::normalize($fieldToShow),
+                    'title' => $this->getDatasheet()->getFieldOptions()[$fieldToShow]['title'] ?? StringUtility::normalize($fieldToShow),
                 ];
             }
         }
