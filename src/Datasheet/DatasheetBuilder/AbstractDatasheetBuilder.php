@@ -77,6 +77,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
                 }
                 $item[$fieldName] = $value;
             }
+            dd($item);
             $items[] = $item;
         }
         $this->getDatasheet()->setItems($items);
