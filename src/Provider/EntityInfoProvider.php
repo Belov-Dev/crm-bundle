@@ -110,7 +110,7 @@ class EntityInfoProvider
         if (isset($annotations['ORM']['Column']['type'])) {
             $fieldType = $annotations['ORM']['Column']['type'];
 
-            if (in_array($fieldType, ['string', 'integer', 'float', 'boolean', 'date', 'datetime'])) {
+            if (in_array($fieldType, ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'text'])) {
                 $constants = $reflection->getConstants();
                 $choiceConstName = StringUtility::toConstantName('CHOICES_' . $fieldName);
 
