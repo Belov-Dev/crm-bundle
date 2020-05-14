@@ -168,6 +168,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
                     'field' => $result[2],
                     'as' => $result[4] ?? null,
                 ];
+
                 if ($select['alias'] == $this->getBaseAlias()) {
                     $fieldName = $select['field'];
                     $newSelects[] = $firstPart;
@@ -184,10 +185,8 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
                     }
                     $newSelects[] = sprintf('%s.%s AS %s', $select['alias'], $select['field'], $sqbFieldName);
                 }
-
                 $fields[$fieldName] = [
                     'title' => StringUtility::normalize($fieldName),
-                    'hasFilter' => false,
                 ];
             }
             $this->getDatasheet()->setFields($fields);
@@ -203,7 +202,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
     protected function addFilterChoices($fields)
     {
         foreach ($fields as $fieldName => $field) {
-            $fields[$fieldName]['hasFilter'] = true;
+            $fields[$fieldName]['hasFilter'] = false;
 
             if ($fieldName == 'id') {
                 continue;
