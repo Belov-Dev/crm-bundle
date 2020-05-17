@@ -278,7 +278,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
     {
         // check if was already joined
         $joins = $queryBuilder->getDQLPart('join');
-        $queryBuilder->join(
+        $queryBuilder->leftJoin(
             sprintf('%s.%s', $this->getBaseAlias(), StringUtility::toCamelCase($field)),
             StringUtility::toCamelCase($field)
         );
