@@ -44,17 +44,14 @@
         </thead>
         <tbody>
         {% for item in datasheet.items %}
+            {% set rowNumber = loop.index %}
             <tr>
                 {% if datasheet.hasFilters %}
                     <td>&nbsp;</td>
                 {% endif %}
                 {% for fieldName, field in datasheet.fields %}
-                    {% if item.id is defined %}
-                    <td id="ds_{{ item.id }}_{{ fieldName|toSnakeCase }}">
-                    {% else %}
-                        <td>
-                    {% endif %}
-                    {{ item[fieldName]|raw }}
+                    <td id="ds_{{ rowNumber }}_{{ fieldName|toSnakeCase }}">
+                        {{ item[fieldName]|raw }}
                     </td>
                 {% endfor %}
             </tr>
