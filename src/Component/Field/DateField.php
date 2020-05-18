@@ -21,15 +21,15 @@ class DateField extends AbstractField implements FieldInterface
     {
         return sprintf(
             '<div class="input-group"><div class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></div>
-            <input type="date" name="data[%s]" class="form-control" value="%s" placeholder="dd-mm-yyyy" maxlength="10"></div>',
+            <input type="text" name="data[%s]" class="form-control" value="%s" placeholder="DD.MM.YYYY"></div>',
             StringUtility::toCamelCase($this->getName()),
-            $value ? htmlspecialchars($value->format('Y-m-d')) : null
+            $value ? $value->format('d.m.Y') : null
         );
     }
 
     public function setValueToObject($value, $object): FieldInterface
     {
-        $value = new DateTime($value);
+        $value = new DateTime(preg_replace('/\D/', '-', trim($value)));
 
         return parent::setValueToObject($value, $object);
     }
