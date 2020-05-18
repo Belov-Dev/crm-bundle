@@ -11,7 +11,7 @@ class DatetimeField extends AbstractField implements FieldInterface
     {
         return [
             '/**',
-            ' * @ORM\Column(type="date", nullable=true)',
+            ' * @ORM\Column(type="datetime", nullable=true)',
             ' */',
             'private $' . StringUtility::toCamelCase($this->getName()) . ';',
         ];
@@ -20,16 +20,16 @@ class DatetimeField extends AbstractField implements FieldInterface
     public function getFormControl($value = null): string
     {
         return sprintf(
-            '<div class="input-group"><div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-            <input type="text" name="data[%s]" class="form-control" value="%s" data-date-mask="" placeholder="dd/mm/yyyy" maxlength="10"></div>',
+            '<div class="input-group"><div class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></div>
+            <input type="datetime-local" name="data[%s]" class="form-control" value="%s" placeholder="yyyy-mm-dd hh:ii:ss" maxlength="10"></div>',
             StringUtility::toCamelCase($this->getName()),
-            $value ? htmlspecialchars($value->format('d/m/Y')) : null
+            $value ? htmlspecialchars($value->format('Y-m-d')) : null
         );
     }
 
     public function setValueToObject($value, $object): FieldInterface
     {
-        $value = new DateTime(str_replace('/', '-', $value));
+        $value = new DateTime($value);
 
         return parent::setValueToObject($value, $object);
     }
