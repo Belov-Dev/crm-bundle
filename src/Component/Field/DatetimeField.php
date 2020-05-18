@@ -21,9 +21,9 @@ class DatetimeField extends AbstractField implements FieldInterface
     {
         return sprintf(
             '<div class="input-group"><div class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></div>
-            <input type="datetime-local" name="data[%s]" class="form-control" value="%s" placeholder="yyyy-mm-dd hh:ii:ss" maxlength="10"></div>',
+            <input type="datetime-local" name="data[%s]" class="form-control" value="%s" placeholder="dd-mm-yyyy hh:ii:ss" maxlength="10"></div>',
             StringUtility::toCamelCase($this->getName()),
-            $value ? htmlspecialchars($value->format('Y-m-d')) : null
+            $value ? $value->format('Y-m-d') . 'T' . $value->format('H:i') : null
         );
     }
 

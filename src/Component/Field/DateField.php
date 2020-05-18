@@ -21,7 +21,7 @@ class DateField extends AbstractField implements FieldInterface
     {
         return sprintf(
             '<div class="input-group"><div class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></div>
-            <input type="date" name="data[%s]" class="form-control" value="%s" placeholder="yyyy-mm-dd" maxlength="10"></div>',
+            <input type="date" name="data[%s]" class="form-control" value="%s" placeholder="dd-mm-yyyy" maxlength="10"></div>',
             StringUtility::toCamelCase($this->getName()),
             $value ? htmlspecialchars($value->format('Y-m-d')) : null
         );
