@@ -49,8 +49,12 @@
                     <td>&nbsp;</td>
                 {% endif %}
                 {% for fieldName, field in datasheet.fields %}
-                    <td>
-                        {{ item[fieldName]|raw }}
+                    {% if item.id is defined %}
+                    <td id="ds_{{ item.id }}_{{ fieldName|toSnakeCase }}">
+                    {% else %}
+                        <td>
+                    {% endif %}
+                    {{ item[fieldName]|raw }}
                     </td>
                 {% endfor %}
             </tr>
