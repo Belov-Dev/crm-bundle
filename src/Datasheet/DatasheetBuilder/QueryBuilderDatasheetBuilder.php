@@ -231,11 +231,10 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             if (strpos($fieldName, '.')) {
                 continue;
             }
+            $fieldNameSnakeCase = StringUtility::toSnakeCase($fieldName);
             $choices = $this->entityManager->getConnection()->fetchAll(sprintf(
-                'SELECT DISTINCT(%s) FROM (%s) ORDER BY %s',
-                StringUtility::toSnakeCase($fieldName),
-                $this->getEntity()->getTableName(),
-                StringUtility::toSnakeCase($fieldName)
+                'SELECT DISTINCT(%s) FROM (%s) WHERE %s IS NOT NULL ORDER BY %s',
+                $fieldNameSnakeCase, $this->getEntity()->getTableName(), $fieldNameSnakeCase, $fieldNameSnakeCase
             ));
             $choices = array_map(function ($item) {
                 return reset($item);
