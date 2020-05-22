@@ -29,7 +29,7 @@ class DateField extends AbstractField implements FieldInterface
 
     public function setValueToObject($value, $object): FieldInterface
     {
-        $value = new DateTime(preg_replace('/\D/', '-', trim($value)));
+        $value = trim($value) ? new DateTime(preg_replace('/\D/', '-', trim($value))) : null;
 
         return parent::setValueToObject($value, $object);
     }
