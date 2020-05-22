@@ -4,6 +4,7 @@
         <details>
             <summary>Debug</summary>
             {{ datasheet.debug|json_encode }}
+            {{ dump(datasheet.filters) }}
         </details>
     {% endif %}
 

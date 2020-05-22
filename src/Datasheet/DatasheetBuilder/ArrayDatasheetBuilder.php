@@ -13,6 +13,8 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
 
     public function build($page = null, $itemsPerPage = null, $filters = [])
     {
+        $filtersShouldBeApplied = false;
+
         if ($page) {
             $this->getDatasheet()->setPage($page);
         }
@@ -26,11 +28,13 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
             $this->getDatasheet()->setItems(
                 $callable(
                     $this->getDatasheet()->getItemsPerPage(),
-                    $this->getDatasheet()->getItemsPerPage() * ($this->getDatasheet()->getPage() - 1)
+                    $this->getDatasheet()->getItemsPerPage() * ($this->getDatasheet()->getPage() - 1),
+                    $filters
                 )
             );
         } else {
             $this->getDatasheet()->setItems($this->getDatasheet()->getData());
+            $filtersShouldBeApplied = true;
         }
 
         if (!$this->getDatasheet()->getItemsTotal() && count($this->getDatasheet()->getItems())) {
@@ -61,9 +65,85 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         foreach ($this->getDatasheet()->getFieldsToRemove() as $fieldToRemove) {
             unset($fields[$fieldToRemove]);
         }
-
         $this->getDatasheet()->setFields($fields);
 
+        if ($filtersShouldBeApplied) {
+            $this->addFilterChoices();
+            $this->getDatasheet()->setFilters($filters);
+            $this->applyFilters();
+        }
+
         parent::build($page, $itemsPerPage, $filters);
+    }
+
+    protected function applyFilters()
+    {
+        $filters = array_filter($this->getDatasheet()->getFilters(), function($filter){
+            return !empty(trim($filter));
+        });
+        $this->getDatasheet()->setFilters($filters);
+
+        if(count($filters) < 1){
+            return;
+        }
+        $filteredItems = [];
+
+        foreach ($this->getDatasheet()->getItems() as $item) {
+            $addItem = true;
+
+            foreach($filters as $name => $value){
+                if($item[$name] != $value){
+                    $addItem = false;
+                }
+            }
+
+            if($addItem){
+                $filteredItems[] = $item;
+            }
+        }
+
+        $this->getDatasheet()->setItemsTotal(count($filteredItems));
+        $this->getDatasheet()->setItems($filteredItems);
+    }
+
+    protected function addFilterChoices()
+    {
+        $choices = [];
+
+        foreach ($this->getDatasheet()->getItems() as $item) {
+            foreach ($item as $fieldName => $value) {
+                if ($fieldName == 'id') {
+                    continue;
+                }
+
+                if (strpos($fieldName, '.')) {
+                    continue;
+                }
+
+                if(isset($choices[$fieldName]) && in_array($value, $choices[$fieldName])){
+                    continue;
+                }
+                $choices[$fieldName][] = $value;
+            }
+        }
+
+        $fields = [];
+
+        foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
+            $fields[$fieldName] = $field;
+
+            if ($fieldName == 'id') {
+                continue;
+            }
+
+            if (strpos($fieldName, '.')) {
+                continue;
+            }
+            $fields[$fieldName]['filterChoices'] = $choices[$fieldName];
+            $fields[$fieldName]['hasFilter'] = true;
+            $this->getDatasheet()->setHasFilters(true);
+        }
+
+        $this->getDatasheet()->setFields($fields);
     }
 }
