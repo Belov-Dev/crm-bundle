@@ -69,7 +69,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
                     } catch (Throwable $e) {
                         throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
                     }
-                    $value = sprintf('<td id="ds_%s_%s">%s</td>', $rowNumber, $fieldName, $value);
+                    $value = sprintf('<td id="ds_%s_%s">%s</td>', $rowNumber, StringUtility::toSnakeCase($fieldName), $value);
                 } else {
                     $value = $this->handleValue($value, $fieldOptions, $rowNumber, $fieldName);
                 }
@@ -95,7 +95,7 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
             '<td%s id="ds_%s_%s">%s</td>',
             isset($item['class']) ? sprintf(' class="%s"', $item['class']) : '',
             $rowNumber,
-            $fieldName,
+            StringUtility::toSnakeCase($fieldName),
             $item['value']
         );
     }
