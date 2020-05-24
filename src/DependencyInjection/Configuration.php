@@ -15,6 +15,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->scalarNode('url')->defaultValue('admin')->info('Url to the CRM homepage')->end()
+//            ->scalarNode('url')->defaultValue('admin')->info('Url to the CRM homepage')->end()
             ->end();
 
         return $treeBuilder;
