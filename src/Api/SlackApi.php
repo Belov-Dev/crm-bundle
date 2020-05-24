@@ -20,7 +20,7 @@ class SlackApi
             throw new Exception('Token is required for SlackAPI');
         }
 
-        (new Client())->post('https://slack.com/api/chat.postMessage', [
+        $result = (new Client())->post('https://slack.com/api/chat.postMessage', [
             'form_params' => [
                 'token' => $this->token,
                 'channel' => $channel,
