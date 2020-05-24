@@ -17,11 +17,16 @@ services:
     _instanceof:
         A2Global\CRMBundle\Component\Field\FieldInterface:
             tags: ['a2crm.entity_field']
+        A2Global\CRMBundle\Component\Datasheet\FieldType\DatasheetFieldTypeInterface:
+            tags: ['a2crm.datasheet_field']
         A2Global\CRMBundle\Datasheet\DatasheetBuilder\DatasheetBuilderInterface:
             tags: ['a2crm.datasheet.builder']
 
     A2Global\CRMBundle\Registry\EntityFieldRegistry:
         arguments: [!tagged { tag: 'a2crm.entity_field' }]
+
+    A2Global\CRMBundle\Registry\DatasheetFieldRegistry:
+        arguments: [!tagged { tag: 'a2crm.datasheet_field' }]
 
     A2Global\CRMBundle\Registry\DatasheetBuilderRegistry:
         arguments: [!tagged { tag: 'a2crm.datasheet.builder' }]

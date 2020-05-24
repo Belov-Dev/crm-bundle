@@ -13,7 +13,7 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
 
     public function build($page = null, $itemsPerPage = null, $filters = [])
     {
-        $filtersShouldBeApplied = false;
+        $isDataSourceCallable = false;
 
         if ($page) {
             $this->getDatasheet()->setPage($page);
@@ -32,9 +32,9 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
                     $filters
                 )
             );
+            $isDataSourceCallable = true;
         } else {
             $this->getDatasheet()->setItems($this->getDatasheet()->getData());
-            $filtersShouldBeApplied = true;
         }
 
         if (!$this->getDatasheet()->getItemsTotal() && count($this->getDatasheet()->getItems())) {
@@ -54,10 +54,9 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
             if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
                 foreach (array_keys($this->datasheet->getItems()[0]) as $fieldName) {
                     $fieldName = StringUtility::toCamelCase($fieldName);
-                    $fields[$fieldName] = [
-                        'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? StringUtility::normalize($fieldName),
-                        'hasFilter' => false,
-                    ];
+                    $fields[$fieldName] = $this->getDatasheet()->getFieldOptions()[$fieldName] ?? [];
+                    $fields[$fieldName]['title'] =  $fields[$fieldName]['title'] ?? StringUtility::normalize($fieldName);
+                    $fields[$fieldName]['hasFilter'] = false;
                 }
             }
         }
@@ -67,10 +66,20 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         }
         $this->getDatasheet()->setFields($fields);
 
-        if ($filtersShouldBeApplied && !$this->getDatasheet()->disableFilters()) {
+        if (!$isDataSourceCallable && !$this->getDatasheet()->disableFilters()) {
             $this->addFilterChoices();
             $this->getDatasheet()->setFilters($filters);
             $this->applyFilters();
+        }
+
+        if(!$isDataSourceCallable){
+            $items = $this->getDatasheet()->getItems();
+            $items = array_splice(
+                $items,
+                $this->getDatasheet()->getItemsPerPage() * ($this->getDatasheet()->getPage() - 1),
+                $this->getDatasheet()->getItemsPerPage()
+            );
+            $this->getDatasheet()->setItems($items);
         }
 
         parent::build($page, $itemsPerPage, $filters);

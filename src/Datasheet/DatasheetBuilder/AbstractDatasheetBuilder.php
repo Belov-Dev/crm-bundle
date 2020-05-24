@@ -2,13 +2,15 @@
 
 namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
+use A2Global\CRMBundle\Component\Datasheet\FieldType\DataSheetFieldTypeInterface;
+use A2Global\CRMBundle\Component\Datasheet\FieldType\TypeString;
 use A2Global\CRMBundle\Datasheet\Datasheet;
 use A2Global\CRMBundle\Datasheet\DatasheetExtended;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
+use A2Global\CRMBundle\Registry\DatasheetFieldRegistry;
 use A2Global\CRMBundle\Utility\StringUtility;
 use DateTimeInterface;
-use Doctrine\Common\Annotations\Annotation\Required;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Throwable;
 
@@ -22,9 +24,11 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     /** @var EntityInfoProvider */
     protected $entityInfoProvider;
 
-
     /** @var ParameterBagInterface */
     protected $parameterBag;
+
+    /** @var DatasheetFieldRegistry */
+    protected $datasheetFieldRegistry;
 
     public function setDatasheet(Datasheet $datasheet): self
     {
@@ -54,7 +58,6 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 
             foreach ($this->getDatasheet()->getFields() as $fieldName => $fieldOptions) {
                 $value = $itemOriginal[$fieldName];
-                $value = $this->handleValue($value);
 
                 if (isset($this->getDatasheet()->getFieldHandlers()[$fieldName])) {
                     $callable = $this->getDatasheet()->getFieldHandlers()[$fieldName];
@@ -64,6 +67,9 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
                     } catch (Throwable $e) {
                         throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
                     }
+                    $value = sprintf('<td>%s</td>', $value);
+                } else {
+                    $value = $this->handleValue($value, $fieldOptions);
                 }
                 $item[$fieldName] = $value;
             }
@@ -72,32 +78,46 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         $this->getDatasheet()->setItems($items);
     }
 
-    protected function handleValue($value)
+    protected function handleValue($value, $fieldOptions)
     {
-        if (is_bool($value)) {
-            if ($value) {
-                return '<span class="badge bg-light-blue">Yes</span>';
-            } else {
-                return '<span class="badge">No</span>';
-            }
+        $handler = $this->getFieldHandler($value, $fieldOptions);
+        $item = $handler->get($value, $fieldOptions);
+
+        if(!is_array($item)){
+            $item = [
+                'value' => $item,
+            ];
         }
 
-        if ($value instanceof DateTimeInterface) {
-            return $value->format('d-m-Y');
-        }
-
-        if (is_object($value)) {
-            if (!method_exists($value, '__toString')) {
-                return StringUtility::normalize(StringUtility::getShortClassName($value)) . ' #' . $value->getId();
-            } else {
-                return (string)$value;
-            }
-        }
-
-        return $value;
+        return sprintf(
+            '<td%s>%s</td>',
+            isset($item['class']) ? sprintf(' class="%s"', $item['class']) : '',
+            $item['value']
+        );
     }
 
-    /** QB builders common part */
+    protected function getFieldHandler($value, $fieldOptions): DataSheetFieldTypeInterface
+    {
+        foreach ($this->datasheetFieldRegistry->findAll() as $fieldHandler) {
+            if (isset($fieldOptions['type'])) {
+                if ($fieldOptions['type'] == get_class($fieldHandler)) {
+                    return $fieldHandler;
+                }
+            } else {
+                if ($fieldHandler->supports($value, $fieldOptions)) {
+                    return $fieldHandler;
+                }
+            }
+
+            if ($fieldHandler instanceof TypeString) {
+                $default = $fieldHandler;
+            }
+        }
+
+        return $default;
+    }
+
+    /** DI */
 
     /** @Required */
     public function setEntityInfoProvider(EntityInfoProvider $entityInfoProvider)
@@ -109,5 +129,11 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
     public function setParameterBag(ParameterBagInterface $parameterBag)
     {
         $this->parameterBag = $parameterBag;
+    }
+
+    /** @Required */
+    public function setDatasheetFieldRegistry(DatasheetFieldRegistry $datasheetFieldRegistry)
+    {
+        $this->datasheetFieldRegistry = $datasheetFieldRegistry;
     }
 }

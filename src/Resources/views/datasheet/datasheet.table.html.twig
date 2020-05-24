@@ -50,9 +50,9 @@
                     <td>&nbsp;</td>
                 {% endif %}
                 {% for fieldName, field in datasheet.fields %}
-                    <td id="ds_{{ rowNumber }}_{{ fieldName|toSnakeCase }}">
+{#                    <td id="ds_{{ rowNumber }}_{{ fieldName|toSnakeCase }}">#}
                         {{ item[fieldName]|raw }}
-                    </td>
+{#                    </td>#}
                 {% endfor %}
             </tr>
         {% endfor %}
