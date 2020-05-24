@@ -28,5 +28,6 @@ class SlackApi
             ],
             'connect_timeout' => $timeout,
         ]);
+        $result = $result->getBody()->getContents();
     }
 }

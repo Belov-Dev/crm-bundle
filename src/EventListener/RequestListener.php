@@ -4,7 +4,9 @@ namespace A2Global\CRMBundle\EventListener;
 
 use A2Global\CRMBundle\Api\SlackApi;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -43,7 +45,9 @@ class RequestListener
                     $channel = '#' . $channel;
                 }
                 $message = sprintf(
-                    '%s (%s:%s)',
+                    '%s%s%s (%s:%s)',
+                    $this->getRequestInfo($exceptionEvent->getRequest()),
+                    PHP_EOL,
                     $exceptionEvent->getThrowable()->getMessage(),
                     $exceptionEvent->getThrowable()->getFile(),
                     $exceptionEvent->getThrowable()->getLine()
@@ -89,5 +93,14 @@ class RequestListener
             }
         } catch (Throwable $exception) {
         }
+    }
+
+    protected function getRequestInfo(Request $request)
+    {
+        return sprintf(
+            '%s %s',
+            $request->getMethod(),
+            $request->getUri()
+        );
     }
 }
