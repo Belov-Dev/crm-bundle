@@ -51,9 +51,11 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
 
     protected function updateItems()
     {
+        $rowNumber = 0;
         $items = [];
 
         foreach ($this->getDatasheet()->getItems() as $itemOriginal) {
+            ++$rowNumber;
             $item = [];
 
             foreach ($this->getDatasheet()->getFields() as $fieldName => $fieldOptions) {
@@ -67,9 +69,9 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
                     } catch (Throwable $e) {
                         throw new DatasheetException(sprintf('Datasheet failed to process handler for field `%s` with `%s`', $fieldName, $e->getMessage()));
                     }
-                    $value = sprintf('<td>%s</td>', $value);
+                    $value = sprintf('<td id="ds_%s_%s">%s</td>', $rowNumber, $fieldName, $value);
                 } else {
-                    $value = $this->handleValue($value, $fieldOptions);
+                    $value = $this->handleValue($value, $fieldOptions, $rowNumber, $fieldName);
                 }
                 $item[$fieldName] = $value;
             }
@@ -78,20 +80,22 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         $this->getDatasheet()->setItems($items);
     }
 
-    protected function handleValue($value, $fieldOptions)
+    protected function handleValue($value, $fieldOptions, $rowNumber, $fieldName)
     {
         $handler = $this->getFieldHandler($value, $fieldOptions);
         $item = $handler->get($value, $fieldOptions);
 
-        if(!is_array($item)){
+        if (!is_array($item)) {
             $item = [
                 'value' => $item,
             ];
         }
 
         return sprintf(
-            '<td%s>%s</td>',
+            '<td%s id="ds_%s_%s">%s</td>',
             isset($item['class']) ? sprintf(' class="%s"', $item['class']) : '',
+            $rowNumber,
+            $fieldName,
             $item['value']
         );
     }
