@@ -11,6 +11,7 @@ class TypeString implements DataSheetFieldTypeInterface
 
     public function get($value, $fieldOptions)
     {
-        return $value ?: DataSheetFieldTypeInterface::VALUE_EMPTY;
+        return $value === 0 ? $value :
+            (trim($value) ? DataSheetFieldTypeInterface::VALUE_EMPTY : $value);
     }
 }
