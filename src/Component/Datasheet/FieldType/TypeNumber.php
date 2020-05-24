@@ -12,7 +12,7 @@ class TypeNumber implements DataSheetFieldTypeInterface
     public function get($value, $fieldOptions)
     {
         return [
-            'value' => $value ?: DataSheetFieldTypeInterface::VALUE_EMPTY,
+            'value' => $value,
             'class' => 'text-right',
         ];
     }
