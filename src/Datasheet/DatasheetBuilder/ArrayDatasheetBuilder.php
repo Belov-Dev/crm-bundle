@@ -45,10 +45,9 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         if ($this->getDatasheet()->getFieldsToShow()) {
             foreach ($this->getDatasheet()->getFieldsToShow() as $fieldName) {
                 $fieldName = StringUtility::toCamelCase($fieldName);
-                $fields[$fieldName] = [
-                    'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? StringUtility::normalize($fieldName),
-                    'hasFilter' => false,
-                ];
+                $fields[$fieldName] = $this->getDatasheet()->getFieldOptions()[$fieldName] ?? [];
+                $fields[$fieldName]['title'] = $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? StringUtility::normalize($fieldName);
+                $fields[$fieldName]['hasFilter'] = false;
             }
         } else {
             if ($this->datasheet->getItems() && count($this->datasheet->getItems()) > 0) {
