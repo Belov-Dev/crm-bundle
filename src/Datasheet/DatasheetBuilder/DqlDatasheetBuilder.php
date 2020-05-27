@@ -241,7 +241,7 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
 
     protected function getFieldChoices($fieldName, $field)
     {
-        $target = $field['originalDqlSelect'];
+        $target = $field['originalDqlSelect'] ?? $fieldName;
         $qb = clone $this->getQueryBuilder();
         $qb
             ->resetDQLPart('select')
