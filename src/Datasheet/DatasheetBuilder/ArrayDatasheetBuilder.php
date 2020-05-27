@@ -65,7 +65,7 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         }
         $this->getDatasheet()->setFields($fields);
 
-        if (!$isDataSourceCallable && !$this->getDatasheet()->disableFilters()) {
+        if (!$isDataSourceCallable && !$this->getDatasheet()->isFiltersDisabled()) {
             $this->addFilterChoices();
             $this->getDatasheet()->setFilters($filters);
             $this->applyFilters();

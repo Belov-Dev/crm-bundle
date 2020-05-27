@@ -175,6 +175,11 @@ class DatasheetExtended extends Datasheet
         $this->disableFilters = $disableFilters;
     }
 
+    public function isFiltersDisabled()
+    {
+        return $this->disableFilters;
+    }
+
     public function getSummary()
     {
         return $this->summary;
