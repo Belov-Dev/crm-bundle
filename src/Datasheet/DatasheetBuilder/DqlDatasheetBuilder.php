@@ -161,7 +161,7 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
             $this->getDatasheet()->setFields($fields);
         } else {
             // Fields was defined by multiple ->addSelect()
-//            array_shift($selects);
+            array_shift($selects);
             $newSelects = [];
             $fields = [];
 
