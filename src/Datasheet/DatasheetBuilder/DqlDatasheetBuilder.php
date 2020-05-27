@@ -254,8 +254,8 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
             ->addSelect('DISTINCT(' . $target . ')')
             ->andWhere($target . ' IS NOT NULL')
             ->addOrderBy($target, 'ASC');
-        $a = $qb->getQuery()->getSQL();
-        echo $qb->getQuery()->getSQL();
+//        $a = $qb->getQuery()->getSQL();
+//        echo $qb->getQuery()->getSQL();
         $items = $qb->getQuery()->getArrayResult();
         $items = array_map(function ($item) {
             return reset($item);
