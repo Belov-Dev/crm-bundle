@@ -3,22 +3,20 @@
 namespace A2Global\CRMBundle\Datasheet\DatasheetBuilder;
 
 use A2Global\CRMBundle\Component\Entity\Entity;
-use A2Global\CRMBundle\Component\Field\FieldInterface;
-use A2Global\CRMBundle\Component\Field\IdField;
 use A2Global\CRMBundle\Component\Field\RelationField;
 use A2Global\CRMBundle\Exception\DatasheetException;
 use A2Global\CRMBundle\Provider\EntityInfoProvider;
 use A2Global\CRMBundle\Utility\ArrayUtility;
 use A2Global\CRMBundle\Utility\StringUtility;
-use DateTimeInterface;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\From;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\Query\Expr\Select;
 use Doctrine\ORM\QueryBuilder;
 
-class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetBuilderInterface
+class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetBuilderInterface
 {
     protected $entityInfoProvider;
 
@@ -28,6 +26,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
 
     protected $joined = [];
 
+    /** @var QueryBuilder */
     protected $queryBuilder;
 
     public function __construct(EntityManagerInterface $entityManager, EntityInfoProvider $entityInfoProvider)
@@ -38,7 +37,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
 
     public function supports(): bool
     {
-        return $this->getDatasheet()->getData() instanceof DateTimeInterface;
+        return $this->getDatasheet()->getData() instanceof QueryBuilder;
     }
 
     public function build($page = null, $itemsPerPage = null, $filters = [])
@@ -55,16 +54,17 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
         $this->initEntity();
         $this->buildFields();
 
-        foreach ($filters as $filterField => $filterValue) {
-            if (!trim($filterValue)) {
+        $filteredQueryBuilder = (clone $this->getQueryBuilder());
+
+        foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
+            if (!isset($filters[$fieldName]) || !trim($filters[$fieldName])) {
                 continue;
             }
-            $this->getQueryBuilder()
-                ->andWhere(sprintf('%s.%s = :filter%s', $this->getBaseAlias(), $filterField, $filterField))
-                ->setParameter('filter' . $filterField, $filterValue);
+            $filteredQueryBuilder
+                ->andWhere(sprintf('%s = :filter_%s', $field['originalDqlSelect'], $field['safename']))
+                ->setParameter('filter_' . $field['safename'], $filters[$fieldName]);
         }
-
-        $sql = (clone $this->getQueryBuilder())
+        $sql = (clone $filteredQueryBuilder)
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
@@ -77,7 +77,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             ->getQuery()
             ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
 
-        $items = $this->getQueryBuilder()
+        $items = $filteredQueryBuilder
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
@@ -161,7 +161,7 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             $this->getDatasheet()->setFields($fields);
         } else {
             // Fields was defined by multiple ->addSelect()
-            array_shift($selects);
+//            array_shift($selects);
             $newSelects = [];
             $fields = [];
 
@@ -178,21 +178,25 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
                 if ($select['alias'] == $this->getBaseAlias()) {
                     $fieldName = $select['field'];
                     $newSelects[] = $firstPart;
+                    $safename = $fieldName;
                 } else {
-                    foreach ($this->getQueryBuilder()->getDQLPart('join') as $join) {
-                        /** @var Join $firstJoin */
-                        $firstJoin = reset($join);
-
-                        if ($select['alias'] == $firstJoin->getAlias()) {
-                            $tmp = explode('.', $firstJoin->getJoin());
-                            $fieldName = sprintf('%s.%s', $tmp[1], $select['field']);
-                            $sqbFieldName = sprintf('%s%s%s', $tmp[1], self::NEST_SEPARATOR, $select['field']);
+                    foreach ($this->getQueryBuilder()->getDQLPart('join') as $joins) {
+                        /** @var Join $join */
+                        foreach ($joins as $join) {
+                            if ($select['alias'] == $join->getAlias()) {
+                                $tmp = explode('.', $join->getJoin());
+                                $fieldName = sprintf('%s.%s', $tmp[1], $select['field']);
+                                $sqbFieldName = sprintf('%s%s%s', $tmp[1], self::NEST_SEPARATOR, $select['field']);
+                                $safename = $sqbFieldName;
+                            }
                         }
                     }
                     $newSelects[] = sprintf('%s.%s AS %s', $select['alias'], $select['field'], $sqbFieldName);
                 }
                 $fields[$fieldName] = [
                     'title' => StringUtility::normalize($fieldName),
+                    'originalDqlSelect' => $select['alias'] . '.' . $select['field'],
+                    'safename' => $safename,
                 ];
             }
             $this->getDatasheet()->setFields($fields);
@@ -228,23 +232,30 @@ class QueryBuilderDatasheetBuilder extends AbstractDatasheetBuilder implements D
             if ($fieldName == 'id') {
                 continue;
             }
-
-            if (strpos($fieldName, '.')) {
-                continue;
-            }
-            $fieldNameSnakeCase = StringUtility::toSnakeCase($fieldName);
-            $choices = $this->entityManager->getConnection()->fetchAll(sprintf(
-                'SELECT DISTINCT(%s) FROM (%s) WHERE %s IS NOT NULL ORDER BY %s',
-                $fieldNameSnakeCase, $this->getEntity()->getTableName(), $fieldNameSnakeCase, $fieldNameSnakeCase
-            ));
-            $choices = array_map(function ($item) {
-                return reset($item);
-            }, $choices);
-            $fields[$fieldName]['filterChoices'] = $choices;
+            $fields[$fieldName]['filterChoices'] = $this->getFieldChoices($fieldName, $field);
             $fields[$fieldName]['hasFilter'] = true;
         }
 
         return $fields;
+    }
+
+    protected function getFieldChoices($fieldName, $field)
+    {
+        $target = $field['originalDqlSelect'];
+        $qb = clone $this->getQueryBuilder();
+        $qb
+            ->resetDQLPart('select')
+            ->resetDQLPart('orderBy')
+            ->addSelect('DISTINCT(' . $target . ')')
+            ->andWhere($target.' IS NOT NULL')
+            ->addOrderBy($target, 'ASC');
+//        echo $qb->getQuery()->getSQL();exit;
+        $items = $qb->getQuery()->getArrayResult();
+        $items = array_map(function ($item) {
+            return reset($item);
+        }, $items);
+
+        return $items;
     }
 
     protected function getBaseAlias(): string

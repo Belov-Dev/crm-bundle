@@ -142,6 +142,7 @@
         $('[data-datasheet-filter-clear]').click(function(){
             $(this).hide();
             let fieldName = $(this).data('datasheet-filter-clear');
+            console.log(fieldName);
             $('[data-datasheet-filter="' + fieldName + '"]').val('').parents('form').submit();
         })
     })
