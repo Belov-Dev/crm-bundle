@@ -61,8 +61,8 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
                 continue;
             }
             $filteredQueryBuilder
-                ->andWhere(sprintf('%s = :filter_%s', $field['originalDqlSelect'], $field['safename']))
-                ->setParameter('filter_' . $field['safename'], $filters[$fieldName]);
+                ->andWhere(sprintf('%s = :filter_%s', $field['originalDqlSelect'] ?? $this->getBaseAlias() . '.' . $fieldName, $field['safename'] ?? $fieldName))
+                ->setParameter('filter_' . ($field['safename'] ?? $fieldName), $filters[$fieldName]);
         }
         $sql = (clone $filteredQueryBuilder)
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
@@ -232,6 +232,11 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
             if ($fieldName == 'id') {
                 continue;
             }
+
+            if (!isset($field['originalDqlSelect']) && (strpos($fieldName, '.') !== false)) {
+                continue;
+            }
+
             $fields[$fieldName]['filterChoices'] = $this->getFieldChoices($fieldName, $field);
             $fields[$fieldName]['hasFilter'] = true;
         }
@@ -241,15 +246,16 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
 
     protected function getFieldChoices($fieldName, $field)
     {
-        $target = $field['originalDqlSelect'] ?? $fieldName;
+        $target = $field['originalDqlSelect'] ?? $this->getBaseAlias() . '.' . $fieldName;
         $qb = clone $this->getQueryBuilder();
         $qb
             ->resetDQLPart('select')
             ->resetDQLPart('orderBy')
             ->addSelect('DISTINCT(' . $target . ')')
-            ->andWhere($target.' IS NOT NULL')
+            ->andWhere($target . ' IS NOT NULL')
             ->addOrderBy($target, 'ASC');
-//        echo $qb->getQuery()->getSQL();exit;
+        $a = $qb->getQuery()->getSQL();
+        echo $qb->getQuery()->getSQL();
         $items = $qb->getQuery()->getArrayResult();
         $items = array_map(function ($item) {
             return reset($item);

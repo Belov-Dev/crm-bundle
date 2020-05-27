@@ -30,9 +30,9 @@
                                    style="width:100%;"
                                    name="datasheet_{{ datasheet.uniqueId }}[{{ fieldName }}]"
                                    value="{{ datasheet.filters[fieldName] ?? '' }}"
-                                   data-datasheet-filter="{{ fieldOptions.safename }}">
+                                   data-datasheet-filter="{{ fieldOptions.safename ?? fieldName }}">
                             {% if value %}
-                                <div data-datasheet-filter-clear="{{ fieldOptions.safename }}">&times;</div>
+                                <div data-datasheet-filter-clear="{{ fieldOptions.safename ?? fieldName }}">&times;</div>
                             {% endif %}
                         </th>
                     {% else %}
@@ -77,7 +77,7 @@
         // options set for datasheet filtering
         {% for fieldName, options in datasheet.fields %}
         {% if options.hasFilter %}
-        let datasheet_{{ datasheet.uniqueId }}_{{ options.safename }}_choices = {{ options.filterChoices|json_encode|raw }};
+        let datasheet_{{ datasheet.uniqueId }}_{{ options.safename ?? fieldName }}_choices = {{ options.filterChoices|json_encode|raw }};
         {% endif %}
         {% endfor %}
     </script>
