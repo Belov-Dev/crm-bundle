@@ -18,6 +18,15 @@ class BooleanField extends AbstractField implements FieldInterface
 
     public function getFormControl($value = null): string
     {
+        return sprintf(
+            '<input type="checkbox" name="data[%s]" value="1" %s>',
+            StringUtility::toCamelCase($this->getName()),
+            (is_null($value) || (bool)$value) ? 'checked' : ''
+        );
+    }
+
+    public function getFormControlOld($value = null): string
+    {
         $html = [];
         $html[] = '<label class="radio-inline">';
         $html[] = sprintf(
