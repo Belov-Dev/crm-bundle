@@ -71,7 +71,7 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
             ->getSQL();
         $this->getDatasheet()->addDebug($sql);
 
-        $total = (clone $this->getQueryBuilder())
+        $total = (clone $filteredQueryBuilder)
             ->resetDQLPart('select')
             ->addSelect(sprintf('COUNT(%s)', $this->getBaseAlias()))
             ->getQuery()
