@@ -11,7 +11,7 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
         return is_array($this->getDatasheet()->getData()) || is_callable($this->getDatasheet()->getData());
     }
 
-    public function build($page = null, $itemsPerPage = null, $filters = [])
+    public function build($page = null, $itemsPerPage = null, $filters = [], $sorting = [])
     {
         $isDataSourceCallable = false;
 

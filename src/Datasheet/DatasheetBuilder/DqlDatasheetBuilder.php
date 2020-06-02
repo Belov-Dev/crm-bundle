@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\From;
 use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\Query\Expr\OrderBy;
 use Doctrine\ORM\Query\Expr\Select;
 use Doctrine\ORM\QueryBuilder;
 
@@ -40,7 +41,7 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
         return $this->getDatasheet()->getData() instanceof QueryBuilder;
     }
 
-    public function build($page = null, $itemsPerPage = null, $filters = [])
+    public function build($page = null, $itemsPerPage = null, $filters = [], $sorting = [])
     {
         if ($page) {
             $this->getDatasheet()->setPage($page);
@@ -49,35 +50,56 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
         if ($itemsPerPage) {
             $this->getDatasheet()->setItemsPerPage($itemsPerPage);
         }
-        $this->getDatasheet()->setFilters($filters);
+        $this->getDatasheet()
+            ->setFilters($filters)
+            ->enableSorting();
         $this->queryBuilder = clone $this->getDatasheet()->getData();
+
+        if(!isset($sorting['by']) || !$sorting['by']){
+            $this->getDatasheet()->setSorting($this->getSortingFromQueryBuilder($this->getQueryBuilder()));
+        }else{
+            $this->getDatasheet()->setSorting($sorting);
+        }
+
         $this->initEntity();
         $this->buildFields();
 
-        $filteredQueryBuilder = (clone $this->getQueryBuilder());
+        $this->getDatasheet()->addDebug($this->getDatasheet()->getSorting());
+
+        $mainQueryBuilder = (clone $this->getQueryBuilder());
 
         foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
             if (!isset($filters[$fieldName]) || !trim($filters[$fieldName])) {
                 continue;
             }
-            $filteredQueryBuilder
+            $mainQueryBuilder
                 ->andWhere(sprintf('%s = :filter_%s', $field['originalDqlSelect'] ?? $this->getBaseAlias() . '.' . $fieldName, $field['safename'] ?? $fieldName))
                 ->setParameter('filter_' . ($field['safename'] ?? $fieldName), $filters[$fieldName]);
         }
-        $sql = (clone $filteredQueryBuilder)
+        dd($mainQueryBuilder);
+        $mainQueryBuilder->resetDQLPart('orderBy');
+        $orderBy = $this->getDatasheet()->getSorting()['by'];
+
+        if(!strstr($orderBy, '.')){
+            $orderBy = $this->getBaseAlias().'.'.$orderBy;
+        }
+        $mainQueryBuilder->orderBy($orderBy, $this->getDatasheet()->getSorting()['type']);
+
+        $sql = (clone $mainQueryBuilder)
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
             ->getSQL();
         $this->getDatasheet()->addDebug($sql);
 
-        $total = (clone $filteredQueryBuilder)
+        $total = (clone $mainQueryBuilder)
             ->resetDQLPart('select')
             ->addSelect(sprintf('COUNT(%s)', $this->getBaseAlias()))
             ->getQuery()
             ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
+        $this->getDatasheet()->addDebug($total);
 
-        $items = $filteredQueryBuilder
+        $items = $mainQueryBuilder
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
             ->setMaxResults($this->getDatasheet()->getItemsPerPage())
             ->getQuery()
@@ -125,6 +147,7 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
 
     protected function buildFields()
     {
+        $sorting = $this->getDatasheet()->getSorting();
         $selects = $this->getQueryBuilder()->getDQLPart('select');
 
         if (count($selects) == 1) {
@@ -153,12 +176,18 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
                     $fieldName = StringUtility::toCamelCase($field->getName());
                     $fieldTitle = StringUtility::normalize($field->getName());
                 }
+
+                if(!$sorting['by']){
+                    $sorting['by'] = $fieldName;
+                    $sorting['type'] = 'asc';
+                }
                 $fields[$fieldName] = [
                     'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? $fieldTitle,
                     'hasFilter' => false,
+                    'sorting' => ($sorting['by'] == $fieldName ? $sorting['type'] : null),
                 ];
             }
-            $this->getDatasheet()->setFields($fields);
+            $this->getDatasheet()->setFields($fields)->setSorting($sorting);
         } else {
             // Fields was defined by multiple ->addSelect()
             array_shift($selects);
@@ -339,5 +368,27 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
         }
 
         throw new DatasheetException('Description field not found in entity: ' . $entity->getName());
+    }
+
+    protected function getSortingFromQueryBuilder(QueryBuilder $queryBuilder)
+    {
+        /** @var OrderBy $sorting */
+        $orderBy = $queryBuilder->getDQLPart('orderBy');
+
+        if (empty($orderBy)) {
+            return [
+                'by' => null,
+                'type' => null,
+            ];
+        }
+
+        $parts = $orderBy[0]->getParts();
+        $part = reset($parts);
+        preg_match("/^([^\s]+)\s+([^\s]+)$/iUs", $part, $result);
+
+        return [
+            'by' => $result[1],
+            'type' => $result[2],
+        ];
     }
 }

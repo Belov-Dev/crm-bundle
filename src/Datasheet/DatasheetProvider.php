@@ -36,14 +36,9 @@ class DatasheetProvider
 
         $request = $this->requestStack->getMasterRequest();
         $queryString = $request->query->all();
-        $filters = $queryString['datasheet_' . $datasheet->getUniqueId()] ?? [];
-        $builder->build($request->get('page'), $request->get('perPage'), $filters);
-
-//        if ($this->datasheetBuilder->) {
-//            unset($queryString['page']);
-//            unset($queryString['filter']);
-//            $filterFormUrl = http_build_query($queryString);
-//        }
+        $filters = $queryString['datasheet_' . $datasheet->getUniqueId() . '_filter'] ?? [];
+        $sorting = $queryString['ds' . $datasheet->getUniqueId().'_sort'] ?? [];
+        $builder->build($request->get('page'), $request->get('perPage'), $filters, $sorting);
 
         if($datasheet->getItemsTotal() < 1){
             return $this->twig->render('@A2CRM/datasheet/datasheet.table.empty.html.twig', [

@@ -14,7 +14,11 @@ class DatasheetExtended extends Datasheet
 
     protected $hasFilters = false;
 
+    protected $hasSorting = false;
+
     protected $filters = [];
+
+    protected $sorting = [];
 
     protected $itemsTotal = 0;
 
@@ -151,7 +155,7 @@ class DatasheetExtended extends Datasheet
         return $this->debug;
     }
 
-    public function addDebug(string $debug): DatasheetExtended
+    public function addDebug($debug): DatasheetExtended
     {
         $this->debug[] = $debug;
 
@@ -186,6 +190,30 @@ class DatasheetExtended extends Datasheet
     }
 
     /** Other */
+
+    public function enableSorting()
+    {
+        $this->hasSorting = true;
+
+        return true;
+    }
+
+    public function setSorting($sorting)
+    {
+        $this->sorting = $sorting;
+
+        return $this;
+    }
+
+    public function getSorting()
+    {
+        return $this->sorting;
+    }
+
+    public function hasSorting()
+    {
+        return $this->hasSorting;
+    }
 
     public function hasFilters()
     {

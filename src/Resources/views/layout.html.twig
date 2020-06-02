@@ -5,7 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <title>Manager homepage</title>
-    <link rel="stylesheet" href="{{ asset('bundles/a2crm/a2crm/adminlte.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/a2crm/css/adminlte.css') }}">
+    <link rel="stylesheet" href="{{ asset('bundles/a2crm/css/datasheet.css') }}">
+    <script src="{{ asset('bundles/a2crm/js/adminlte.js') }}"></script>
+    <script src="{{ asset('bundles/a2crm/js/datasheet.js') }}"></script>
 
     <style>
         .content-wrapper {
@@ -93,58 +96,7 @@
 </div>
 
 <div id="datasheet-filter-options" hidden>Options</div>
-<style>
-    [data-datasheet-filter]{
-        padding:0 10px;
-        border-radius:3px;
-        border:1px #eaeaea solid;
-        color:#cc5500;
-        height:25px;
-        line-height:25px;
-    }
-    [data-datasheet-filter-clear]{
-        position:absolute;
-        right:6px;
-        top:6px;
-        background:#cc5500;
-        color:#ffffff;
-        width:30px;
-        height:23px;
-        line-height:23px;
-        border-radius:2px;
-        text-align:center;
-    }
-    #datasheet-filter-options{
-        position:absolute;
-        left:0;
-        top:100%;
-        right:0;
-        z-index:9;
-        background:#fff3ea;
-        border:1px #ffffff solid;
-        border-top:0;
-        min-height:40px;
-        max-height:200px;
-        overflow-y:scroll;
-    }
-    #datasheet-filter-options *{
-        height:30px;
-        line-height:30px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        border-bottom:1px #ffffff solid;
-        padding:0 10px;
-    }
-    #datasheet-filter-options *:hover,
-    #datasheet-filter-options *.active{
-        background:#0d6aad;
-        color:#ffffff;
-    }
-    #datasheet-filter-options *:last-child{
-        border:0;
-    }
-</style>
+
 {% block javascript %}
 {% include '@A2CRM/etc/javascripts.html.twig' %}
 {% endblock %}

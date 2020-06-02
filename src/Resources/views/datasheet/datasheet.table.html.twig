@@ -1,76 +1,86 @@
-<form action="{{ filterFormUrl }}" method="GET">
-
-    {% if datasheet.isDebugMode %}
-        <details>
-            <summary>Debug</summary>
-            {{ datasheet.debug|json_encode }}
-        </details>
-    {% endif %}
-
-    <table class="table table-hover table-bordered table-sm table-striped table-condensed"
-           data-datasheet-id="{{ datasheet.uniqueId }}">
-        <thead>
-        <tr>
-            {% if datasheet.hasFilters %}
-                <th>&nbsp;</th>
-            {% endif %}
-            {% for field in datasheet.fields %}
-                <th>{{ ((datasheet.translationPrefix ? datasheet.translationPrefix ~ '.' : '')  ~ field.title)|trans }}</th>
-            {% endfor %}
-        </tr>
-
-        {% if datasheet.hasFilters %}
-            <tr>
-                <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
-                {% for fieldName, fieldOptions in datasheet.fields %}
-                    {% if fieldOptions.hasFilter %}
-                        <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
-                            {% set value = datasheet.filters[fieldName] ?? '' %}
-                            <input type="text" autocomplete="off"
-                                   style="width:100%;"
-                                   name="datasheet_{{ datasheet.uniqueId }}[{{ fieldName }}]"
-                                   value="{{ datasheet.filters[fieldName] ?? '' }}"
-                                   data-datasheet-filter="{{ fieldOptions.safename ?? fieldName }}">
-                            {% if value %}
-                                <div data-datasheet-filter-clear="{{ fieldOptions.safename ?? fieldName }}">&times;</div>
-                            {% endif %}
-                        </th>
-                    {% else %}
-                        <th>&nbsp;</th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
+<div data-datasheet-id="{{ datasheet.uniqueId }}"
+     data-datasheet-sorting-enabled="{{ datasheet.hasSorting ? 1 : 0 }}">
+    <form action="{{ filterFormUrl }}" method="GET" autocomplete="off">
+        {% if datasheet.hasSorting %}
+            <input type="text" name="ds{{ datasheet.uniqueId }}_sort[by]" data-datasheet-sort-by>
+            <input type="text" name="ds{{ datasheet.uniqueId }}_sort[type]" data-datasheet-sort-type>
         {% endif %}
-        </thead>
-        <tbody>
-        {% for item in datasheet.items %}
-            {% set rowNumber = loop.index %}
+
+        {% if datasheet.isDebugMode %}
+            <details>
+                <summary>Debug</summary>
+                {{ datasheet.debug|json_encode }}
+            </details>
+        {% endif %}
+
+        <table class="table table-hover table-bordered table-sm table-striped table-condensed">
+            <thead>
             <tr>
                 {% if datasheet.hasFilters %}
-                    <td>&nbsp;</td>
+                    <th>&nbsp;</th>
                 {% endif %}
-                {% for fieldName, field in datasheet.fields %}
-                    {{ item[fieldName]|raw }}
-                {% endfor %}
-            </tr>
-        {% endfor %}
-        </tbody>
-        {% if datasheet.summary %}
-            <tfoot>
-            <tr>
-                {% if datasheet.hasFilters %}
-                    <td>&nbsp;</td>
-                {% endif %}
-                {% for fieldName, field in datasheet.fields %}
-                    <th class="text-right">
-                        {{ (datasheet.summary[fieldName] ?? '')|raw }}
+                {% for fieldName, fieldOptions in datasheet.fields %}
+                    <th data-datasheet-field-title="{{ fieldName }}">
+                        <span>{{ ((datasheet.translationPrefix ? datasheet.translationPrefix ~ '.' : '')  ~ fieldOptions.title)|trans }}</span>
                     </th>
                 {% endfor %}
             </tr>
-            </tfoot>
-        {% endif %}
-    </table>
-</form>
+
+            {% if datasheet.hasFilters %}
+                <tr>
+                    <th><input type="submit" class="btn btn-primary btn-xs btn-block" value="Filter"></th>
+                    {% for fieldName, fieldOptions in datasheet.fields %}
+                        {% if fieldOptions.hasFilter %}
+                            <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
+                                {% set value = datasheet.filters[fieldName] ?? '' %}
+                                <input type="text" autocomplete="false"
+                                       style="width:100%;"
+                                       name="ds{{ datasheet.uniqueId }}_filter[{{ fieldName }}]"
+                                       value="{{ datasheet.filters[fieldName] ?? '' }}"
+                                       data-datasheet-filter="{{ fieldOptions.safename ?? fieldName }}"
+                                >
+                                {% if value %}
+                                    <div data-datasheet-filter-clear="{{ fieldOptions.safename ?? fieldName }}">&times;
+                                    </div>
+                                {% endif %}
+                            </th>
+                        {% else %}
+                            <th>&nbsp;</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endif %}
+            </thead>
+            <tbody>
+            {% for item in datasheet.items %}
+                {% set rowNumber = loop.index %}
+                <tr>
+                    {% if datasheet.hasFilters %}
+                        <td>&nbsp;</td>
+                    {% endif %}
+                    {% for fieldName, field in datasheet.fields %}
+                        {{ item[fieldName]|raw }}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+            {% if datasheet.summary %}
+                <tfoot>
+                <tr>
+                    {% if datasheet.hasFilters %}
+                        <td>&nbsp;</td>
+                    {% endif %}
+                    {% for fieldName, field in datasheet.fields %}
+                        <th class="text-right">
+                            {{ (datasheet.summary[fieldName] ?? '')|raw }}
+                        </th>
+                    {% endfor %}
+                </tr>
+                </tfoot>
+            {% endif %}
+        </table>
+    </form>
+</div>
 
 {% if datasheet.hasFilters %}
     <script>
@@ -82,12 +92,3 @@
         {% endfor %}
     </script>
 {% endif %}
-
-<style>
-    [data-datasheet-id] td {
-        max-width: 150px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-</style>

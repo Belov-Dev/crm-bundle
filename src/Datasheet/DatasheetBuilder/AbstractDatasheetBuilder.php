@@ -42,11 +42,10 @@ abstract class AbstractDatasheetBuilder implements DatasheetBuilderInterface
         return $this->datasheet;
     }
 
-    public function build($page = null, $itemsPerPage = null, $filters = [])
+    public function build($page = null, $itemsPerPage = null, $filters = [], $sorting = [])
     {
         $this->updateItems();
         $this->getDatasheet()->setDebugMode($this->parameterBag->get('kernel.environment') == 'dev');
-
     }
 
     protected function updateItems()
