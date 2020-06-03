@@ -36,7 +36,7 @@ class DatasheetProvider
 
         $request = $this->requestStack->getMasterRequest();
         $queryString = $request->query->all();
-        $filters = $queryString['datasheet_' . $datasheet->getUniqueId() . '_filter'] ?? [];
+        $filters = $queryString['ds' . $datasheet->getUniqueId() . '_filter'] ?? [];
         $sorting = $queryString['ds' . $datasheet->getUniqueId().'_sort'] ?? [];
         $builder->build($request->get('page'), $request->get('perPage'), $filters, $sorting);
 
