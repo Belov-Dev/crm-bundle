@@ -223,9 +223,8 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
             $fields = [];
 
             foreach ($this->getDatasheet()->getFieldsToShow() as $fieldToShow) {
-                $fields[$fieldToShow] = [
-                    'title' => $this->getDatasheet()->getFieldOptions()[$fieldToShow]['title'] ?? StringUtility::normalize($fieldToShow),
-                ];
+                $fieldToShow = StringUtility::toCamelCase($fieldToShow);
+                $fields[$fieldToShow] = $this->getDatasheet()->getFields()[$fieldToShow];
             }
         }
 

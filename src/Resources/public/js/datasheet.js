@@ -59,7 +59,7 @@ $(function () {
 
     function datasheetFilterSearchOptions(filterInput) {
         let searchString = filterInput.val().toLowerCase();
-        let datasheetId = filterInput.parents('table').data('datasheet-id');
+        let datasheetId = filterInput.parents('[data-datasheet-id]').data('datasheet-id');
         let fieldName = filterInput.data('datasheet-filter');
         let varName = 'datasheet_' + datasheetId + '_' + fieldName + '_choices';
         let options = eval(varName);
