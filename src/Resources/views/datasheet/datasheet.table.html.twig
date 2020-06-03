@@ -2,8 +2,10 @@
      data-datasheet-sorting-enabled="{{ datasheet.hasSorting ? 1 : 0 }}">
     <form action="{{ filterFormUrl }}" method="GET" autocomplete="off">
         {% if datasheet.hasSorting %}
-            <input type="text" name="ds{{ datasheet.uniqueId }}_sort[by]" data-datasheet-sort-by>
-            <input type="text" name="ds{{ datasheet.uniqueId }}_sort[type]" data-datasheet-sort-type>
+            <input type="hidden" name="ds{{ datasheet.uniqueId }}_sort[by]" value="{{ datasheet.sorting.by }}"
+                   data-datasheet-sort-by>
+            <input type="hidden" name="ds{{ datasheet.uniqueId }}_sort[type]" value="{{ datasheet.sorting.type }}"
+                   data-datasheet-sort-type>
         {% endif %}
 
         {% if datasheet.isDebugMode %}
@@ -21,7 +23,12 @@
                 {% endif %}
                 {% for fieldName, fieldOptions in datasheet.fields %}
                     <th data-datasheet-field-title="{{ fieldName }}">
-                        <span>{{ ((datasheet.translationPrefix ? datasheet.translationPrefix ~ '.' : '')  ~ fieldOptions.title)|trans }}</span>
+                        <span>
+                            {{ ((datasheet.translationPrefix ? datasheet.translationPrefix ~ '.' : '')  ~ fieldOptions.title)|trans }}
+                            {% if datasheet.sorting and datasheet.sorting.by == fieldName %}
+                                <b>{{ datasheet.sorting.type == 'ASC' ? '&#8679;' : '&#8681;' }}</b>
+                            {% endif %}
+                        </span>
                     </th>
                 {% endfor %}
             </tr>

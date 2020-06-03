@@ -195,7 +195,7 @@ class DatasheetExtended extends Datasheet
     {
         $this->hasSorting = true;
 
-        return true;
+        return $this;
     }
 
     public function setSorting($sorting)

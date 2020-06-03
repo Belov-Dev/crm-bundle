@@ -139,8 +139,15 @@ $(function () {
         if(!sortingEnable){
             return;
         }
-        datasheet.find('[data-datasheet-sort-by]').val(fieldName);
-        datasheet.find('[data-datasheet-sort-type]').val('asc');
+        let sortingBy = datasheet.find('[data-datasheet-sort-by]');
+        let sortingType = datasheet.find('[data-datasheet-sort-type]');
+
+        if(sortingBy.val() == fieldName){
+            sortingType.val(sortingType.val() == 'ASC' ? 'DESC' : 'ASC');
+        }else{
+            sortingBy.val(fieldName);
+            sortingType.val('ASC');
+        }
         datasheet.find('form').submit();
     })
 })

@@ -50,22 +50,11 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
         if ($itemsPerPage) {
             $this->getDatasheet()->setItemsPerPage($itemsPerPage);
         }
-        $this->getDatasheet()
-            ->setFilters($filters)
-            ->enableSorting();
+        $this->getDatasheet()->setFilters($filters);
         $this->queryBuilder = clone $this->getDatasheet()->getData();
-
-        if(!isset($sorting['by']) || !$sorting['by']){
-            $this->getDatasheet()->setSorting($this->getSortingFromQueryBuilder($this->getQueryBuilder()));
-        }else{
-            $this->getDatasheet()->setSorting($sorting);
-        }
 
         $this->initEntity();
         $this->buildFields();
-
-        $this->getDatasheet()->addDebug($this->getDatasheet()->getSorting());
-
         $mainQueryBuilder = (clone $this->getQueryBuilder());
 
         foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
@@ -76,14 +65,11 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
                 ->andWhere(sprintf('%s = :filter_%s', $field['originalDqlSelect'] ?? $this->getBaseAlias() . '.' . $fieldName, $field['safename'] ?? $fieldName))
                 ->setParameter('filter_' . ($field['safename'] ?? $fieldName), $filters[$fieldName]);
         }
-        dd($mainQueryBuilder);
-        $mainQueryBuilder->resetDQLPart('orderBy');
-        $orderBy = $this->getDatasheet()->getSorting()['by'];
 
-        if(!strstr($orderBy, '.')){
-            $orderBy = $this->getBaseAlias().'.'.$orderBy;
+        if ($sorting = $this->initSorting($sorting)) {
+            $mainQueryBuilder->resetDQLPart('orderBy');
+            $mainQueryBuilder->orderBy($sorting['path'], $sorting['type']);
         }
-        $mainQueryBuilder->orderBy($orderBy, $this->getDatasheet()->getSorting()['type']);
 
         $sql = (clone $mainQueryBuilder)
             ->setFirstResult(($this->getDatasheet()->getPage() - 1) * $this->getDatasheet()->getItemsPerPage())
@@ -167,24 +153,18 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
                         self::NEST_SEPARATOR,
                         StringUtility::toCamelCase($titleField)
                     ));
-                    $fieldName = sprintf('%s.%s', StringUtility::toCamelCase($field->getName()), $titleField);
+                    $fieldName = $fieldPath = sprintf('%s.%s', StringUtility::toCamelCase($field->getName()), $titleField);
                     $fieldTitle = StringUtility::normalize(sprintf('%s %s', $field->getName(), $titleField));
                 } else {
-                    $this->getQueryBuilder()->addSelect(
-                        sprintf('%s.%s', $this->getBaseAlias(), StringUtility::toCamelCase($field->getName()))
-                    );
+                    $fieldPath = sprintf('%s.%s', $this->getBaseAlias(), StringUtility::toCamelCase($field->getName()));
+                    $this->getQueryBuilder()->addSelect($fieldPath);
                     $fieldName = StringUtility::toCamelCase($field->getName());
                     $fieldTitle = StringUtility::normalize($field->getName());
-                }
-
-                if(!$sorting['by']){
-                    $sorting['by'] = $fieldName;
-                    $sorting['type'] = 'asc';
                 }
                 $fields[$fieldName] = [
                     'title' => $this->getDatasheet()->getFieldOptions()[$fieldName]['title'] ?? $fieldTitle,
                     'hasFilter' => false,
-                    'sorting' => ($sorting['by'] == $fieldName ? $sorting['type'] : null),
+                    'path' => $fieldPath,
                 ];
             }
             $this->getDatasheet()->setFields($fields)->setSorting($sorting);
@@ -207,6 +187,7 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
                 if ($select['alias'] == $this->getBaseAlias()) {
                     $fieldName = $select['field'];
                     $newSelects[] = $firstPart;
+                    $fieldPath = $firstPart;
                     $safename = $fieldName;
                 } else {
                     foreach ($this->getQueryBuilder()->getDQLPart('join') as $joins) {
@@ -220,12 +201,14 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
                             }
                         }
                     }
-                    $newSelects[] = sprintf('%s.%s AS %s', $select['alias'], $select['field'], $sqbFieldName);
+                    $fieldPath = sprintf('%s.%s', $select['alias'], $select['field']);
+                    $newSelects[] = sprintf('%s AS %s', $fieldPath, $sqbFieldName);
                 }
                 $fields[$fieldName] = [
                     'title' => StringUtility::normalize($fieldName),
                     'originalDqlSelect' => $select['alias'] . '.' . $select['field'],
                     'safename' => $safename,
+                    'path' => $fieldPath,
                 ];
             }
             $this->getDatasheet()->setFields($fields);
@@ -370,6 +353,47 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
         throw new DatasheetException('Description field not found in entity: ' . $entity->getName());
     }
 
+    protected function initSorting($incomingSorting)
+    {
+        $sorting = ['by' => null];
+
+        if (isset($incomingSorting['by']) && $incomingSorting['by']) {
+            foreach ($this->getDatasheet()->getFields() as $fieldName => $fieldOptions) {
+                if ($incomingSorting['by'] == $fieldName) {
+                    $sorting = [
+                        'by' => $fieldName,
+                        'path' => $fieldOptions['path'],
+                        'type' => strtoupper(($incomingSorting['type'] ?? '')) == 'ASC' ? 'ASC' : 'DESC',
+                    ];
+                }
+            }
+        }
+
+        if (!isset($sorting['by']) || !$sorting['by']) {
+            $sorting = $this->getSortingFromQueryBuilder($this->getQueryBuilder());
+        }
+
+        if (!isset($sorting['by']) || !$sorting['by']) {
+            $firstFieldName = array_key_first($this->getDatasheet()->getFields());
+            $sorting = [
+                'by' => $firstFieldName,
+                'path' => $this->getDatasheet()->getFields()[$firstFieldName]['path'],
+                'type' => 'ASC',
+            ];
+        }
+
+        if (isset($sorting['by']) && $sorting['by']) {
+            $this->getDatasheet()
+                ->enableSorting()
+                ->setSorting($sorting)
+                ->addDebug($sorting);
+
+            return $sorting;
+        }
+
+        return null;
+    }
+
     protected function getSortingFromQueryBuilder(QueryBuilder $queryBuilder)
     {
         /** @var OrderBy $sorting */
@@ -378,17 +402,24 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
         if (empty($orderBy)) {
             return [
                 'by' => null,
-                'type' => null,
             ];
         }
-
         $parts = $orderBy[0]->getParts();
         $part = reset($parts);
         preg_match("/^([^\s]+)\s+([^\s]+)$/iUs", $part, $result);
 
+        foreach ($this->getDatasheet()->getFields() as $fieldName => $fieldOptions) {
+            if ($fieldOptions['path'] == $result[1]) {
+                return [
+                    'by' => $fieldName,
+                    'path' => $result[1],
+                    'type' => $result[2],
+                ];
+            }
+        }
+
         return [
-            'by' => $result[1],
-            'type' => $result[2],
+            'by' => null,
         ];
     }
 }
