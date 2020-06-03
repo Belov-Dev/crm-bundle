@@ -371,15 +371,15 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
             $sorting = $this->getSortingFromQueryBuilder($this->getQueryBuilder());
         }
 
-        if (!isset($sorting['by']) || !$sorting['by']) {
-            $firstFieldName = array_key_first($this->getDatasheet()->getFields());
-            $sorting = [
-                'by' => $firstFieldName,
-                'path' => $this->getDatasheet()->getFields()[$firstFieldName]['path'],
-                'type' => 'ASC',
-            ];
-        }
-
+//        if (!isset($sorting['by']) || !$sorting['by']) {
+//            $firstFieldName = array_key_first($this->getDatasheet()->getFields());
+//            $sorting = [
+//                'by' => $firstFieldName,
+//                'path' => $this->getDatasheet()->getFields()[$firstFieldName]['path'],
+//                'type' => 'ASC',
+//            ];
+//        }
+//
         if (isset($sorting['by']) && $sorting['by']) {
             $this->getDatasheet()
                 ->enableSorting()
