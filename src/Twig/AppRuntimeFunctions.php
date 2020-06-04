@@ -33,9 +33,9 @@ class AppRuntimeFunctions implements RuntimeExtensionInterface
 
     // TODO PERFORMANCE extract this method to separate files
 
-    public function getFormField($field)
+    public function getFormField($field, $attributes = '')
     {
-        return $field['html'];
+        return str_replace('PLACEHOLDER_ATTRIBUTES', $attributes, $field['html']);
     }
 
     public function getMenu()
