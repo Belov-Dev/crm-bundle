@@ -40,7 +40,7 @@
                         {% if fieldOptions.hasFilter %}
                             <th style="position:relative;" data-datasheet-filter-container="{{ fieldName }}">
                                 {% set value = datasheet.filters[fieldName] ?? '' %}
-                                <input type="text" autocomplete="false"
+                                <input type="text" autocomplete="off"
                                        style="width:100%;"
                                        name="ds{{ datasheet.uniqueId }}_filter[{{ fieldName }}]"
                                        value="{{ datasheet.filters[fieldName] ?? '' }}"
