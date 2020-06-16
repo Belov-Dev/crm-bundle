@@ -62,6 +62,7 @@ class RelationField extends AbstractField implements FieldInterface, Configurabl
             '<select class="form-control selectpicker" name="data[%s]" data-live-search="true">',
             StringUtility::toCamelCase($this->getName())
         )];
+        $html[] = sprintf('<option></option>');
 
         foreach ($optionsRepository->findAll() as $item) {
             $isSelected = $value && ($value->getId() == $item->getId());
