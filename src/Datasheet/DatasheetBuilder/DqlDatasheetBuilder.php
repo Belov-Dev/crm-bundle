@@ -93,14 +93,22 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
 
         $replaceNestedFields = [];
 
-        foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
-            if (strpos($fieldName, '.')) {
-                $replaceNestedFields[$fieldName] = str_replace('.', self::NEST_SEPARATOR, $fieldName);
+        // Get field names to replace from data instead of fields, because some of the fields can be already removed by ->removeFields()
+        if (count($items)) {
+            foreach ($items[0] as $fieldName => $field) {
+                if (strpos($fieldName, self::NEST_SEPARATOR)) {
+                    $replaceNestedFields[$fieldName] = str_replace( self::NEST_SEPARATOR, '.', $fieldName);
+                }
+            }
+        } else {
+            foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
+                if (strpos($fieldName, '.')) {
+                    $replaceNestedFields[str_replace('.', self::NEST_SEPARATOR, $fieldName)] = $fieldName;
+                }
             }
         }
-        if (count($replaceNestedFields) > 0) {
-            $replaceNestedFields = array_flip($replaceNestedFields);
 
+        if (count($replaceNestedFields) > 0) {
             for ($i = 0; $i < count($items); $i++) {
                 foreach ($replaceNestedFields as $from => $to) {
                     $items[$i] = ArrayUtility::renameKey($items[$i], $from, $to);
