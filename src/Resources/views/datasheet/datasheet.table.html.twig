@@ -1,5 +1,6 @@
 <div data-datasheet-id="{{ datasheet.uniqueId }}"
-     data-datasheet-sorting-enabled="{{ datasheet.hasSorting ? 1 : 0 }}">
+     data-datasheet-sorting-enabled="{{ datasheet.hasSorting ? 1 : 0 }}"
+     data-datasheet-filtering-enabled="{{ datasheet.hasFilters ? 1 : 0 }}">
     <form action="{{ filterFormUrl }}" method="GET" autocomplete="off">
         {% if datasheet.hasSorting %}
             <input type="hidden" name="ds{{ datasheet.uniqueId }}_sort[by]" value="{{ datasheet.sorting.by }}"

@@ -131,23 +131,33 @@ $(function () {
         $('[data-datasheet-filter="' + fieldName + '"]').val('').parents('form').submit();
     })
 
-    $('[data-datasheet-field-title] *').on('click', function(){
+    $('[data-datasheet-field-title] *').on('click', function () {
         let fieldName = $(this).parent().data('datasheet-field-title');
         let datasheet = $(this).parents('[data-datasheet-id]');
         let sortingEnable = datasheet.data('datasheet-sorting-enabled');
 
-        if(!sortingEnable){
+        if (!sortingEnable) {
             return;
         }
         let sortingBy = datasheet.find('[data-datasheet-sort-by]');
         let sortingType = datasheet.find('[data-datasheet-sort-type]');
 
-        if(sortingBy.val() == fieldName){
+        if (sortingBy.val() == fieldName) {
             sortingType.val(sortingType.val() == 'ASC' ? 'DESC' : 'ASC');
-        }else{
-            sortingBy.val(fieldName);
+        } else {
+            sortingBy.val(sortingBy);
             sortingType.val('ASC');
         }
-        datasheet.find('form').submit();
+        if (datasheet.data('datasheet-filtering-enabled')) {
+            datasheet.find('form').submit();
+        } else {
+            let sortByParam = 'ds' + datasheet.data('datasheet-id') + '_sort[by]';
+            let sortTypeParam = 'ds' + datasheet.data('datasheet-id') + '_sort[type]';
+            var url = new URL(window.location.href);
+            var sortType = url.searchParams.get(sortTypeParam);
+            url.searchParams.set(sortByParam, fieldName);
+            url.searchParams.set(sortTypeParam, sortType == 'ASC' ? 'DESC' : 'ASC');
+            window.location.href = url.href;
+        }
     })
 })
