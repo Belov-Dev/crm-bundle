@@ -57,7 +57,7 @@ class Datasheet
 
     public function showFields($fields): self
     {
-        $this->fieldsToShow = func_get_args();
+        $this->fieldsToShow = is_array($fields) ? $fields : func_get_args();
 
         return $this;
     }
