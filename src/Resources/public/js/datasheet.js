@@ -145,7 +145,7 @@ $(function () {
         if (sortingBy.val() == fieldName) {
             sortingType.val(sortingType.val() == 'ASC' ? 'DESC' : 'ASC');
         } else {
-            sortingBy.val(sortingBy);
+            sortingBy.val(fieldName);
             sortingType.val('ASC');
         }
         if (datasheet.data('datasheet-filtering-enabled')) {
