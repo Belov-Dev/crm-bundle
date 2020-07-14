@@ -16,6 +16,7 @@
             </details>
         {% endif %}
 
+        <b>{% trans %}Total items{% endtrans %}: {{ datasheet.itemsTotal }}</b>
         <table class="table table-hover table-bordered table-sm table-striped table-condensed">
             <thead>
             <tr>
@@ -87,6 +88,7 @@
                 </tfoot>
             {% endif %}
         </table>
+        <b>{% trans %}Total items{% endtrans %}: {{ datasheet.itemsTotal }}</b>
     </form>
 </div>
 
