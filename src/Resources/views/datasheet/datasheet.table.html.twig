@@ -97,7 +97,7 @@
         // options set for datasheet filtering
         {% for fieldName, options in datasheet.fields %}
         {% if options.hasFilter %}
-        let datasheet_{{ datasheet.uniqueId }}_{{ options.safename ?? fieldName }}_choices = {{ options.filterChoices|json_encode|raw }};
+        let datasheet_{{ datasheet.uniqueId }}_{{ options.safename ?? fieldName }}_choices = {{ options.filterChoices|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }};
         {% endif %}
         {% endfor %}
     </script>

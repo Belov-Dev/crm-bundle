@@ -1,5 +1,8 @@
 $(function () {
 
+    if (!$('#datasheet-filter-options').length) {
+        $('body').append('<div id="datasheet-filter-options" hidden>Options</div>');
+    }
     let datasheetFilterOptions = $('#datasheet-filter-options');
 
     $('[data-datasheet-filter]').off('focus').on('focus', function () {
@@ -110,6 +113,7 @@ $(function () {
     }
 
     function datasheetFilterShowOptions(filterInput) {
+        console.log(datasheetFilterOptions);
         datasheetFilterOptions.html('').show().appendTo(filterInput.parents('[data-datasheet-filter-container]'));
         datasheetFilterSearchOptions(filterInput);
     }

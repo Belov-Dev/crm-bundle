@@ -118,13 +118,15 @@ class ArrayDatasheetBuilder extends AbstractDatasheetBuilder implements Datashee
 
     protected function applySorting($sorting)
     {
-        if(empty($sorting)){
+        if (empty($sorting)) {
             $sorting = [
                 'by' => '',
                 'type' => '',
             ];
-            $this->getDatasheet()->setSorting($sorting);
+        }
+        $this->getDatasheet()->setSorting($sorting);
 
+        if (empty($sorting['by']) && empty($sorting['type'])) {
             return;
         }
         $this->getDatasheet()->setSorting($sorting);
