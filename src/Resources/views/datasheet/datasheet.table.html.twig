@@ -48,7 +48,7 @@
                                        value="{{ datasheet.filters[fieldName] ?? '' }}"
                                        data-datasheet-filter="{{ fieldOptions.safename ?? fieldName }}"
                                 >
-                                {% if value %}
+                                {% if value != "" %}
                                     <div data-datasheet-filter-clear="{{ fieldOptions.safename ?? fieldName }}">&times;
                                     </div>
                                 {% endif %}

@@ -58,7 +58,7 @@ class DqlDatasheetBuilder extends AbstractDatasheetBuilder implements DatasheetB
         $mainQueryBuilder = (clone $this->getQueryBuilder());
 
         foreach ($this->getDatasheet()->getFields() as $fieldName => $field) {
-            if (!isset($filters[$fieldName]) || !trim($filters[$fieldName])) {
+            if (!isset($filters[$fieldName]) || trim($filters[$fieldName]) == "") {
                 continue;
             }
             $mainQueryBuilder
