@@ -129,7 +129,7 @@ class EntityInfoProvider
         }
         $annotations = $this->reader->getPropertyAnnotations($property);
 
-        if ($annotations[0] instanceof ManyToOne && $annotations[1] instanceof JoinColumn) {
+        if (count($annotations) && $annotations[0] instanceof ManyToOne && $annotations[1] instanceof JoinColumn) {
             $field = $this->entityFieldFactory->get('relation');
 
             return $field
