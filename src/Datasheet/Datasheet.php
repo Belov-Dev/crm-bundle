@@ -62,9 +62,9 @@ class Datasheet
         return $this;
     }
 
-    public function removeFields(): self
+    public function removeFields($fields): self
     {
-        $this->fieldsToRemove = func_get_args();
+        $this->fieldsToRemove = is_array($fields) ? $fields : func_get_args();
 
         return $this;
     }
